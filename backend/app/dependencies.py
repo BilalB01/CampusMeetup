@@ -10,6 +10,9 @@ from app import models
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
+# FastAPI-dependency die op elke beveiligde route gebruikt wordt om te
+# controleren of het meegestuurde JWT-token geldig is, en de bijhorende
+# gebruiker op te zoeken in de database
 def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> models.User:

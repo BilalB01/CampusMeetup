@@ -19,6 +19,7 @@ def utcnow():
     return datetime.now(timezone.utc)
 
 
+# Gebruikers van de app (studenten die inloggen/registreren)
 class User(Base):
     __tablename__ = "users"
 
@@ -33,6 +34,7 @@ class User(Base):
     messages = relationship("Message", back_populates="user")
 
 
+# Een activiteit die een student organiseert (titel, locatie, tijdstip, max. deelnemers)
 class Activity(Base):
     __tablename__ = "activities"
 
@@ -56,6 +58,8 @@ class Activity(Base):
     )
 
 
+# Koppeltabel: welke user neemt deel aan welke activity
+# De UniqueConstraint voorkomt dat iemand twee keer inschrijft voor dezelfde activiteit
 class Participation(Base):
     __tablename__ = "participations"
     __table_args__ = (UniqueConstraint("user_id", "activity_id", name="uq_user_activity"),)
@@ -69,6 +73,7 @@ class Participation(Base):
     activity = relationship("Activity", back_populates="participations")
 
 
+# Chatberichten binnen de groepschat van een activiteit
 class Message(Base):
     __tablename__ = "messages"
 

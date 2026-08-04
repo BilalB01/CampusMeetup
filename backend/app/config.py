@@ -1,6 +1,7 @@
 from pydantic_settings import BaseSettings
 
 
+# Leest de instellingen automatisch uit het .env-bestand (zie .env.example)
 class Settings(BaseSettings):
     database_url: str
     jwt_secret_key: str

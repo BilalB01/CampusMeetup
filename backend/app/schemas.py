@@ -3,6 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
+# Enkel schoolmails van het formaat voornaam.achternaam@student.ehb.be toegestaan
 SCHOOL_EMAIL_PATTERN = re.compile(
     r"^[a-zA-Z]+(-[a-zA-Z]+)*\.[a-zA-Z]+(-[a-zA-Z]+)*@student\.ehb\.be$"
 )
@@ -13,6 +14,7 @@ class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8, max_length=128)
 
+    # Wordt automatisch uitgevoerd door Pydantic vóór de data de database bereikt
     @field_validator("email")
     @classmethod
     def validate_school_email(cls, v: str) -> str:
@@ -28,6 +30,7 @@ class UserLogin(BaseModel):
     password: str
 
 
+# Wat er teruggestuurd wordt naar de frontend (nooit het wachtwoord)
 class UserOut(BaseModel):
     id: int
     name: str
@@ -38,6 +41,7 @@ class UserOut(BaseModel):
         from_attributes = True
 
 
+# Antwoord bij succesvolle login/registratie: JWT-token + gebruikersgegevens
 class Token(BaseModel):
     access_token: str
     token_type: str = "bearer"

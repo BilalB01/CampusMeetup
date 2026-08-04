@@ -8,6 +8,8 @@ from app.security import create_access_token, hash_password, verify_password
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+# Nieuwe gebruiker aanmaken: controleert op dubbele e-mail, hasht het wachtwoord
+# en logt de gebruiker meteen in (geeft een JWT-token terug)
 @router.post("/register", response_model=schemas.Token, status_code=status.HTTP_201_CREATED)
 def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(models.User).filter(models.User.email == payload.email).first()
@@ -30,6 +32,7 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
     return schemas.Token(access_token=token, user=user)
 
 
+# Bestaande gebruiker inloggen: controleert e-mail + wachtwoord, geeft bij succes een JWT-token terug
 @router.post("/login", response_model=schemas.Token)
 def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == payload.email).first()

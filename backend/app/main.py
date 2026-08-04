@@ -7,6 +7,7 @@ from app.routers import auth
 
 app = FastAPI(title="CampusMeetup API")
 
+# Staat de React-frontend (op localhost:5173) toe om de API aan te spreken
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -23,6 +24,7 @@ def health_check():
     return {"status": "ok"}
 
 
+# Beveiligde route: enkel bereikbaar met een geldig JWT-token, geeft de ingelogde gebruiker terug
 @app.get("/users/me", response_model=schemas.UserOut)
 def read_current_user(current_user: models.User = Depends(get_current_user)):
     return current_user
