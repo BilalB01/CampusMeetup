@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app import models, schemas
 from app.dependencies import get_current_user
-from app.routers import auth
+from app.routers import activities, auth
 
 app = FastAPI(title="CampusMeetup API")
 
@@ -17,6 +17,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(activities.router)
 
 
 @app.get("/health")
