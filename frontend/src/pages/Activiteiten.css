@@ -1,0 +1,254 @@
+@import "./Auth.css";
+
+.activiteiten-screen {
+  min-height: 100vh;
+  background: #faf9ff;
+  padding: 24px;
+  /* width:100% is nodig naast max-width: zonder een expliciete breedte
+     duwt de standaard flex-stretch van #root dit vak wel tot 480px breed,
+     maar zonder het effectief te centreren — het bleef dan links plakken
+     i.p.v. margin:auto te respecteren */
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.activiteiten-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.activiteiten-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #2a2640;
+  margin: 0;
+  flex: 1;
+}
+.activiteiten-back,
+.activiteiten-link-button {
+  background: none;
+  border: none;
+  color: #6c4ff5;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+.activiteiten-link-button {
+  font-size: 14px;
+}
+.activiteiten-back {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1edff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.activiteiten-subtitle {
+  font-size: 14px;
+  color: #8a86a3;
+  margin: -8px 0 0;
+}
+
+.categorie-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.categorie-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 12px;
+  border: none;
+  border-radius: 18px;
+  text-decoration: none;
+  color: #2a2640;
+  font-weight: 700;
+  font-size: 14px;
+  text-align: center;
+  transition: transform 0.12s ease;
+}
+.categorie-tile:hover {
+  transform: translateY(-2px);
+}
+.categorie-icon {
+  font-size: 32px;
+}
+
+.activiteiten-lijst {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.activiteit-card {
+  display: block;
+  padding: 16px;
+  border: none;
+  border-radius: 16px;
+  background: #fff;
+  text-decoration: none;
+  color: #2a2640;
+  box-shadow: 0 4px 16px rgba(124, 92, 252, 0.12);
+}
+.activiteit-card h2 {
+  font-size: 15.5px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+.activiteit-card p {
+  font-size: 12.5px;
+  color: #8a86a3;
+  margin: 0 0 4px;
+}
+.activiteit-cta {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #6c4ff5;
+}
+.activiteiten-empty {
+  color: #8a86a3;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(108, 79, 245, 0.4);
+}
+
+/* Detailscherm: alle info gegroepeerd in één kaart i.p.v. losse tekstregels
+   direct op de achtergrond, consistent met de kaartjes elders in de app */
+.detail-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.detail-description {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: #2a2640;
+}
+.detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detail-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #5c5876;
+}
+.detail-meta-icon {
+  font-size: 15px;
+}
+.detail-participants {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #f1edff;
+}
+.detail-section-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2a2640;
+}
+.detail-empty-participants {
+  margin: 0;
+  font-size: 13px;
+  color: #8a86a3;
+}
+
+.deelnemers-lijst {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.deelnemers-lijst li {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #2a2640;
+  padding: 8px 12px;
+  background: #f1edff;
+  border-radius: 10px;
+}
+
+/* Vanaf tablet/desktop-breedte: meer ademruimte en meerdere kolommen i.p.v.
+   enkel een gecentreerde telefoonbrede kolom met lege marges ernaast */
+@media (min-width: 768px) {
+  .activiteiten-screen {
+    max-width: 880px;
+    padding: 48px 40px;
+    gap: 22px;
+  }
+
+  .activiteiten-title {
+    font-size: 26px;
+  }
+
+  .categorie-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .categorie-tile {
+    padding: 34px 16px;
+  }
+  .categorie-icon {
+    font-size: 38px;
+  }
+
+  .activiteiten-lijst {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  /* Bij een brede, gecentreerde kolom zou een viewport-fixed FAB in de lege
+     marge rechts van het scherm zweven, los van de inhoud — daarom hier
+     relatief aan .activiteiten-screen (dat position:relative heeft) i.p.v.
+     aan het browservenster */
+  .fab {
+    position: absolute;
+  }
+}
