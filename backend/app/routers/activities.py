@@ -78,6 +78,25 @@ def create_activity(
     return _to_detail(activity, db, current_user)
 
 
+# Zet een Activity-rij + het berekende deelnemersaantal om naar
+# ActivityListItem — gedeeld tussen list_activities hieronder en
+# GET /users/me/activities (main.py)
+def activity_to_list_item(activity: models.Activity, participant_count: int) -> schemas.ActivityListItem:
+    return schemas.ActivityListItem(
+        id=activity.id,
+        title=activity.title,
+        description=activity.description,
+        location_name=activity.location_name,
+        latitude=activity.latitude,
+        longitude=activity.longitude,
+        start_time=activity.start_time,
+        max_participants=activity.max_participants,
+        category=activity.category,
+        participant_count=participant_count,
+        created_at=activity.created_at,
+    )
+
+
 # Lijst van activiteiten, eventueel gefilterd op categorie — publiek
 # toegankelijk zodat niet-ingelogde bezoekers ook kunnen rondkijken
 @router.get("", response_model=list[schemas.ActivityListItem])
@@ -94,22 +113,7 @@ def list_activities(
     if category is not None:
         query = query.filter(models.Activity.category == category.value)
 
-    return [
-        schemas.ActivityListItem(
-            id=activity.id,
-            title=activity.title,
-            description=activity.description,
-            location_name=activity.location_name,
-            latitude=activity.latitude,
-            longitude=activity.longitude,
-            start_time=activity.start_time,
-            max_participants=activity.max_participants,
-            category=activity.category,
-            participant_count=participant_count,
-            created_at=activity.created_at,
-        )
-        for activity, participant_count in query.all()
-    ]
+    return [activity_to_list_item(activity, participant_count) for activity, participant_count in query.all()]
 
 
 # Detail van één activiteit — publiek toegankelijk; is_joined staat enkel
