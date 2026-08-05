@@ -1,14 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getActivity, joinActivity, leaveActivity } from "../api/client";
+import { API_URL, getActivity, joinActivity, leaveActivity } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { useActivityChat } from "../hooks/useActivityChat";
 import { formatDateTime } from "../utils/formatDate";
 import "./Activiteiten.css";
 
 export default function ActiviteitDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,6 +34,35 @@ export default function ActiviteitDetail() {
       cancelled = true;
     };
   }, [id, token]);
+
+  const {
+    messages,
+    loading: chatLoading,
+    error: chatError,
+    sendError,
+    sendText,
+    sendImage,
+  } = useActivityChat(id, token, activity?.is_joined ?? false);
+  const [chatInput, setChatInput] = useState("");
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ block: "end" });
+  }, [messages]);
+
+  function handleSendText(e) {
+    e.preventDefault();
+    const trimmed = chatInput.trim();
+    if (!trimmed) return;
+    sendText(trimmed);
+    setChatInput("");
+  }
+
+  function handlePickImage(e) {
+    const file = e.target.files?.[0];
+    if (file) sendImage(file);
+    e.target.value = ""; // laat toe dezelfde afbeelding opnieuw te kiezen
+  }
 
   async function handleToggleJoin() {
     setActionError("");
@@ -124,6 +154,59 @@ export default function ActiviteitDetail() {
       <button className="auth-submit" onClick={handleToggleJoin} disabled={joinDisabled}>
         {buttonLabel}
       </button>
+
+      {activity.is_joined && (
+        <div className="chat-card">
+          <p className="detail-section-title">💬 Chat</p>
+
+          {chatError && <div className="auth-error">{chatError}</div>}
+
+          {chatLoading ? (
+            <p className="chat-loading">Chat wordt geladen...</p>
+          ) : (
+            <div className="chat-berichten">
+              {messages.map((m) => (
+                <div
+                  key={m.id}
+                  className={`chat-bubbel-rij ${m.user.id === user.id ? "chat-bubbel-rij--eigen" : ""}`}
+                >
+                  <div className={`chat-bubbel ${m.user.id === user.id ? "chat-bubbel--eigen" : ""}`}>
+                    <span className="chat-bubbel-naam">{m.user.name}</span>
+                    {m.content && <p className="chat-bubbel-tekst">{m.content}</p>}
+                    {m.image_url && (
+                      <img
+                        className="chat-bubbel-afbeelding"
+                        src={`${API_URL}${m.image_url}`}
+                        alt="Gedeelde afbeelding"
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+              <div ref={chatEndRef} />
+            </div>
+          )}
+
+          {sendError && <div className="auth-error">{sendError}</div>}
+
+          <form className="chat-invoer-rij" onSubmit={handleSendText}>
+            <label className="chat-afbeelding-knop">
+              📷
+              <input type="file" accept="image/*" onChange={handlePickImage} hidden />
+            </label>
+            <input
+              type="text"
+              className="chat-tekstveld"
+              placeholder="Typ een bericht..."
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+            />
+            <button type="submit" className="chat-verstuur-knop" disabled={!chatInput.trim()}>
+              ➤
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
