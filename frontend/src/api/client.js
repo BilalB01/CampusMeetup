@@ -78,3 +78,9 @@ export function joinActivity(id, token) {
 export function leaveActivity(id, token) {
   return request(`/activities/${id}/join`, { method: "DELETE", token });
 }
+
+// Haalt de activiteiten van de ingelogde gebruiker op voor het
+// profielscherm, opgesplitst in georganiseerd en (elders) deelgenomen
+export function getMyActivities(token) {
+  return request("/users/me/activities", { token });
+}
