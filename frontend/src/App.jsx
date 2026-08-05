@@ -5,6 +5,7 @@ import Categorieen from "./pages/Categorieen";
 import ActiviteitenLijst from "./pages/ActiviteitenLijst";
 import ActiviteitAanmaken from "./pages/ActiviteitAanmaken";
 import ActiviteitDetail from "./pages/ActiviteitDetail";
+import Profiel from "./pages/Profiel";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
 function App() {
@@ -42,6 +43,14 @@ function App() {
         element={
           <ProtectedRoute>
             <ActiviteitDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profiel"
+        element={
+          <ProtectedRoute>
+            <Profiel />
           </ProtectedRoute>
         }
       />
