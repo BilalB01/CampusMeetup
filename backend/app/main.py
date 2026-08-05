@@ -1,12 +1,14 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.routers import activities, auth
+from app.routers import activities, auth, chat
+from app.uploads import UPLOADS_DIR
 
 app = FastAPI(title="CampusMeetup API")
 
@@ -21,6 +23,10 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(activities.router)
+app.include_router(chat.router)
+
+# Geuploade chatafbeeldingen terug uitserveren onder /uploads/<bestand>
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 
 @app.get("/health")
