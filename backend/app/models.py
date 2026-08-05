@@ -83,7 +83,12 @@ class Message(Base):
     id = Column(Integer, primary_key=True, index=True)
     activity_id = Column(Integer, ForeignKey("activities.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    content = Column(Text, nullable=False)
+    # nullable: een afbeeldingsbericht heeft geen tekst. "Minstens content
+    # OF image_url" wordt afgedwongen in de router, niet via een
+    # DB-constraint — zelfde aanpak als ActivityCategory hierboven
+    content = Column(Text, nullable=True)
+    # Relatief pad zoals teruggegeven door StaticFiles, bv. "/uploads/<uuid>.jpg"
+    image_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), default=utcnow)
 
     activity = relationship("Activity", back_populates="messages")
