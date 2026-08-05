@@ -1,4 +1,4 @@
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, WebSocket, WebSocketException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -14,30 +14,37 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 optional_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
 
 
-# FastAPI-dependency die op elke beveiligde route gebruikt wordt om te
-# controleren of het meegestuurde JWT-token geldig is, en de bijhorende
-# gebruiker op te zoeken in de database
-def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
-) -> models.User:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Kon inloggegevens niet valideren",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+# Kernlogica van tokenvalidatie, losstaand van hoe het token binnenkomt
+# (Authorization-header bij HTTP, querystring bij WebSocket — browsers
+# kunnen geen custom headers zetten tijdens de WS-handshake). Geeft None
+# terug i.p.v. te raisen, zodat elke aanroeper zijn eigen foutafhandeling
+# (HTTPException vs. WebSocketException) kan kiezen
+def _decode_user(token: str, db: Session) -> models.User | None:
     try:
         payload = jwt.decode(
             token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm]
         )
         user_id = payload.get("sub")
         if user_id is None:
-            raise credentials_exception
+            return None
     except JWTError:
-        raise credentials_exception
+        return None
+    return db.get(models.User, int(user_id))
 
-    user = db.get(models.User, int(user_id))
+
+# FastAPI-dependency die op elke beveiligde route gebruikt wordt om te
+# controleren of het meegestuurde JWT-token geldig is, en de bijhorende
+# gebruiker op te zoeken in de database
+def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+) -> models.User:
+    user = _decode_user(token, db)
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Kon inloggegevens niet valideren",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
 
@@ -53,3 +60,18 @@ def get_current_user_optional(
         return get_current_user(token=token, db=db)
     except HTTPException:
         return None
+
+
+# WebSocket-variant: token komt als querystring-parameter (?token=...)
+# binnen i.p.v. een Authorization-header. FastAPI bindt een niet-pad-
+# parameter van een websocket-dependency automatisch aan de querystring,
+# net zoals bij een gewone HTTP-route
+def get_current_user_ws(
+    websocket: WebSocket,
+    token: str | None = None,
+    db: Session = Depends(get_db),
+) -> models.User:
+    user = _decode_user(token, db) if token else None
+    if user is None:
+        raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
+    return user
