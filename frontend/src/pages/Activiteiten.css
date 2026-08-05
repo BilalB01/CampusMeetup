@@ -214,6 +214,93 @@
   border-radius: 10px;
 }
 
+/* Profielscherm: avatar met initiaal (geen fotoupload-systeem — bewuste
+   vereenvoudiging), naam/e-mail en de segmented control tussen
+   Georganiseerd/Deelgenomen */
+.profiel-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.profiel-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+/* Kleine variant voor gebruik als link in de header van Categorieen.jsx */
+.profiel-avatar--klein {
+  width: 32px;
+  height: 32px;
+  font-size: 13.5px;
+  text-decoration: none;
+}
+.profiel-naam {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #2a2640;
+}
+.profiel-email {
+  margin: 0;
+  font-size: 13px;
+  color: #8a86a3;
+}
+
+/* Segmented control — de eerste in de app (het Lijst/Kaart-tabpaar uit
+   Figma is nooit gebouwd, Kaartweergave is out of scope), dus hier bewust
+   nieuw opgezet maar met het bestaande palet */
+.profiel-tabs {
+  display: flex;
+  background: #f1edff;
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+.profiel-tab {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5c5876;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.profiel-tab.actief {
+  background: #fff;
+  color: #6c4ff5;
+  box-shadow: 0 2px 8px rgba(124, 92, 252, 0.18);
+}
+
+/* Uitloggen: bewust geen gevulde violette .auth-submit-stijl (die staat
+   voor primaire acties zoals "Doe mee") — hergebruikt de rode
+   foutkleuren van .auth-error, zodat het duidelijk als een aparte,
+   niet-primaire actie oogt */
+.profiel-logout {
+  margin-top: 4px;
+  padding: 13px;
+  border: 1.5px solid #ffd2c9;
+  border-radius: 999px;
+  background: #fff1ef;
+  color: #d2483a;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.profiel-logout:hover {
+  background: #ffe4de;
+}
+
 /* Vanaf tablet/desktop-breedte: meer ademruimte en meerdere kolommen i.p.v.
    enkel een gecentreerde telefoonbrede kolom met lege marges ernaast */
 @media (min-width: 768px) {
