@@ -19,6 +19,9 @@ frontend/.vite/
 *.sqlite3
 postgres_data/
 
+# Chat-uploads (lokale schijfopslag, niet committen)
+backend/uploads/
+
 # Editor
 .vscode/
 .idea/
