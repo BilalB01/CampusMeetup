@@ -130,3 +130,17 @@ class ActivityDetailOut(BaseModel):
 class MyActivitiesOut(BaseModel):
     organized: list[ActivityListItem]
     joined: list[ActivityListItem]
+
+
+# Eén chatbericht. content en image_url zijn allebei optioneel (elkaars
+# tegenpool) — "minstens één ingevuld" wordt in de router afgedwongen.
+# user hergebruikt ParticipantOut, zelfde reden als bij ActivityDetailOut
+class MessageOut(BaseModel):
+    id: int
+    content: str | None
+    image_url: str | None
+    user: ParticipantOut
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
