@@ -124,3 +124,9 @@ class ActivityDetailOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Antwoord van GET /users/me/activities voor het profielscherm
+class MyActivitiesOut(BaseModel):
+    organized: list[ActivityListItem]
+    joined: list[ActivityListItem]
