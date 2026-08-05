@@ -1,11 +1,14 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // Kleine fetch-wrapper: voegt JSON-headers toe en gooit een Error bij een foutstatus.
 // Een optioneel token wordt omgezet naar een Authorization-header — register/login
-// geven nooit een token door, dus hun gedrag blijft ongewijzigd.
+// geven nooit een token door, dus hun gedrag blijft ongewijzigd. Bij een FormData-body
+// (bestand-uploads) mag Content-Type NIET zelf gezet worden — de browser moet daar
+// zelf de multipart/form-data; boundary=...-header voor zetten
 async function request(path, { token, ...options } = {}) {
+  const isFormData = options.body instanceof FormData;
   const headers = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...options.headers,
   };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -83,4 +86,22 @@ export function leaveActivity(id, token) {
 // profielscherm, opgesplitst in georganiseerd en (elders) deelgenomen
 export function getMyActivities(token) {
   return request("/users/me/activities", { token });
+}
+
+// Haalt de chatgeschiedenis van een activiteit op (enkel voor deelnemers)
+export function getMessages(activityId, token) {
+  return request(`/activities/${activityId}/messages`, { token });
+}
+
+// Uploadt een afbeelding naar de chat van een activiteit — de backend slaat
+// ze op, maakt er een bericht van, en broadcast die meteen naar elke open
+// WebSocket-verbinding in die activiteit (ook de eigen)
+export function uploadChatImage(activityId, file, token) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return request(`/activities/${activityId}/messages/image`, {
+    method: "POST",
+    body: formData,
+    token,
+  });
 }
