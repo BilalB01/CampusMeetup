@@ -31,8 +31,16 @@ export default function Login() {
   return (
     <div className="auth-screen">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1 className="auth-title">CampusMeetup</h1>
-        <p className="auth-subtitle">Spontane activiteiten op school</p>
+        <div className="auth-hero">
+          <div className="auth-hero-content">
+            <p className="auth-hero-title">
+              Zin in iets
+              <br />
+              vanavond?
+            </p>
+            <p className="auth-hero-subtitle">Spontane plannen op en rond de campus.</p>
+          </div>
+        </div>
 
         {error && <div className="auth-error">{error}</div>}
 
@@ -66,6 +74,14 @@ export default function Login() {
         <p className="auth-switch">
           Nog geen account? <Link to="/register">Registreer</Link>
         </p>
+
+        <div className="auth-info-callout">
+          <span>🎓</span>
+          <span>
+            Enkel met je <strong>@student.ehb.be</strong>-adres. Zo weet je dat iedereen op de app ook echt
+            medestudent is.
+          </span>
+        </div>
       </form>
     </div>
   );

@@ -32,7 +32,8 @@ export default function Register() {
   return (
     <div className="auth-screen">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <h1 className="auth-title">Account aanmaken</h1>
+        <h1 className="auth-title">Maak je account</h1>
+        <p className="auth-subtitle">Enkel je schoolmail is nodig om te starten.</p>
 
         {error && <div className="auth-error">{error}</div>}
 
