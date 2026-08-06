@@ -9,3 +9,12 @@ export function formatDateTime(isoString) {
     minute: "2-digit",
   }).format(new Date(isoString));
 }
+
+// Tegenpool van formatDateTime: zet een ISO-datum om naar het
+// YYYY-MM-DDTHH:mm-formaat dat een <input type="datetime-local"> verwacht,
+// in lokale tijd (nodig om het bewerkformulier voor te vullen)
+export function toDatetimeLocalValue(isoString) {
+  const d = new Date(isoString);
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
