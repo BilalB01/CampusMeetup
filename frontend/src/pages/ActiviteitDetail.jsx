@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
-import { API_URL, getActivity, joinActivity, leaveActivity } from "../api/client";
+import { API_URL, deleteActivity, getActivity, joinActivity, leaveActivity } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { useActivityChat } from "../hooks/useActivityChat";
 import { getCategoryByValue } from "../constants/categories";
@@ -65,6 +65,24 @@ export default function ActiviteitDetail() {
     const file = e.target.files?.[0];
     if (file) sendImage(file);
     e.target.value = ""; // laat toe dezelfde afbeelding opnieuw te kiezen
+  }
+
+  async function handleDelete() {
+    if (
+      !window.confirm(
+        "Weet je zeker dat je deze activiteit wil verwijderen? Dit kan niet ongedaan gemaakt worden.",
+      )
+    )
+      return;
+    setActionError("");
+    setActionLoading(true);
+    try {
+      await deleteActivity(id, token);
+      navigate(overzichtLink);
+    } catch (err) {
+      setActionError(err.message);
+      setActionLoading(false);
+    }
   }
 
   async function handleToggleJoin() {
@@ -138,6 +156,25 @@ export default function ActiviteitDetail() {
             Georganiseerd door {activity.organizer.name}
           </span>
         </div>
+
+        {activity.organizer.id === user.id && (
+          <div className="organizer-acties">
+            <Link
+              to={`/activiteiten/${activity.id}/bewerken`}
+              className="organizer-actie organizer-actie--bewerken"
+            >
+              Bewerken
+            </Link>
+            <button
+              type="button"
+              className="organizer-actie organizer-actie--verwijderen"
+              onClick={handleDelete}
+              disabled={actionLoading}
+            >
+              Verwijderen
+            </button>
+          </div>
+        )}
 
         {activity.latitude && activity.longitude && (
           <div className="locatie-kaart">
