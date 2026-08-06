@@ -7,8 +7,10 @@ import ActiviteitenLijst from "./pages/ActiviteitenLijst";
 import ActiviteitAanmaken from "./pages/ActiviteitAanmaken";
 import ActiviteitBewerken from "./pages/ActiviteitBewerken";
 import ActiviteitDetail from "./pages/ActiviteitDetail";
+import ActiviteitChat from "./pages/ActiviteitChat";
 import Profiel from "./pages/Profiel";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import BottomNav from "./components/BottomNav";
 import { MAPS_API_KEY } from "./constants/maps";
 
 function App() {
@@ -23,6 +25,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Categorieen />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/activiteiten"
+          element={
+            <ProtectedRoute>
+              <ActiviteitenLijst />
             </ProtectedRoute>
           }
         />
@@ -59,6 +69,14 @@ function App() {
           }
         />
         <Route
+          path="/activiteiten/:id/chat"
+          element={
+            <ProtectedRoute>
+              <ActiviteitChat />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/profiel"
           element={
             <ProtectedRoute>
@@ -67,6 +85,7 @@ function App() {
           }
         />
       </Routes>
+      <BottomNav />
     </APIProvider>
   );
 }
