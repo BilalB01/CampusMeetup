@@ -61,6 +61,18 @@ async def activity_chat_ws(
     try:
         while True:
             data = await websocket.receive_json()
+
+            # Typtekst-indicator: volledig additief bovenop de bestaande
+            # berichten-flow — dit soort payload heeft geen "content"-sleutel,
+            # dus bestaande clients/berichten blijven ongewijzigd werken
+            if data.get("type") == "typing":
+                payload = {
+                    "type": "typing",
+                    "user": schemas.ParticipantOut.model_validate(current_user).model_dump(),
+                }
+                await manager.broadcast(activity_id, payload)
+                continue
+
             content = (data.get("content") or "").strip()
             if not content:
                 continue  # lege/whitespace-only berichten negeren
