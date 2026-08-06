@@ -421,6 +421,90 @@
   background: #ffe4de;
 }
 
+/* Google Maps: locatiekiezer bij aanmaken, mini-kaart op het
+   detailscherm, volledige kaartweergave op de activiteitenlijst */
+.locatie-kaart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.kaart-weergave {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.kaart-infovenster {
+  font-size: 13px;
+  color: #2a2640;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.kaart-infovenster strong {
+  font-size: 14px;
+}
+.kaart-infovenster a {
+  color: #6c4ff5;
+  font-weight: 700;
+  text-decoration: none;
+}
+.kaart-infovenster a:hover {
+  text-decoration: underline;
+}
+
+.route-link {
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  color: #6c4ff5;
+  text-decoration: none;
+}
+.route-link:hover {
+  text-decoration: underline;
+}
+
+.auth-field--autocomplete {
+  position: relative;
+}
+
+.locatie-suggesties {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  margin: 4px 0 0;
+  padding: 6px;
+  list-style: none;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(42, 38, 64, 0.15);
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.locatie-suggesties li + li {
+  margin-top: 2px;
+}
+
+.locatie-suggesties button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #2a2640;
+  cursor: pointer;
+}
+
+.locatie-suggesties button:hover {
+  background: #f1edff;
+}
+
 /* Vanaf tablet/desktop-breedte: meer ademruimte en meerdere kolommen i.p.v.
    enkel een gecentreerde telefoonbrede kolom met lege marges ernaast */
 @media (min-width: 768px) {
