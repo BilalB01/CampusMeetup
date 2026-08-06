@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Categorieen from "./pages/Categorieen";
 import ActiviteitenLijst from "./pages/ActiviteitenLijst";
 import ActiviteitAanmaken from "./pages/ActiviteitAanmaken";
+import ActiviteitBewerken from "./pages/ActiviteitBewerken";
 import ActiviteitDetail from "./pages/ActiviteitDetail";
 import Profiel from "./pages/Profiel";
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -46,6 +47,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ActiviteitDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/activiteiten/:id/bewerken"
+          element={
+            <ProtectedRoute>
+              <ActiviteitBewerken />
             </ProtectedRoute>
           }
         />
