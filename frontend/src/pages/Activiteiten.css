@@ -505,6 +505,38 @@
   background: #f1edff;
 }
 
+.organizer-acties {
+  display: flex;
+  gap: 8px;
+}
+
+.organizer-actie {
+  flex: 1;
+  text-align: center;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.organizer-actie--bewerken {
+  background: #f1edff;
+  color: #6c4ff5;
+}
+
+.organizer-actie--verwijderen {
+  background: #ffe4e4;
+  color: #d64545;
+}
+
+.organizer-actie:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Vanaf tablet/desktop-breedte: meer ademruimte en meerdere kolommen i.p.v.
    enkel een gecentreerde telefoonbrede kolom met lege marges ernaast */
 @media (min-width: 768px) {
