@@ -81,7 +81,12 @@ def read_my_activities(
         .all()
     )
 
+    all_ids = [a.id for a, _ in organized_rows] + [a.id for a, _ in joined_rows]
+    preview_by_activity = activities._participants_preview_by_activity(db, all_ids)
+
     return schemas.MyActivitiesOut(
-        organized=[activities.activity_to_list_item(a, c) for a, c in organized_rows],
-        joined=[activities.activity_to_list_item(a, c) for a, c in joined_rows],
+        organized=[
+            activities.activity_to_list_item(a, c, preview_by_activity.get(a.id)) for a, c in organized_rows
+        ],
+        joined=[activities.activity_to_list_item(a, c, preview_by_activity.get(a.id)) for a, c in joined_rows],
     )
