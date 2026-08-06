@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
-import { API_URL, deleteActivity, getActivity, joinActivity, leaveActivity } from "../api/client";
+import { deleteActivity, getActivity, joinActivity, leaveActivity } from "../api/client";
+import AvatarStack from "../components/AvatarStack";
 import { useAuth } from "../auth/AuthContext";
-import { useActivityChat } from "../hooks/useActivityChat";
 import { getCategoryByValue } from "../constants/categories";
 import { PIN_ICON } from "../constants/maps";
 import { formatDateTime } from "../utils/formatDate";
@@ -18,6 +18,7 @@ export default function ActiviteitDetail() {
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState("");
+  const [gekopieerd, setGekopieerd] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,35 +38,6 @@ export default function ActiviteitDetail() {
       cancelled = true;
     };
   }, [id, token]);
-
-  const {
-    messages,
-    loading: chatLoading,
-    error: chatError,
-    sendError,
-    sendText,
-    sendImage,
-  } = useActivityChat(id, token, activity?.is_joined ?? false);
-  const [chatInput, setChatInput] = useState("");
-  const chatEndRef = useRef(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ block: "end" });
-  }, [messages]);
-
-  function handleSendText(e) {
-    e.preventDefault();
-    const trimmed = chatInput.trim();
-    if (!trimmed) return;
-    sendText(trimmed);
-    setChatInput("");
-  }
-
-  function handlePickImage(e) {
-    const file = e.target.files?.[0];
-    if (file) sendImage(file);
-    e.target.value = ""; // laat toe dezelfde afbeelding opnieuw te kiezen
-  }
 
   async function handleDelete() {
     if (
@@ -100,6 +72,12 @@ export default function ActiviteitDetail() {
     }
   }
 
+  async function handleShare() {
+    await navigator.clipboard.writeText(window.location.href);
+    setGekopieerd(true);
+    setTimeout(() => setGekopieerd(false), 2000);
+  }
+
   if (loading) {
     return (
       <div className="activiteiten-screen">
@@ -129,15 +107,23 @@ export default function ActiviteitDetail() {
       : activity.is_joined
         ? "Afmelden"
         : "Doe mee";
+  const plekkenVrij = activity.max_participants - activity.participant_count;
+  const voortgangPercentage = Math.min(100, (activity.participant_count / activity.max_participants) * 100);
 
   return (
     <div className="activiteiten-screen">
-      <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate(overzichtLink)}>
-          &larr;
-        </button>
-        <h1 className="activiteiten-title">{activity.title}</h1>
-      </header>
+      <div className="detail-hero">
+        <div className="detail-hero-top">
+          <button className="detail-hero-back" onClick={() => navigate(overzichtLink)}>
+            &larr;
+          </button>
+          <button className="detail-hero-back" onClick={handleShare} aria-label="Link kopiëren">
+            {gekopieerd ? "✓" : "⇪"}
+          </button>
+        </div>
+        {category && <span className="detail-hero-badge">{category.label}</span>}
+        <h1 className="detail-hero-title">{activity.title}</h1>
+      </div>
 
       <div className="detail-card">
         {activity.description && <p className="detail-description">{activity.description}</p>}
@@ -203,11 +189,18 @@ export default function ActiviteitDetail() {
             👥 Deelnemers ({activity.participant_count} / {activity.max_participants})
           </p>
           {activity.participants.length > 0 ? (
-            <ul className="deelnemers-lijst">
-              {activity.participants.map((p) => (
-                <li key={p.id}>{p.name}</li>
-              ))}
-            </ul>
+            <>
+              <div className="detail-participants-row">
+                <AvatarStack participants={activity.participants} max={4} />
+                <span className="detail-participants-organizer">{activity.organizer.name} organiseert</span>
+              </div>
+              <div className="voortgangsbalk">
+                <div className="voortgangsbalk-vulling" style={{ width: `${voortgangPercentage}%` }} />
+              </div>
+              <p className="detail-participants-plekken">
+                {isFull ? "Volzet" : `${plekkenVrij} plek${plekkenVrij === 1 ? "" : "ken"} vrij`}
+              </p>
+            </>
           ) : (
             <p className="detail-empty-participants">Nog geen deelnemers.</p>
           )}
@@ -216,62 +209,18 @@ export default function ActiviteitDetail() {
 
       {actionError && <div className="auth-error">{actionError}</div>}
 
-      <button className="auth-submit" onClick={handleToggleJoin} disabled={joinDisabled}>
-        {buttonLabel}
-      </button>
-
-      {activity.is_joined && (
-        <div className="chat-card">
-          <p className="detail-section-title">💬 Chat</p>
-
-          {chatError && <div className="auth-error">{chatError}</div>}
-
-          {chatLoading ? (
-            <p className="chat-loading">Chat wordt geladen...</p>
-          ) : (
-            <div className="chat-berichten">
-              {messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`chat-bubbel-rij ${m.user.id === user.id ? "chat-bubbel-rij--eigen" : ""}`}
-                >
-                  <div className={`chat-bubbel ${m.user.id === user.id ? "chat-bubbel--eigen" : ""}`}>
-                    <span className="chat-bubbel-naam">{m.user.name}</span>
-                    {m.content && <p className="chat-bubbel-tekst">{m.content}</p>}
-                    {m.image_url && (
-                      <img
-                        className="chat-bubbel-afbeelding"
-                        src={`${API_URL}${m.image_url}`}
-                        alt="Gedeelde afbeelding"
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
-          )}
-
-          {sendError && <div className="auth-error">{sendError}</div>}
-
-          <form className="chat-invoer-rij" onSubmit={handleSendText}>
-            <label className="chat-afbeelding-knop">
-              📷
-              <input type="file" accept="image/*" onChange={handlePickImage} hidden />
-            </label>
-            <input
-              type="text"
-              className="chat-tekstveld"
-              placeholder="Typ een bericht..."
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-            />
-            <button type="submit" className="chat-verstuur-knop" disabled={!chatInput.trim()}>
-              ➤
-            </button>
-          </form>
-        </div>
-      )}
+      <div className="detail-acties-rij">
+        <button className="auth-submit" onClick={handleToggleJoin} disabled={joinDisabled}>
+          {buttonLabel}
+        </button>
+        {activity.is_joined && (
+          <Link to={`/activiteiten/${id}/chat`} className="detail-chat-knop" aria-label="Open groepschat">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z" />
+            </svg>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
