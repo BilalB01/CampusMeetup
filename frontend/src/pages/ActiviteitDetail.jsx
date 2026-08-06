@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { Map, Marker } from "@vis.gl/react-google-maps";
 import { API_URL, getActivity, joinActivity, leaveActivity } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { useActivityChat } from "../hooks/useActivityChat";
+import { getCategoryByValue } from "../constants/categories";
+import { PIN_ICON } from "../constants/maps";
 import { formatDateTime } from "../utils/formatDate";
 import "./Activiteiten.css";
 
@@ -96,6 +99,9 @@ export default function ActiviteitDetail() {
     );
   }
 
+  const category = getCategoryByValue(activity.category);
+  const overzichtLink = category ? `/activiteiten/categorie/${category.slug}` : "/";
+
   const isFull = activity.participant_count >= activity.max_participants;
   const joinDisabled = actionLoading || (isFull && !activity.is_joined);
   const buttonLabel = actionLoading
@@ -109,7 +115,7 @@ export default function ActiviteitDetail() {
   return (
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate(-1)}>
+        <button className="activiteiten-back" onClick={() => navigate(overzichtLink)}>
           &larr;
         </button>
         <h1 className="activiteiten-title">{activity.title}</h1>
@@ -132,6 +138,28 @@ export default function ActiviteitDetail() {
             Georganiseerd door {activity.organizer.name}
           </span>
         </div>
+
+        {activity.latitude && activity.longitude && (
+          <div className="locatie-kaart">
+            <Map
+              style={{ width: "100%", height: "160px" }}
+              defaultCenter={{ lat: activity.latitude, lng: activity.longitude }}
+              defaultZoom={16}
+              gestureHandling="cooperative"
+              disableDefaultUI
+            >
+              <Marker position={{ lat: activity.latitude, lng: activity.longitude }} icon={PIN_ICON} />
+            </Map>
+            <a
+              className="route-link"
+              href={`https://www.google.com/maps/dir/?api=1&destination=${activity.latitude},${activity.longitude}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Route bekijken →
+            </a>
+          </div>
+        )}
 
         <div className="detail-participants">
           <p className="detail-section-title">
