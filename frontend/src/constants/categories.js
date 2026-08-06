@@ -16,3 +16,7 @@ export const CATEGORIES = [
 export function getCategoryBySlug(slug) {
   return CATEGORIES.find((c) => c.slug === slug);
 }
+
+export function getCategoryByValue(value) {
+  return CATEGORIES.find((c) => c.value === value);
+}
