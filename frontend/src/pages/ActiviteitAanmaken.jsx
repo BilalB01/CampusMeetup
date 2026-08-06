@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
+import { Map, Marker, useMap } from "@vis.gl/react-google-maps";
 import { createActivity } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES, getCategoryBySlug } from "../constants/categories";
+import { EHB_CAMPUS_CENTER, PIN_ICON } from "../constants/maps";
+import { useAddressAutocomplete } from "../hooks/useAddressAutocomplete";
 import "./Activiteiten.css";
 
-// Vaste plaatshouder-coördinaat (EhB-campus) zolang er geen echte kaartintegratie is
-const PLACEHOLDER_LOCATIE = { latitude: 50.8466, longitude: 4.3528 };
+// Stuurt de kaart imperatief aan: defaultCenter werkt enkel bij het
+// eerste laden, dus dit pant de kaart mee zodra position() nadien wijzigt
+// (bv. na het kiezen van een adressuggestie)
+function KaartPanner({ position }) {
+  const map = useMap();
+  useEffect(() => {
+    if (map) map.panTo(position);
+  }, [map, position]);
+  return null;
+}
 
 export default function ActiviteitAanmaken() {
   const { slug } = useParams();
@@ -17,11 +28,29 @@ export default function ActiviteitAanmaken() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [locationName, setLocationName] = useState("");
+  const [position, setPosition] = useState(EHB_CAMPUS_CENTER);
   const [startTime, setStartTime] = useState("");
   const [maxParticipants, setMaxParticipants] = useState(2);
   const [category, setCategory] = useState(defaultCategory);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { suggestions, search, selectSuggestion } = useAddressAutocomplete();
+
+  function handleMapClick(e) {
+    if (e.detail.latLng) setPosition(e.detail.latLng);
+  }
+
+  function handleLocationChange(e) {
+    const value = e.target.value;
+    setLocationName(value);
+    search(value);
+  }
+
+  async function handleSelectSuggestion(suggestion) {
+    const { name, lat, lng } = await selectSuggestion(suggestion);
+    setLocationName(name);
+    setPosition({ lat, lng });
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,8 +63,8 @@ export default function ActiviteitAanmaken() {
           title,
           description,
           location_name: locationName,
-          latitude: PLACEHOLDER_LOCATIE.latitude,
-          longitude: PLACEHOLDER_LOCATIE.longitude,
+          latitude: position.lat,
+          longitude: position.lng,
           start_time: new Date(startTime).toISOString(),
           max_participants: Number(maxParticipants),
           category,
@@ -83,15 +112,45 @@ export default function ActiviteitAanmaken() {
           </select>
         </div>
 
-        <div className="auth-field">
+        <div className="auth-field auth-field--autocomplete">
           <label htmlFor="location">Locatie</label>
           <input
             id="location"
             required
+            autoComplete="off"
             value={locationName}
-            onChange={(e) => setLocationName(e.target.value)}
+            onChange={handleLocationChange}
             placeholder="bv. Cafetaria EhB"
           />
+          {suggestions.length > 0 && (
+            <ul className="locatie-suggesties">
+              {suggestions.map((s) => (
+                <li key={s.placePrediction.placeId}>
+                  <button type="button" onMouseDown={() => handleSelectSuggestion(s)}>
+                    {s.placePrediction.text.toString()}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="auth-field">
+          <label>Locatie op de kaart</label>
+          <div className="locatie-kaart">
+            <Map
+              style={{ width: "100%", height: "220px" }}
+              defaultCenter={EHB_CAMPUS_CENTER}
+              defaultZoom={16}
+              gestureHandling="cooperative"
+              disableDefaultUI
+              onClick={handleMapClick}
+            >
+              <Marker position={position} icon={PIN_ICON} />
+              <KaartPanner position={position} />
+            </Map>
+          </div>
+          <span className="auth-hint">Tik op de kaart om de exacte locatie te kiezen.</span>
         </div>
 
         <div className="auth-field">
