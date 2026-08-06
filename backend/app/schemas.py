@@ -96,6 +96,9 @@ class ActivityListItem(BaseModel):
     category: ActivityCategory
     participant_count: int
     created_at: datetime
+    # Eerste paar deelnemers, voor de avatar-stapel op de kaarten — standaard
+    # leeg (bv. bij /users/me/activities, waar dit niet opgehaald wordt)
+    participants_preview: list[ParticipantOut] = []
 
     class Config:
         from_attributes = True

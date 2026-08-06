@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app import models, schemas
 from app.database import get_db
@@ -80,8 +80,13 @@ def create_activity(
 
 # Zet een Activity-rij + het berekende deelnemersaantal om naar
 # ActivityListItem — gedeeld tussen list_activities hieronder en
-# GET /users/me/activities (main.py)
-def activity_to_list_item(activity: models.Activity, participant_count: int) -> schemas.ActivityListItem:
+# GET /users/me/activities (main.py, waar participants_preview altijd leeg
+# blijft — dat scherm toont geen avatar-stapel)
+def activity_to_list_item(
+    activity: models.Activity,
+    participant_count: int,
+    participants_preview: list[models.User] | None = None,
+) -> schemas.ActivityListItem:
     return schemas.ActivityListItem(
         id=activity.id,
         title=activity.title,
@@ -94,7 +99,34 @@ def activity_to_list_item(activity: models.Activity, participant_count: int) -> 
         category=activity.category,
         participant_count=participant_count,
         created_at=activity.created_at,
+        participants_preview=[
+            schemas.ParticipantOut.model_validate(u) for u in (participants_preview or [])
+        ],
     )
+
+
+# Haalt in bulk de eerste 3 deelnemers per activiteit op (voor de
+# avatar-stapel op de kaarten) — één aparte query i.p.v. deze in de
+# count-query hierboven te combineren: een joinedload zou daar de
+# group_by-aggregatie verstoren
+def _participants_preview_by_activity(
+    db: Session, activity_ids: list[int], limit: int = 3
+) -> dict[int, list[models.User]]:
+    if not activity_ids:
+        return {}
+    participations = (
+        db.query(models.Participation)
+        .options(joinedload(models.Participation.user))
+        .filter(models.Participation.activity_id.in_(activity_ids))
+        .order_by(models.Participation.joined_at)
+        .all()
+    )
+    preview_by_activity: dict[int, list[models.User]] = {}
+    for p in participations:
+        bucket = preview_by_activity.setdefault(p.activity_id, [])
+        if len(bucket) < limit:
+            bucket.append(p.user)
+    return preview_by_activity
 
 
 # Lijst van activiteiten, eventueel gefilterd op categorie — publiek
@@ -113,7 +145,13 @@ def list_activities(
     if category is not None:
         query = query.filter(models.Activity.category == category.value)
 
-    return [activity_to_list_item(activity, participant_count) for activity, participant_count in query.all()]
+    rows = query.all()
+    preview_by_activity = _participants_preview_by_activity(db, [a.id for a, _ in rows])
+
+    return [
+        activity_to_list_item(activity, participant_count, preview_by_activity.get(activity.id))
+        for activity, participant_count in rows
+    ]
 
 
 # Detail van één activiteit — publiek toegankelijk; is_joined staat enkel
