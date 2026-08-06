@@ -72,6 +72,20 @@ export function createActivity(payload, token) {
   });
 }
 
+// Werkt een bestaande activiteit bij, enkel toegelaten voor de organisator
+export function updateActivity(id, payload, token) {
+  return request(`/activities/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+    token,
+  });
+}
+
+// Verwijdert een activiteit, enkel toegelaten voor de organisator
+export function deleteActivity(id, token) {
+  return request(`/activities/${id}`, { method: "DELETE", token });
+}
+
 // Schrijft de ingelogde gebruiker in voor een activiteit
 export function joinActivity(id, token) {
   return request(`/activities/${id}/join`, { method: "POST", token });
