@@ -18,3 +18,37 @@ export function toDatetimeLocalValue(isoString) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+// Enkel het uur, bv. "18:30" — voor de tijd-linkerkolom op activiteitenkaarten
+export function formatTime(isoString) {
+  return new Intl.DateTimeFormat("nl-BE", { hour: "2-digit", minute: "2-digit" }).format(new Date(isoString));
+}
+
+// Korte weekdagafkorting, bv. "do" — naast formatTime op activiteitenkaarten
+export function formatWeekdayShort(isoString) {
+  return new Intl.DateTimeFormat("nl-BE", { weekday: "short" }).format(new Date(isoString)).replace(".", "");
+}
+
+// Geeft een korte badge-tekst terug voor een naderende activiteit
+// ("Start binnen 45 min", "Vandaag", "Morgen"), of null als het te ver in
+// de toekomst ligt (of al voorbij is) om te benadrukken
+export function formatStartBadge(isoString) {
+  const start = new Date(isoString);
+  const now = new Date();
+  const diffMs = start - now;
+  if (diffMs < 0) return null;
+
+  const diffHours = diffMs / (1000 * 60 * 60);
+  if (diffHours < 6) {
+    const diffMin = Math.round(diffMs / (1000 * 60));
+    return diffMin < 60 ? `Start binnen ${diffMin} min` : `Start binnen ${Math.round(diffHours)}u`;
+  }
+
+  if (start.toDateString() === now.toDateString()) return "Vandaag";
+
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (start.toDateString() === tomorrow.toDateString()) return "Morgen";
+
+  return null;
+}
