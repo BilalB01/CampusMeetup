@@ -133,6 +133,66 @@ def get_activity(
     return _to_detail(activity, db, current_user)
 
 
+# Controleert dat de ingelogde gebruiker de organisator is — hergebruikt
+# door zowel bewerken als verwijderen
+def _ensure_organizer(activity: models.Activity, current_user: models.User) -> None:
+    if activity.organizer_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Enkel de organisator kan deze activiteit bewerken of verwijderen",
+        )
+
+
+# PUT i.p.v. PATCH: het bewerkformulier stuurt altijd alle velden mee
+# (zelfde payload-vorm als aanmaken), dus hergebruikt gewoon
+# schemas.ActivityCreate i.p.v. een apart partial-update-schema
+@router.put("/{activity_id}", response_model=schemas.ActivityDetailOut)
+def update_activity(
+    activity_id: int,
+    payload: schemas.ActivityCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    activity = db.get(models.Activity, activity_id)
+    if activity is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Activiteit niet gevonden"
+        )
+    _ensure_organizer(activity, current_user)
+
+    activity.title = payload.title
+    activity.description = payload.description
+    activity.location_name = payload.location_name
+    activity.latitude = payload.latitude
+    activity.longitude = payload.longitude
+    activity.start_time = payload.start_time
+    activity.max_participants = payload.max_participants
+    activity.category = payload.category.value
+
+    db.commit()
+    db.refresh(activity)
+    return _to_detail(activity, db, current_user)
+
+
+# Activiteit verwijderen — de cascade op Activity.participations/messages
+# in models.py ruimt de bijhorende deelnames en chatberichten automatisch mee op
+@router.delete("/{activity_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_activity(
+    activity_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    activity = db.get(models.Activity, activity_id)
+    if activity is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Activiteit niet gevonden"
+        )
+    _ensure_organizer(activity, current_user)
+
+    db.delete(activity)
+    db.commit()
+
+
 # Aansluiten bij een activiteit — weigert bij dubbele deelname of een
 # volzette activiteit
 @router.post("/{activity_id}/join", response_model=schemas.ActivityDetailOut)
