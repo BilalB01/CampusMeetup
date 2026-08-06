@@ -4,10 +4,10 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-  color: #2a2640;
+  font-family: "Plus Jakarta Sans", -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #1b1830;
   /* Zichtbaar op brede schermen, links/rechts van de gecentreerde inhoud */
-  background: #f6f4ff;
+  background: #efebf9;
 }
 
 #root {

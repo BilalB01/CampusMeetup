@@ -3,8 +3,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(180deg, #f3efff 0%, #faf9ff 55%);
+  background: linear-gradient(180deg, #f3efff 0%, #efebf9 55%);
   padding: 24px;
+  /* Ruimte voor de vaste navigatiebalk op de beveiligde schermen die
+     .auth-screen hergebruiken (ActiviteitForm) — onschuldig op
+     login/register, waar de balk niet getoond wordt */
+  padding-bottom: 96px;
   box-sizing: border-box;
 }
 
@@ -22,16 +26,17 @@
 }
 
 .auth-title {
+  font-family: "Bricolage Grotesque", sans-serif;
   font-size: 24px;
   font-weight: 800;
-  color: #2a2640;
+  color: #1b1830;
   text-align: center;
   margin: 0;
 }
 
 .auth-subtitle {
   font-size: 14px;
-  color: #8a86a3;
+  color: #a29dbc;
   text-align: center;
   margin: -6px 0 4px;
 }
@@ -45,7 +50,7 @@
 .auth-field label {
   font-size: 12.5px;
   font-weight: 700;
-  color: #2a2640;
+  color: #1b1830;
 }
 
 .auth-field input,
@@ -56,8 +61,8 @@
   border-radius: 12px;
   font-size: 14px;
   font-family: inherit;
-  color: #2a2640;
-  background: #faf9ff;
+  color: #1b1830;
+  background: #efebf9;
   transition: border-color 0.15s ease, background 0.15s ease;
 }
 
@@ -76,7 +81,7 @@
 
 .auth-hint {
   font-size: 11.5px;
-  color: #8a86a3;
+  color: #a29dbc;
 }
 
 .auth-error {
@@ -93,13 +98,13 @@
   padding: 13px;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(135deg, #8b6bff, #6c4ff5);
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
   color: #fff;
   font-size: 14.5px;
   font-weight: 700;
   cursor: pointer;
   box-shadow: 0 8px 20px rgba(108, 79, 245, 0.35);
-  transition: transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
 .auth-submit:hover:not(:disabled) {
@@ -116,7 +121,7 @@
 .auth-switch {
   text-align: center;
   font-size: 13px;
-  color: #8a86a3;
+  color: #a29dbc;
   text-decoration: none;
 }
 
@@ -133,4 +138,72 @@ a.auth-switch {
 .auth-switch a:hover,
 a.auth-switch:hover {
   text-decoration: underline;
+}
+
+/* Login-hero: gradiëntblok bovenaan met twee decoratieve cirkels,
+   bleedt tot de randen van .auth-card via een negatieve marge */
+.auth-hero {
+  margin: -32px -28px 0;
+  padding: 26px;
+  min-height: 170px;
+  background: linear-gradient(155deg, #8b6bff, #6c4ff5 55%, #5a3ae8);
+  border-radius: 0 0 34px 34px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  color: #fff;
+}
+.auth-hero::before {
+  content: "";
+  position: absolute;
+  right: -50px;
+  top: -60px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+.auth-hero::after {
+  content: "";
+  position: absolute;
+  left: -40px;
+  bottom: -60px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.auth-hero-content {
+  position: relative;
+}
+.auth-hero-title {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0;
+}
+.auth-hero-subtitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e2dbff;
+  margin-top: 8px;
+}
+
+.auth-info-callout {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: #ede8fb;
+  border-radius: 16px;
+  padding: 13px 15px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #5c5876;
+  font-weight: 500;
+}
+.auth-info-callout strong {
+  color: #1b1830;
 }

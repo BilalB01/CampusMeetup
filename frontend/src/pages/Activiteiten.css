@@ -2,8 +2,11 @@
 
 .activiteiten-screen {
   min-height: 100vh;
-  background: #faf9ff;
+  background: #efebf9;
   padding: 24px;
+  /* Extra ruimte onderaan zodat inhoud niet achter de vaste
+     navigatiebalk (BottomNav) verdwijnt */
+  padding-bottom: 96px;
   /* width:100% is nodig naast max-width: zonder een expliciete breedte
      duwt de standaard flex-stretch van #root dit vak wel tot 480px breed,
      maar zonder het effectief te centreren — het bleef dan links plakken
@@ -18,15 +21,54 @@
   position: relative;
 }
 
+/* Vaste onderaan-navigatiebalk (BottomNav.jsx) — zelf-centrerend zodat
+   ze op brede schermen binnen de gecentreerde appkolom blijft i.p.v.
+   de volle breedte te overspannen, zelfde principe als de .fab hieronder */
+.bottom-nav {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(27, 24, 48, 0.06);
+  padding: 11px 16px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 20;
+}
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  color: #a29dbc;
+  transition: color 0.18s ease;
+}
+.bottom-nav-item span {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.bottom-nav-item.actief {
+  color: #6c4ff5;
+}
+
 .activiteiten-header {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 .activiteiten-title {
+  font-family: "Bricolage Grotesque", sans-serif;
   font-size: 22px;
   font-weight: 800;
-  color: #2a2640;
+  color: #1b1830;
   margin: 0;
   flex: 1;
 }
@@ -46,7 +88,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #f1edff;
+  background: #ede8fb;
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -54,36 +96,192 @@
 }
 .activiteiten-subtitle {
   font-size: 14px;
-  color: #8a86a3;
+  color: #a29dbc;
   margin: -8px 0 0;
+}
+
+.categorieen-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.categorieen-datum {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #a29dbc;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.categorieen-groet {
+  font-family: "Bricolage Grotesque", sans-serif;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1b1830;
+}
+.categorieen-intro .activiteiten-subtitle {
+  margin-top: 4px;
+}
+
+/* Uitgelichte "volgende activiteit"-kaart op het startscherm — enkel
+   getoond als de gebruiker zelf een aankomende eigen activiteit heeft */
+.uitgelicht-kaart {
+  display: block;
+  background: #1b1830;
+  border-radius: 26px;
+  padding: 20px;
+  color: #fff;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+.uitgelicht-kaart::before {
+  content: "";
+  position: absolute;
+  right: -30px;
+  top: -40px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: rgba(139, 107, 255, 0.28);
+}
+.uitgelicht-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #c3b9ff;
+}
+.uitgelicht-stip {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b6bff;
+  display: block;
+}
+.uitgelicht-titel {
+  position: relative;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 10px 0 6px;
+}
+.uitgelicht-sub {
+  position: relative;
+  font-size: 12.5px;
+  color: #b4aed4;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+.uitgelicht-footer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.uitgelicht-footer .avatar-stapel-item {
+  background: #3a3160;
+  color: #ddd5ff;
+  border-color: #1b1830;
+}
+.uitgelicht-cta {
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: #fff;
+  color: #1b1830;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.categorieen-sectiekop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .categorie-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
+  gap: 12px;
 }
-.categorie-tile {
+.categorie-tile2 {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 28px 12px;
-  border: none;
-  border-radius: 18px;
+  gap: 22px;
+  background: #fff;
+  border: 1px solid rgba(27, 24, 48, 0.06);
+  border-radius: 24px;
+  padding: 17px;
   text-decoration: none;
-  color: #2a2640;
-  font-weight: 700;
-  font-size: 14px;
-  text-align: center;
-  transition: transform 0.12s ease;
+  color: #1b1830;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
 }
-.categorie-tile:hover {
-  transform: translateY(-2px);
+.categorie-tile2:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 30px -16px rgba(76, 45, 180, 0.45);
+}
+.categorie-tile2-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 .categorie-icon {
-  font-size: 32px;
+  width: 44px;
+  height: 44px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.categorie-tile2-count {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+}
+.categorie-tile2-label {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.activiteiten-count-subtitle {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #a29dbc;
+}
+
+.filter-pillen {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.filter-pil {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid rgba(27, 24, 48, 0.08);
+  font-size: 12px;
+  font-weight: 600;
+  color: #5c5876;
+  cursor: pointer;
+}
+.filter-pil.actief {
+  background: #1b1830;
+  border-color: #1b1830;
+  color: #fff;
+  font-weight: 700;
 }
 
 .activiteiten-lijst {
@@ -92,37 +290,119 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 11px;
 }
-.activiteit-card {
-  display: block;
-  padding: 16px;
-  border: none;
-  border-radius: 16px;
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Activiteitenrij: linkerkolom tijd/dag/accentbalk, rechts titel/plaats/
+   deelnemers — gebruikt op de activiteitenlijst en het "Ontdek"-scherm */
+.activiteit-rij {
+  display: flex;
+  gap: 15px;
   background: #fff;
+  border: 1px solid rgba(27, 24, 48, 0.06);
+  border-radius: 24px;
+  padding: 16px;
   text-decoration: none;
-  color: #2a2640;
-  box-shadow: 0 4px 16px rgba(124, 92, 252, 0.12);
+  color: #1b1830;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
 }
-.activiteit-card h2 {
-  font-size: 15.5px;
+.activiteit-rij:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px -18px rgba(76, 45, 180, 0.5);
+}
+.activiteit-rij-tijd {
+  flex: none;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.activiteit-rij-uur {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.activiteit-rij-dag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #a29dbc;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.activiteit-rij-balk {
+  flex: 1;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent, #6c4ff5);
+  opacity: 0.28;
+}
+.activiteit-rij-inhoud {
+  flex: 1;
+  min-width: 0;
+}
+.activiteit-rij-inhoud .badge {
+  margin-bottom: 6px;
+}
+.activiteit-rij-titel {
+  font-size: 15px;
   font-weight: 700;
-  margin: 0 0 4px;
+  letter-spacing: -0.015em;
+  margin-bottom: 3px;
 }
-.activiteit-card p {
-  font-size: 12.5px;
-  color: #8a86a3;
-  margin: 0 0 4px;
+.activiteit-rij-plaats {
+  font-size: 12px;
+  color: #8c87a6;
+  font-weight: 500;
+  margin-bottom: 11px;
 }
-.activiteit-cta {
-  display: inline-block;
-  margin-top: 6px;
-  font-size: 12.5px;
-  font-weight: 700;
+.activiteit-rij-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.activiteit-rij-spots {
+  font-size: 11.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.avatar-stapel {
+  display: flex;
+}
+.avatar-stapel-item {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #e6e1fb;
   color: #6c4ff5;
+  font-size: 10.5px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  margin-left: -8px;
+}
+.avatar-stapel-item:first-child {
+  margin-left: 0;
+}
+.avatar-stapel-item--meer {
+  background: #6c4ff5;
+  color: #fff;
 }
 .activiteiten-empty {
-  color: #8a86a3;
+  color: #a29dbc;
   font-size: 14px;
   text-align: center;
   margin-top: 40px;
@@ -135,7 +415,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #8b6bff, #6c4ff5);
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
   color: #fff;
   display: flex;
   align-items: center;
@@ -144,6 +424,53 @@
   line-height: 1;
   text-decoration: none;
   box-shadow: 0 10px 24px rgba(108, 79, 245, 0.4);
+}
+
+/* Detailscherm: gradiënt-hero bovenaan (bleedt tot de randen van
+   .activiteiten-screen via een negatieve marge) i.p.v. een gewone
+   platte header, gevolgd door de kaart met de rest van de info */
+.detail-hero {
+  margin: -24px -24px 0;
+  padding: 20px;
+  border-radius: 0 0 24px 24px;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.detail-hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.detail-hero-back {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.detail-hero-badge {
+  align-self: flex-start;
+  background: #fff;
+  color: #6c4ff5;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.detail-hero-title {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
 }
 
 /* Detailscherm: alle info gegroepeerd in één kaart i.p.v. losse tekstregels
@@ -161,7 +488,7 @@
   margin: 0;
   font-size: 14.5px;
   line-height: 1.5;
-  color: #2a2640;
+  color: #1b1830;
 }
 .detail-meta {
   display: flex;
@@ -176,25 +503,33 @@
   color: #5c5876;
 }
 .detail-meta-icon {
-  font-size: 15px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ede8fb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
 }
 .detail-participants {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding-top: 14px;
-  border-top: 1px solid #f1edff;
+  border-top: 1px solid #ede8fb;
 }
 .detail-section-title {
   margin: 0;
   font-size: 13px;
   font-weight: 700;
-  color: #2a2640;
+  color: #1b1830;
 }
 .detail-empty-participants {
   margin: 0;
   font-size: 13px;
-  color: #8a86a3;
+  color: #a29dbc;
 }
 
 .deelnemers-lijst {
@@ -208,28 +543,66 @@
 .deelnemers-lijst li {
   font-size: 13.5px;
   font-weight: 600;
-  color: #2a2640;
+  color: #1b1830;
   padding: 8px 12px;
-  background: #f1edff;
+  background: #ede8fb;
   border-radius: 10px;
 }
 
-/* Chat: eigen kaart onderaan het detailscherm, enkel zichtbaar voor
-   deelnemers (zie ActiviteitDetail.jsx) — hergebruikt de .detail-card-look
-   i.p.v. een nieuwe visuele taal te verzinnen */
-.chat-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
+.detail-participants-row {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
 }
+.detail-participants-organizer {
+  font-size: 12.5px;
+  color: #a29dbc;
+}
+.detail-participants-plekken {
+  margin: 0;
+  font-size: 12px;
+  color: #a29dbc;
+}
+
+.voortgangsbalk {
+  height: 6px;
+  border-radius: 999px;
+  background: #ede8fb;
+  overflow: hidden;
+}
+.voortgangsbalk-vulling {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #8b6bff, #6c4ff5);
+}
+
+/* Doe mee-knop + los chatknopje ernaast op het detailscherm — de chat
+   zelf is een apart scherm (zie ActiviteitChat.jsx) */
+.detail-acties-rij {
+  display: flex;
+  gap: 10px;
+}
+.detail-acties-rij .auth-submit {
+  flex: 1;
+  margin-top: 0;
+}
+.detail-chat-knop {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 14px 26px -14px rgba(108, 79, 245, 0.95);
+}
+
 .chat-loading {
   margin: 0;
   font-size: 13px;
-  color: #8a86a3;
+  color: #a29dbc;
 }
 .chat-berichten {
   display: flex;
@@ -238,6 +611,42 @@
   max-height: 360px;
   overflow-y: auto;
   padding-right: 4px;
+}
+
+/* Volledige-scherm chat (ActiviteitChat.jsx): header vast bovenaan,
+   berichtenlijst neemt de resterende hoogte in */
+.chat-scherm {
+  height: 100vh;
+  /* Nog steeds ruimte voor de vaste navigatiebalk onderaan, maar minder
+     dan de standaard 96px: het invoerveld mag er dichter bij zitten */
+  padding-bottom: 78px;
+}
+.chat-scherm-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+.chat-scherm-titel {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chat-scherm-sub {
+  font-size: 11.5px;
+  color: #8c87a6;
+  font-weight: 600;
+}
+.chat-scherm-berichten {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 0;
 }
 .chat-bubbel-rij {
   display: flex;
@@ -248,8 +657,8 @@
 }
 .chat-bubbel {
   max-width: 75%;
-  background: #f1edff;
-  color: #2a2640;
+  background: #ede8fb;
+  color: #1b1830;
   border-radius: 14px;
   padding: 8px 12px;
   display: flex;
@@ -257,7 +666,7 @@
   gap: 4px;
 }
 .chat-bubbel--eigen {
-  background: linear-gradient(135deg, #8b6bff, #6c4ff5);
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
   color: #fff;
 }
 .chat-bubbel-naam {
@@ -266,7 +675,7 @@
   opacity: 0.75;
 }
 .chat-bubbel--eigen .chat-bubbel-naam {
-  color: #f1edff;
+  color: #ede8fb;
 }
 .chat-bubbel-tekst {
   margin: 0;
@@ -282,11 +691,49 @@
   object-fit: cover;
   display: block;
 }
+.chat-typing {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #a29dbc;
+  padding: 0 4px;
+}
+.chat-typing-dots {
+  display: inline-flex;
+  gap: 2px;
+}
+.chat-typing-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #b7aef0;
+  animation: chat-typing-bounce 1.2s infinite ease-in-out;
+}
+.chat-typing-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.chat-typing-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes chat-typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  30% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
 .chat-invoer-rij {
   display: flex;
   align-items: center;
   gap: 8px;
-  border-top: 1px solid #f1edff;
+  border-top: 1px solid #ede8fb;
   padding-top: 12px;
 }
 .chat-afbeelding-knop {
@@ -294,7 +741,7 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: #f1edff;
+  background: #ede8fb;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -308,8 +755,8 @@
   border-radius: 999px;
   font-size: 13.5px;
   font-family: inherit;
-  color: #2a2640;
-  background: #faf9ff;
+  color: #1b1830;
+  background: #efebf9;
 }
 .chat-tekstveld:focus {
   outline: none;
@@ -322,7 +769,7 @@
   height: 38px;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(135deg, #8b6bff, #6c4ff5);
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
   color: #fff;
   font-size: 15px;
   cursor: pointer;
@@ -343,35 +790,120 @@
   gap: 14px;
 }
 .profiel-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #8b6bff, #6c4ff5);
+  width: 66px;
+  height: 66px;
+  border-radius: 24px;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 26px;
   font-weight: 800;
   flex-shrink: 0;
 }
 /* Kleine variant voor gebruik als link in de header van Categorieen.jsx */
 .profiel-avatar--klein {
-  width: 32px;
-  height: 32px;
-  font-size: 13.5px;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  font-size: 17px;
   text-decoration: none;
+}
+
+.profiel-logout-link {
+  background: none;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #d2483a;
+  cursor: pointer;
+  padding: 0;
+}
+
+.profiel-stats-rij {
+  display: flex;
+  gap: 10px;
+}
+.profiel-stat-tegel {
+  flex: 1;
+  background: #fff;
+  border: 1px solid rgba(27, 24, 48, 0.06);
+  border-radius: 20px;
+  padding: 15px 12px;
+  text-align: center;
+}
+.profiel-stat-getal {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+}
+.profiel-stat-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #a29dbc;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-top: 3px;
+}
+
+.profiel-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: #fff;
+  border: 1px solid rgba(27, 24, 48, 0.06);
+  border-radius: 20px;
+  padding: 15px 16px;
+  text-decoration: none;
+  color: #1b1830;
+}
+.profiel-item:hover {
+  background: #fdfcff;
+}
+.profiel-item-icoon {
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+}
+.profiel-item-tekst {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.profiel-item-titel {
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.profiel-item-sub {
+  font-size: 11.5px;
+  color: #8c87a6;
+  font-weight: 500;
+}
+.profiel-item-tag {
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 .profiel-naam {
   margin: 0 0 2px;
   font-size: 16px;
   font-weight: 800;
-  color: #2a2640;
+  color: #1b1830;
 }
 .profiel-email {
   margin: 0;
   font-size: 13px;
-  color: #8a86a3;
+  color: #a29dbc;
 }
 
 /* Segmented control — de eerste in de app (het Lijst/Kaart-tabpaar uit
@@ -379,7 +911,7 @@
    nieuw opgezet maar met het bestaande palet */
 .profiel-tabs {
   display: flex;
-  background: #f1edff;
+  background: #ede8fb;
   border-radius: 12px;
   padding: 4px;
   gap: 4px;
@@ -424,9 +956,7 @@
 /* Google Maps: locatiekiezer bij aanmaken, mini-kaart op het
    detailscherm, volledige kaartweergave op de activiteitenlijst */
 .locatie-kaart {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  position: relative;
   border-radius: 12px;
   overflow: hidden;
 }
@@ -437,7 +967,7 @@
 
 .kaart-infovenster {
   font-size: 13px;
-  color: #2a2640;
+  color: #1b1830;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -455,8 +985,14 @@
 }
 
 .route-link {
-  align-self: flex-start;
-  font-size: 13px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #fff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(42, 38, 64, 0.18);
+  font-size: 12.5px;
   font-weight: 700;
   color: #6c4ff5;
   text-decoration: none;
@@ -497,12 +1033,12 @@
   background: none;
   border-radius: 8px;
   font-size: 14px;
-  color: #2a2640;
+  color: #1b1830;
   cursor: pointer;
 }
 
 .locatie-suggesties button:hover {
-  background: #f1edff;
+  background: #ede8fb;
 }
 
 .organizer-acties {
@@ -523,7 +1059,7 @@
 }
 
 .organizer-actie--bewerken {
-  background: #f1edff;
+  background: #ede8fb;
   color: #6c4ff5;
 }
 
@@ -543,11 +1079,28 @@
   .activiteiten-screen {
     max-width: 880px;
     padding: 48px 40px;
+    /* de padding-shorthand hierboven zou padding-bottom terugzetten naar
+       40px — expliciet opnieuw ruimte voor de navigatiebalk reserveren */
+    padding-bottom: 96px;
     gap: 22px;
+  }
+
+  .chat-scherm {
+    padding-bottom: 78px;
   }
 
   .activiteiten-title {
     font-size: 26px;
+  }
+
+  .detail-hero {
+    margin: -48px -40px 0;
+    padding: 24px 40px;
+  }
+
+  .bottom-nav {
+    max-width: 880px;
+    border-radius: 24px 24px 0 0;
   }
 
   .categorie-grid {
@@ -558,7 +1111,9 @@
     padding: 34px 16px;
   }
   .categorie-icon {
-    font-size: 38px;
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
   }
 
   .activiteiten-lijst {
