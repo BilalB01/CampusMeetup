@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Map, Marker, InfoWindow } from "@vis.gl/react-google-maps";
 import { listActivities } from "../api/client";
 import AvatarStack from "../components/AvatarStack";
-import { CATEGORIES, getCategoryBySlug, getCategoryByValue } from "../constants/categories";
+import { getCategoryBySlug, getCategoryByValue } from "../constants/categories";
 import { EHB_CAMPUS_CENTER, PIN_ICON } from "../constants/maps";
 import { distanceInMeters, formatDistance } from "../utils/distance";
 import { formatDateTime, formatTime, formatWeekdayShort } from "../utils/formatDate";
@@ -78,7 +78,6 @@ export default function ActiviteitenLijst() {
   }
 
   const zichtbareActiviteiten = activities.filter((a) => matchesFilter(a, filter, userLocation));
-  const nieuwLink = `/activiteiten/categorie/${category?.slug ?? CATEGORIES[0].slug}/nieuw`;
 
   return (
     <div className="activiteiten-screen">
@@ -210,10 +209,6 @@ export default function ActiviteitenLijst() {
           </Map>
         </div>
       )}
-
-      <Link to={nieuwLink} className="fab" aria-label="Activiteit aanmaken">
-        +
-      </Link>
     </div>
   );
 }
