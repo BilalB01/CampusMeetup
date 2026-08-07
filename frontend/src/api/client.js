@@ -102,6 +102,11 @@ export function getMyActivities(token) {
   return request("/users/me/activities", { token });
 }
 
+// Haalt de badges van de ingelogde gebruiker op voor het profielscherm
+export function getMyBadges(token) {
+  return request("/users/me/badges", { token });
+}
+
 // Haalt de chatgeschiedenis van een activiteit op (enkel voor deelnemers)
 export function getMessages(activityId, token) {
   return request(`/activities/${activityId}/messages`, { token });

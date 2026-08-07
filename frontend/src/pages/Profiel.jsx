@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { getMyActivities } from "../api/client";
+import { getMyActivities, getMyBadges } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { formatDateTime } from "../utils/formatDate";
@@ -20,6 +20,7 @@ export default function Profiel() {
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
   const [data, setData] = useState({ organized: [], joined: [] });
+  const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [tab, setTab] = useState("organized");
@@ -38,6 +39,11 @@ export default function Profiel() {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
+    getMyBadges(token)
+      .then((result) => {
+        if (!cancelled) setBadges(result);
+      })
+      .catch(() => {}); // stille fallback: badges tonen dan gewoon niet
     return () => {
       cancelled = true;
     };
@@ -101,6 +107,21 @@ export default function Profiel() {
               </div>
             ))}
           </div>
+
+          {badges.length > 0 && (
+            <div className="badges-grid">
+              {badges.map((b) => (
+                <div
+                  key={b.key}
+                  className={`badge-tegel${b.earned ? "" : " badge-tegel--onverdiend"}`}
+                  title={b.description}
+                >
+                  <span className="badge-tegel-icoon">{b.icon}</span>
+                  <span className="badge-tegel-label">{b.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Tabwissel is pure lokale state: beide lijsten zijn al opgehaald
               in de useEffect hierboven, dus wisselen kost geen extra API-call */}
