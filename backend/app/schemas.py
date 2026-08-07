@@ -135,6 +135,17 @@ class MyActivitiesOut(BaseModel):
     joined: list[ActivityListItem]
 
 
+# Eén badge voor GET /users/me/badges — de definities (label/icoon/
+# voorwaarde) liggen vast in code, "earned" wordt live berekend uit
+# echte data (zie main.py), geen aparte databasetabel nodig
+class BadgeOut(BaseModel):
+    key: str
+    label: str
+    description: str
+    icon: str
+    earned: bool
+
+
 # Eén chatbericht. content en image_url zijn allebei optioneel (elkaars
 # tegenpool) — "minstens één ingevuld" wordt in de router afgedwongen.
 # user hergebruikt ParticipantOut, zelfde reden als bij ActivityDetailOut

@@ -90,3 +90,57 @@ def read_my_activities(
         ],
         joined=[activities.activity_to_list_item(a, c, preview_by_activity.get(a.id)) for a, c in joined_rows],
     )
+
+
+# Badges voor het profielscherm — de definities liggen vast in code,
+# "earned" wordt hier telkens live berekend uit de echte tellingen,
+# geen aparte databasetabel of achtergrondjob nodig
+@app.get("/users/me/badges", response_model=list[schemas.BadgeOut])
+def read_my_badges(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    organized_count = (
+        db.query(func.count(models.Activity.id))
+        .filter(models.Activity.organizer_id == current_user.id)
+        .scalar()
+    )
+
+    # "Deelgenomen aan andermans activiteit" — zelfde organizer_id-uitsluiting
+    # als in read_my_activities hierboven, voor dezelfde reden
+    joined_elsewhere_count = (
+        db.query(func.count(models.Participation.id))
+        .join(models.Activity, models.Activity.id == models.Participation.activity_id)
+        .filter(models.Participation.user_id == current_user.id)
+        .filter(models.Activity.organizer_id != current_user.id)
+        .scalar()
+    )
+
+    message_count = (
+        db.query(func.count(models.Message.id))
+        .filter(models.Message.user_id == current_user.id)
+        .scalar()
+    )
+
+    organized_categories = db.query(models.Activity.category).filter(
+        models.Activity.organizer_id == current_user.id
+    )
+    joined_categories = (
+        db.query(models.Activity.category)
+        .join(models.Participation, models.Participation.activity_id == models.Activity.id)
+        .filter(models.Participation.user_id == current_user.id)
+    )
+    distinct_categories = {c for (c,) in organized_categories.union(joined_categories).all()}
+
+    definities = [
+        ("eerste_organisatie", "Eerste activiteit", "Je hebt je eerste activiteit georganiseerd", "🎉", organized_count >= 1),
+        ("drukbezet_organisator", "Drukbezet organisator", "5 activiteiten georganiseerd", "🗓️", organized_count >= 5),
+        ("nieuwsgierig", "Nieuwsgierig", "Deelgenomen aan andermans activiteit", "👋", joined_elsewhere_count >= 1),
+        ("sociale_vlinder", "Sociale vlinder", "5 keer deelgenomen aan andermans activiteiten", "🦋", joined_elsewhere_count >= 5),
+        ("prater", "Prater", "10 chatberichten verstuurd", "💬", message_count >= 10),
+        ("alleskunner", "Alleskunner", "Actief in alle 6 categorieën", "🌟", len(distinct_categories) >= 6),
+    ]
+    return [
+        schemas.BadgeOut(key=k, label=l, description=d, icon=i, earned=e)
+        for k, l, d, i, e in definities
+    ]
