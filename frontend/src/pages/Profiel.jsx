@@ -51,8 +51,8 @@ export default function Profiel() {
     };
   }, [token]);
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     navigate("/login");
   }
 
@@ -82,120 +82,128 @@ export default function Profiel() {
         <button className="activiteiten-back" onClick={() => navigate("/")}>
           &larr;
         </button>
-        <span style={{ flex: 1 }} />
-        <button type="button" className="profiel-logout-link" onClick={handleLogout}>
-          Uitloggen
-        </button>
       </header>
 
-      <div className="profiel-avatar-row">
-        <div className="profiel-avatar">{initial}</div>
-        <div>
-          <p className="profiel-naam">{user?.name}</p>
-          <p className="profiel-email">{user?.email}</p>
+      <div className="profiel-header-kaart">
+        <div className="profiel-avatar-row">
+          <div className="profiel-avatar">{initial}</div>
+          <div>
+            <p className="profiel-naam">{user?.name}</p>
+            <p className="profiel-email">{user?.email}</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="profiel-stats-rij">
+            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
+            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
+            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
+          </div>
+        ) : (
+          !error && (
+            <div className="profiel-stats-rij">
+              {stats.map((s) => (
+                <StatTegel key={s.l} n={s.n} l={s.l} />
+              ))}
+            </div>
+          )
+        )}
+
+        <div className="profiel-header-acties">
+          <Link to="/instellingen" className="profiel-instellingen-pil">
+            Instellingen
+          </Link>
+          <button type="button" className="profiel-logout" onClick={handleLogout}>
+            Uitloggen
+          </button>
         </div>
       </div>
 
       {error && <div className="auth-error">{error}</div>}
       {loading && (
-        <>
-          <div className="profiel-stats-rij">
-            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
-            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
-            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
-          </div>
-          <ul className="activiteiten-lijst">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <li key={i}>
-                <div className="profiel-item">
-                  <Skeleton style={{ width: 42, height: 42, borderRadius: 15, flexShrink: 0 }} />
-                  <div className="profiel-item-tekst">
-                    <Skeleton style={{ height: 13, width: "60%", marginBottom: 6 }} />
-                    <Skeleton style={{ height: 10, width: "40%" }} />
-                  </div>
+        <ul className="activiteiten-lijst">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <li key={i}>
+              <div className="profiel-item">
+                <Skeleton style={{ width: 42, height: 42, borderRadius: 15, flexShrink: 0 }} />
+                <div className="profiel-item-tekst">
+                  <Skeleton style={{ height: 13, width: "60%", marginBottom: 6 }} />
+                  <Skeleton style={{ height: 10, width: "40%" }} />
                 </div>
-              </li>
-            ))}
-          </ul>
-        </>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
 
       {!loading && !error && (
-        <>
-          <div className="profiel-stats-rij">
-            {stats.map((s) => (
-              <StatTegel key={s.l} n={s.n} l={s.l} />
-            ))}
-          </div>
-
-          <div className="profiel-content-grid">
-            {badges.length > 0 && (
-              <div className="badges-grid">
-                {badges.map((b) => (
-                  <div
-                    key={b.key}
-                    className={`badge-tegel${b.earned ? "" : " badge-tegel--onverdiend"}`}
-                    title={b.description}
-                  >
-                    <span className="badge-tegel-icoon">{b.icon}</span>
-                    <span className="badge-tegel-label">{b.label}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="profiel-activiteiten-kolom">
-              {/* Tabwissel is pure lokale state: beide lijsten zijn al opgehaald
-                  in de useEffect hierboven, dus wisselen kost geen extra API-call */}
-              <div className="profiel-tabs">
-                <span
-                  className="profiel-tabs-indicator"
-                  style={{ transform: tab === "organized" ? "translateX(0%)" : "translateX(100%)" }}
-                />
-                <button
-                  className={`profiel-tab${tab === "organized" ? " actief" : ""}`}
-                  onClick={() => setTab("organized")}
+        <div className="profiel-content-grid">
+          {badges.length > 0 && (
+            <div className="badges-grid">
+              {badges.map((b) => (
+                <div
+                  key={b.key}
+                  className={`badge-tegel${b.earned ? "" : " badge-tegel--onverdiend"}`}
+                  title={b.description}
                 >
-                  Georganiseerd ({data.organized.length})
-                </button>
-                <button
-                  className={`profiel-tab${tab === "joined" ? " actief" : ""}`}
-                  onClick={() => setTab("joined")}
-                >
-                  Deelgenomen ({data.joined.length})
-                </button>
-              </div>
-
-              {activeList.length === 0 ? (
-                <p className="activiteiten-empty">{emptyMessage}</p>
-              ) : (
-                <ul className="activiteiten-lijst">
-                  {activeList.map((a) => {
-                    const cat = getCategoryByValue(a.category);
-                    return (
-                      <li key={a.id}>
-                        <Link to={`/activiteiten/${a.id}`} className="profiel-item">
-                          <span className="profiel-item-icoon" style={{ background: cat?.bg ?? "#ede8fb" }}>
-                            {cat?.icon ?? "📌"}
-                          </span>
-                          <span className="profiel-item-tekst">
-                            <span className="profiel-item-titel">{a.title}</span>
-                            <span className="profiel-item-sub">
-                              {formatDateTime(a.start_time)} · {a.location_name}
-                            </span>
-                          </span>
-                          <span className="profiel-item-tag" style={{ color: cat?.accent ?? "#6c4ff5" }}>
-                            {statusLabel(a.start_time)}
-                          </span>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+                  <span className="badge-tegel-icoon">{b.icon}</span>
+                  <span className="badge-tegel-label">{b.label}</span>
+                </div>
+              ))}
             </div>
+          )}
+
+          <div className="profiel-activiteiten-kolom">
+            {/* Tabwissel is pure lokale state: beide lijsten zijn al opgehaald
+                in de useEffect hierboven, dus wisselen kost geen extra API-call */}
+            <div className="profiel-tabs">
+              <span
+                className="profiel-tabs-indicator"
+                style={{ transform: tab === "organized" ? "translateX(0%)" : "translateX(100%)" }}
+              />
+              <button
+                className={`profiel-tab${tab === "organized" ? " actief" : ""}`}
+                onClick={() => setTab("organized")}
+              >
+                Georganiseerd ({data.organized.length})
+              </button>
+              <button
+                className={`profiel-tab${tab === "joined" ? " actief" : ""}`}
+                onClick={() => setTab("joined")}
+              >
+                Deelgenomen ({data.joined.length})
+              </button>
+            </div>
+
+            {activeList.length === 0 ? (
+              <p className="activiteiten-empty">{emptyMessage}</p>
+            ) : (
+              <ul className="activiteiten-lijst">
+                {activeList.map((a) => {
+                  const cat = getCategoryByValue(a.category);
+                  return (
+                    <li key={a.id}>
+                      <Link to={`/activiteiten/${a.id}`} className="profiel-item">
+                        <span className="profiel-item-icoon" style={{ background: cat?.bg ?? "#ede8fb" }}>
+                          {cat?.icon ?? "📌"}
+                        </span>
+                        <span className="profiel-item-tekst">
+                          <span className="profiel-item-titel">{a.title}</span>
+                          <span className="profiel-item-sub">
+                            {formatDateTime(a.start_time)} · {a.location_name}
+                          </span>
+                        </span>
+                        <span className="profiel-item-tag" style={{ color: cat?.accent ?? "#6c4ff5" }}>
+                          {statusLabel(a.start_time)}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

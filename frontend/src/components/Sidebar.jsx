@@ -9,7 +9,7 @@ import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
 const TABS = [
   { key: "home", label: "Start", path: ICONS.home, to: "/" },
   { key: "ontdek", label: "Ontdek", path: ICONS.kompas, to: "/activiteiten" },
-  { key: "profiel", label: "Profiel", path: ICONS.persoon, to: "/profiel" },
+  { key: "instellingen", label: "Instellingen", path: ICONS.tandwiel, to: "/instellingen" },
 ];
 
 // Vaste linker-navigatie vanaf desktopbreedte (≥900px, zie Activiteiten.css),
@@ -41,7 +41,10 @@ export default function Sidebar() {
     <aside className="sidebar">
       <Link to="/profiel" className="sidebar-profiel">
         <span className="sidebar-avatar">{initial}</span>
-        <span className="sidebar-profiel-naam">{user?.name}</span>
+        <span className="sidebar-profiel-tekst">
+          <span className="sidebar-profiel-naam">{user?.name}</span>
+          <span className="sidebar-profiel-sub">Bekijk profiel</span>
+        </span>
       </Link>
 
       <Link to={`/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw`} className="sidebar-cta">
@@ -59,7 +62,8 @@ export default function Sidebar() {
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
                 <path d={tab.path} />
               </svg>
-              {tab.label}
+              <span className="sidebar-nav-label">{tab.label}</span>
+              {active && <span className="sidebar-nav-dot" />}
             </Link>
           );
         })}

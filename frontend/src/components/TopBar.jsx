@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { isAuthScreen } from "../utils/nav";
 
 // Vaste topbalk vanaf desktopbreedte (≥900px, zie Activiteiten.css).
@@ -17,7 +17,10 @@ export default function TopBar() {
 
   return (
     <header className="top-bar">
-      <span className="top-bar-logo">CampusMeetup</span>
+      <Link to="/" className="top-bar-logo">
+        <span className="top-bar-logo-badge">C</span>
+        <span className="top-bar-logo-tekst">CampusMeetup</span>
+      </Link>
       <span className="top-bar-datum">{vandaagMetHoofdletter}</span>
     </header>
   );

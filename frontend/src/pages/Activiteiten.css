@@ -260,6 +260,44 @@
 .start-stats-kolom {
   display: none;
 }
+/* Grotere statistiekkaart met icoonbadge, enkel voor de Start-hero (zie
+   StartStatKaart.jsx) — bewust groter/rijker dan .profiel-stat-tegel */
+.start-stat-kaart {
+  flex: 1;
+  background: #fff;
+  border: 1px solid rgba(27, 24, 48, 0.06);
+  border-radius: 20px;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(124, 92, 252, 0.06);
+}
+.start-stat-getal {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+}
+.start-stat-label {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #a29dbc;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.start-stat-icoon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
 
 .categorieen-sectiekop {
   display: flex;
@@ -493,6 +531,8 @@
    .activiteiten-screen via een negatieve marge) i.p.v. een gewone
    platte header, gevolgd door de kaart met de rest van de info */
 .detail-hero {
+  position: relative;
+  overflow: hidden;
   margin: -24px -24px 0;
   padding: 20px;
   border-radius: 0 0 24px 24px;
@@ -502,7 +542,20 @@
   flex-direction: column;
   gap: 36px;
 }
+/* Decoratieve cirkel — zelfde aanpak als .auth-hero/.auth-split-hero */
+.detail-hero::before {
+  content: "";
+  position: absolute;
+  right: -50px;
+  top: -60px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
 .detail-hero-top {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -520,7 +573,18 @@
   align-items: center;
   justify-content: center;
 }
+/* Pil-vorm met tekst i.p.v. enkel een icoon — leesbaarder/duidelijker */
+.detail-hero-back--tekst {
+  width: auto;
+  height: auto;
+  padding: 9px 16px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
 .detail-hero-badge {
+  position: relative;
   align-self: flex-start;
   background: #fff;
   color: #6c4ff5;
@@ -530,10 +594,25 @@
   font-weight: 700;
 }
 .detail-hero-title {
+  position: relative;
   font-family: "Bricolage Grotesque", sans-serif;
   font-size: 22px;
   font-weight: 800;
   margin: 0;
+}
+/* Groepeert badge/titel/ondertitel met een kleine, eigen gap — de 36px-gap
+   op .detail-hero zelf is enkel bedoeld tussen .detail-hero-top en deze
+   groep, niet tussen elk los onderdeel */
+.detail-hero-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detail-hero-sub {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* Detailscherm: alle info gegroepeerd in één kaart i.p.v. losse tekstregels
@@ -560,17 +639,23 @@
   line-height: 1.5;
   color: #1b1830;
 }
-.detail-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* 2-koloms rooster van "chips" i.p.v. een kale lijst — vult de bredere
+   desktop-kolom veel beter dan losse tekstregels */
+.detail-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
 }
-.detail-meta-row {
+.detail-info-chip {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13.5px;
-  color: #5c5876;
+  gap: 10px;
+  background: #f6f3ff;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1b1830;
 }
 .detail-meta-icon {
   width: 28px;
@@ -619,13 +704,46 @@
   border-radius: 10px;
 }
 
-.detail-participants-row {
+.detail-deelnemers-lijst {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.detail-deelnemer-rij {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.detail-participants-organizer {
-  font-size: 12.5px;
+.detail-deelnemer-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.detail-deelnemer-naam {
+  flex: 1;
+  min-width: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1b1830;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-deelnemer-rol {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
   color: #a29dbc;
 }
 .detail-participants-plekken {
@@ -646,27 +764,30 @@
   background: linear-gradient(90deg, #8b6bff, #6c4ff5);
 }
 
-/* Doe mee-knop + los chatknopje ernaast op het detailscherm — de chat
+/* Groepschat-link + join-hint, onderaan het deelnemerspaneel — de chat
    zelf is een apart scherm (zie ActiviteitChat.jsx) */
-.detail-acties-rij {
-  display: flex;
-  gap: 10px;
+.detail-chat-link {
+  display: block;
+  text-align: center;
+  padding: 13px;
+  border-radius: 999px;
+  background: #ede8fb;
+  color: #6c4ff5;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-.detail-acties-rij .auth-submit {
-  flex: 1;
-  margin-top: 0;
+.detail-chat-link:hover {
+  background: #e0d7fb;
+  transform: translateY(-2px);
 }
-.detail-chat-knop {
-  flex: none;
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 14px 26px -14px rgba(108, 79, 245, 0.95);
+.detail-join-hint {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: #a29dbc;
+  text-align: center;
+  font-weight: 600;
 }
 
 .chat-loading {
@@ -729,7 +850,7 @@
   max-width: 75%;
   background: #ede8fb;
   color: #1b1830;
-  border-radius: 14px;
+  border-radius: 18px;
   padding: 8px 12px;
   display: flex;
   flex-direction: column;
@@ -882,14 +1003,64 @@
   text-decoration: none;
 }
 
-.profiel-logout-link {
-  background: none;
-  border: none;
-  font-size: 12.5px;
+/* Groepeert avatar + naam/e-mail + statistieken + acties — op mobiel
+   gewoon gestapeld, smelt vanaf 900px samen tot één kaart-rij (zie
+   media query verderop) */
+.profiel-header-kaart {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.profiel-header-acties {
+  display: flex;
+  gap: 10px;
+}
+.profiel-header-acties .profiel-logout {
+  margin-top: 0;
+  padding: 11px 20px;
+  font-size: 13px;
+}
+.profiel-instellingen-pil {
+  padding: 11px 20px;
+  border: 1.5px solid #e6e1fb;
+  border-radius: 999px;
+  background: #f6f3ff;
+  color: #6c4ff5;
+  font-size: 13px;
   font-weight: 700;
-  color: #d2483a;
+  text-decoration: none;
   cursor: pointer;
-  padding: 0;
+  transition: background 0.2s ease, transform 0.18s cubic-bezier(0.33, 0.72, 0.32, 1);
+}
+.profiel-instellingen-pil:hover {
+  background: #ede8fb;
+  transform: translateY(-1px);
+}
+
+/* Herbruikbare kaart voor elke sectie op het Instellingen-scherm */
+.instellingen-sectie {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
+}
+.instellingen-sectie-titel {
+  margin: 0;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1b1830;
+}
+.instellingen-gelukt {
+  background: #e8f7ee;
+  border: 1.5px solid #b9e8c9;
+  color: #1e8a4c;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 12px;
 }
 
 .profiel-stats-rij {
@@ -933,7 +1104,7 @@
 
 .badges-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
   gap: 10px;
 }
 .badge-tegel {
@@ -1083,6 +1254,10 @@
 .profiel-logout:hover {
   background: #ffe4de;
 }
+.profiel-logout:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
 
 /* Google Maps: locatiekiezer bij aanmaken, mini-kaart op het
    detailscherm, volledige kaartweergave op de activiteitenlijst */
@@ -1228,6 +1403,9 @@
     margin: -48px -40px 0;
     padding: 24px 40px;
   }
+  .detail-hero-title {
+    font-size: 32px;
+  }
 
   .bottom-nav {
     max-width: 880px;
@@ -1272,7 +1450,7 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 260px;
+  width: 272px;
   flex-direction: column;
   gap: 22px;
   padding: 28px 20px;
@@ -1289,11 +1467,19 @@
   gap: 12px;
   text-decoration: none;
   color: #1b1830;
+  padding: 11px;
+  border-radius: 18px;
+  background: #f6f3ff;
+  transition: background 0.2s ease, transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sidebar-profiel:hover {
+  background: #ede8fb;
+  transform: translateY(-2px);
 }
 .sidebar-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1303,9 +1489,22 @@
   font-family: "Bricolage Grotesque", sans-serif;
   flex-shrink: 0;
 }
+.sidebar-profiel-tekst {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
 .sidebar-profiel-naam {
   font-weight: 700;
   font-size: 14.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-profiel-sub {
+  font-size: 11.5px;
+  color: #a29dbc;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1335,20 +1534,52 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 12px;
-  border-radius: 14px;
+  padding: 11px 13px;
+  border-radius: 15px;
   color: #a29dbc;
   text-decoration: none;
   font-weight: 700;
   font-size: 14px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.22s ease, color 0.22s ease, transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .sidebar-nav-item:hover {
   background: #efebf9;
+  transform: translateX(3px);
 }
 .sidebar-nav-item.actief {
   background: #ede8fb;
   color: #6c4ff5;
+}
+.sidebar-nav-label {
+  flex: 1;
+}
+.sidebar-nav-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+@keyframes floatBlob {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-14px, 10px);
+  }
 }
 
 .sidebar-volgende {
@@ -1356,37 +1587,70 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 14px;
-  border-radius: 16px;
-  background: #efebf9;
+  padding: 16px;
+  border-radius: 22px;
+  background: #1b1830;
   text-decoration: none;
-  color: #1b1830;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.sidebar-volgende:hover {
+  transform: translateY(-3px);
+}
+.sidebar-volgende::before {
+  content: "";
+  position: absolute;
+  right: -34px;
+  top: -42px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(139, 107, 255, 0.28);
+  animation: floatBlob 9s infinite ease-in-out;
 }
 .sidebar-volgende-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #8c87a6;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #c3b9ff;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.09em;
+}
+.sidebar-volgende-label::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #8b6bff;
+  animation: pulseDot 1.8s infinite ease-in-out;
 }
 .sidebar-volgende-titel {
-  font-size: 13.5px;
+  position: relative;
+  font-size: 16px;
   font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 5px 0 2px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sidebar-volgende-badge {
+  position: relative;
   font-size: 11.5px;
-  color: #6c4ff5;
-  font-weight: 700;
+  color: #b4aed4;
+  font-weight: 500;
 }
 
 .top-bar {
   display: none;
   position: fixed;
   top: 0;
-  left: 260px;
+  left: 272px;
   right: 0;
   height: 72px;
   align-items: center;
@@ -1399,10 +1663,30 @@
   z-index: 25;
 }
 .top-bar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #1b1830;
+}
+.top-bar-logo-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: "Bricolage Grotesque", sans-serif;
   font-weight: 800;
   font-size: 17px;
-  color: #1b1830;
+  flex-shrink: 0;
+}
+.top-bar-logo-tekst {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: 17px;
 }
 .top-bar-datum {
   font-size: 13.5px;
@@ -1412,7 +1696,7 @@
 
 @media (min-width: 900px) {
   .app-shell--chrome {
-    padding-left: 260px;
+    padding-left: 272px;
     padding-top: 72px;
   }
 
@@ -1429,7 +1713,10 @@
      reserveren — de gecentreerde kolom mag hier breder dan de 880px
      van het 768px-blok hierboven */
   .activiteiten-screen {
-    max-width: 1040px;
+    /* Was 1040px — voelde te smal/leeg aan op brede schermen vergeleken
+       met de feedback-mockup, die de beschikbare breedte na de zijbalk
+       veel voller benut */
+    max-width: 1320px;
   }
 
   /* Start: kop + datum staan al in Sidebar/TopBar, hier dubbel */
@@ -1442,37 +1729,57 @@
 
   .start-hero-grid {
     display: grid;
-    grid-template-columns: 1fr 240px;
+    grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
     gap: 20px;
   }
   .start-stats-kolom {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+    /* Zonder dit valt de statistiekenkolom terug op de brede eerste kolom
+       wanneer er geen "volgende activiteit"-kaart is om te tonen (grid-
+       auto-plaatsing pakt dan gewoon de eerste vrije kolom) */
+    grid-column: 2;
   }
 
   .categorie-grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     gap: 14px;
   }
 
-  /* Ontdek: meer kolommen dan het 768px-blok (2) */
+  /* Ontdek: meer kolommen dan het 768px-blok (2), buigt mee bij zeer
+     brede schermen i.p.v. vast op 3 te blijven hangen */
   .activiteiten-lijst {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
   }
 
-  /* Detail: hoofdinhoud + sticky deelnemers/join-zijkolom */
+  /* Detail: hoofdinhoud + sticky deelnemers/join-zijkolom — elk hun eigen
+     zwevende kaart i.p.v. gedeelde achtergrond, .detail-card zelf wordt
+     hier enkel nog een grid-laag */
   .detail-card {
     display: grid;
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: 1.7fr 300px;
     align-items: start;
-    gap: 20px 28px;
+    gap: 22px;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+  .detail-hoofdinhoud {
+    background: #fff;
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
   }
   .detail-participants {
     position: sticky;
     top: 92px;
     border-top: none;
     padding-top: 0;
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
   }
 
   /* Profiel: badges-kolom + tabs/lijst-kolom */
@@ -1482,14 +1789,34 @@
     align-items: start;
     gap: 24px;
   }
-  .badges-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  /* Een eigen kaartgrid is te krap in de 1fr-kolom hiernaast — een
-     gestapelde lijst leest hier beter dan de 3-koloms Ontdek-regel hierboven */
-  .profiel-activiteiten-kolom .activiteiten-lijst {
+
+  /* Header: avatar + naam/e-mail + statistieken + Instellingen/Uitloggen
+     smelten samen tot één kaart-rij i.p.v. gestapelde blokken */
+  .profiel-header-kaart {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    gap: 22px;
+    flex-wrap: wrap;
+    background: #fff;
+    border-radius: 28px;
+    padding: 26px 28px;
+    box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
+  }
+  .profiel-header-kaart .profiel-stats-rij {
+    flex: none;
+    gap: 20px;
+  }
+  .profiel-header-kaart .profiel-stat-tegel {
+    background: none;
+    border: none;
+    padding: 0;
+    min-width: 70px;
+  }
+  .profiel-header-acties {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
   }
 }
 

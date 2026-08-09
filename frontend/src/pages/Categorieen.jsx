@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getMyActivities, listActivities } from "../api/client";
+import ActiviteitRijKaart from "../components/ActiviteitRijKaart";
 import AvatarStack from "../components/AvatarStack";
 import Skeleton from "../components/Skeleton";
-import StatTegel from "../components/StatTegel";
+import StartStatKaart from "../components/StartStatKaart";
 import { useAuth } from "../auth/AuthContext";
-import { CATEGORIES } from "../constants/categories";
+import { CATEGORIES, getCategoryByValue } from "../constants/categories";
+import { distanceInMeters, formatDistance } from "../utils/distance";
 import { formatStartBadge } from "../utils/formatDate";
+import { useUserLocation } from "../hooks/useUserLocation";
 import "./Activiteiten.css";
 
 export default function Categorieen() {
   const { user, token } = useAuth();
+  const userLocation = useUserLocation();
   const initial = user?.name?.[0]?.toUpperCase() ?? "?";
   const voornaam = user?.name?.split(" ")[0];
   const [activities, setActivities] = useState([]);
@@ -50,21 +54,47 @@ export default function Categorieen() {
   // Activiteiten.css) — enkel uit al opgehaalde data, geen nepcijfers
   const inZevenDagen = new Date(nu);
   inZevenDagen.setDate(inZevenDagen.getDate() + 7);
+  const activiteitenVandaag = activities.filter((a) => new Date(a.start_time).toDateString() === nu.toDateString());
+  // "Deelnemers": som van participant_count over vandaag's activiteiten
+  // i.p.v. een activiteitentelling — klopt zo ook echt met het label
+  const deelnemersVandaag = activiteitenVandaag.reduce((sum, a) => sum + a.participant_count, 0);
+  const metPlekVrij = activiteitenVandaag.filter((a) => a.participant_count < a.max_participants).length;
+  const subtitel =
+    activiteitenVandaag.length === 0
+      ? "Nog geen activiteiten vandaag — maak er zelf een aan!"
+      : `${activiteitenVandaag.length} activiteit${activiteitenVandaag.length === 1 ? "" : "en"} vandaag, ${metPlekVrij} met plek vrij.`;
+
   const stats = [
     {
       n: eigenActiviteiten.filter((a) => new Date(a.start_time).toDateString() === nu.toDateString()).length,
       l: "Vandaag",
+      icoon: "⚡",
+      bg: "#FFE7D9",
+      accent: "#E1571E",
     },
     {
       n: eigenActiviteiten.filter((a) => new Date(a.start_time) >= nu && new Date(a.start_time) <= inZevenDagen)
         .length,
       l: "Deze week",
+      icoon: "📅",
+      bg: "#DCE9FF",
+      accent: "#2F6FE4",
     },
     {
-      n: activities.filter((a) => new Date(a.start_time).toDateString() === nu.toDateString()).length,
-      l: "Op de campus",
+      n: deelnemersVandaag,
+      l: "Deelnemers",
+      icoon: "👥",
+      bg: "#E9E1FF",
+      accent: "#6C4FF5",
     },
   ];
+
+  // "Binnenkort op de campus": eerstvolgende 3 activiteiten van alle
+  // gebruikers (niet enkel eigen), gesorteerd op starttijd
+  const binnenkort = activities
+    .filter((a) => new Date(a.start_time) > nu)
+    .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
+    .slice(0, 3);
 
   return (
     <div className="activiteiten-screen">
@@ -81,6 +111,7 @@ export default function Categorieen() {
       <div className="categorieen-intro">
         <p className="categorieen-datum">{vandaagMetHoofdletter}</p>
         <p className="categorieen-groet">Hey {voornaam}</p>
+        {!loading && <p className="activiteiten-subtitle">{subtitel}</p>}
       </div>
 
       {loading ? (
@@ -111,7 +142,7 @@ export default function Categorieen() {
 
           <div className="start-stats-kolom">
             {stats.map((s) => (
-              <StatTegel key={s.l} n={s.n} l={s.l} />
+              <StartStatKaart key={s.l} n={s.n} l={s.l} icoon={s.icoon} bg={s.bg} accent={s.accent} />
             ))}
           </div>
         </div>
@@ -146,6 +177,31 @@ export default function Categorieen() {
               );
             })}
       </div>
+
+      {!loading && binnenkort.length > 0 && (
+        <>
+          <div className="categorieen-sectiekop">
+            <span>Binnenkort op de campus</span>
+            <Link to="/activiteiten" className="activiteiten-link-button">
+              Alles
+            </Link>
+          </div>
+          <ul className="activiteiten-lijst">
+            {binnenkort.map((a) => {
+              const categorie = getCategoryByValue(a.category);
+              const afstand =
+                userLocation && a.latitude && a.longitude
+                  ? formatDistance(distanceInMeters(userLocation, { lat: a.latitude, lng: a.longitude }))
+                  : null;
+              return (
+                <li key={a.id}>
+                  <ActiviteitRijKaart activiteit={a} categorie={categorie} afstand={afstand} />
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
     </div>
   );
 }

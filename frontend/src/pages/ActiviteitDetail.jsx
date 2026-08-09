@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
 import { deleteActivity, getActivity, joinActivity, leaveActivity } from "../api/client";
-import AvatarStack from "../components/AvatarStack";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { PIN_ICON } from "../constants/maps";
+import { distanceInMeters, formatDistance } from "../utils/distance";
 import { formatDateTime } from "../utils/formatDate";
+import { useUserLocation } from "../hooks/useUserLocation";
 import "./Activiteiten.css";
 
 export default function ActiviteitDetail() {
@@ -20,6 +21,7 @@ export default function ActiviteitDetail() {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState("");
   const [gekopieerd, setGekopieerd] = useState(false);
+  const userLocation = useUserLocation();
 
   useEffect(() => {
     let cancelled = false;
@@ -123,39 +125,50 @@ export default function ActiviteitDetail() {
         : "Doe mee";
   const plekkenVrij = activity.max_participants - activity.participant_count;
   const voortgangPercentage = Math.min(100, (activity.participant_count / activity.max_participants) * 100);
+  const joinHint = activity.is_joined ? "Je staat op de lijst. De groepschat is open." : null;
+  const afstand =
+    userLocation && activity.latitude && activity.longitude
+      ? formatDistance(distanceInMeters(userLocation, { lat: activity.latitude, lng: activity.longitude }))
+      : null;
 
   return (
     <div className="activiteiten-screen">
       <div className="detail-hero">
         <div className="detail-hero-top">
-          <button className="detail-hero-back" onClick={() => navigate(overzichtLink)}>
-            &larr;
+          <button className="detail-hero-back detail-hero-back--tekst" onClick={() => navigate(overzichtLink)}>
+            &larr; Alle activiteiten
           </button>
-          <button className="detail-hero-back" onClick={handleShare} aria-label="Link kopiëren">
-            {gekopieerd ? "✓" : "⇪"}
+          <button className="detail-hero-back detail-hero-back--tekst" onClick={handleShare}>
+            {gekopieerd ? "✓ Gekopieerd" : "⇪ Delen"}
           </button>
         </div>
-        {category && <span className="detail-hero-badge">{category.label}</span>}
-        <h1 className="detail-hero-title">{activity.title}</h1>
+        <div className="detail-hero-content">
+          {category && <span className="detail-hero-badge">{category.label}</span>}
+          <h1 className="detail-hero-title">{activity.title}</h1>
+          <p className="detail-hero-sub">
+            {formatDateTime(activity.start_time)} · {activity.location_name}
+            {afstand && ` · ${afstand}`}
+          </p>
+        </div>
       </div>
 
       <div className="detail-card">
         <div className="detail-hoofdinhoud">
           {activity.description && <p className="detail-description">{activity.description}</p>}
 
-          <div className="detail-meta">
-            <span className="detail-meta-row">
+          <div className="detail-info-grid">
+            <div className="detail-info-chip">
               <span className="detail-meta-icon">📅</span>
               {formatDateTime(activity.start_time)}
-            </span>
-            <span className="detail-meta-row">
+            </div>
+            <div className="detail-info-chip">
               <span className="detail-meta-icon">📍</span>
               {activity.location_name}
-            </span>
-            <span className="detail-meta-row">
+            </div>
+            <div className="detail-info-chip">
               <span className="detail-meta-icon">👤</span>
               Georganiseerd door {activity.organizer.name}
-            </span>
+            </div>
           </div>
 
           {activity.organizer.id === user.id && (
@@ -206,36 +219,40 @@ export default function ActiviteitDetail() {
           </p>
           {activity.participants.length > 0 ? (
             <>
-              <div className="detail-participants-row">
-                <AvatarStack participants={activity.participants} max={4} />
-                <span className="detail-participants-organizer">{activity.organizer.name} organiseert</span>
-              </div>
               <div className="voortgangsbalk">
                 <div className="voortgangsbalk-vulling" style={{ width: `${voortgangPercentage}%` }} />
               </div>
               <p className="detail-participants-plekken">
                 {isFull ? "Volzet" : `${plekkenVrij} plek${plekkenVrij === 1 ? "" : "ken"} vrij`}
               </p>
+              <ul className="detail-deelnemers-lijst">
+                {activity.participants.map((p) => (
+                  <li key={p.id} className="detail-deelnemer-rij">
+                    <span className="detail-deelnemer-avatar">{p.name?.[0]?.toUpperCase() ?? "?"}</span>
+                    <span className="detail-deelnemer-naam">{p.name}</span>
+                    <span className="detail-deelnemer-rol">
+                      {p.id === activity.organizer.id ? "Organisator" : "Deelnemer"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </>
           ) : (
             <p className="detail-empty-participants">Nog geen deelnemers.</p>
           )}
+
+          {actionError && <div className="auth-error">{actionError}</div>}
+
+          <button className="auth-submit" onClick={handleToggleJoin} disabled={joinDisabled}>
+            {buttonLabel}
+          </button>
+          {activity.is_joined && (
+            <Link to={`/activiteiten/${id}/chat`} className="detail-chat-link">
+              Groepschat openen
+            </Link>
+          )}
+          {joinHint && <p className="detail-join-hint">{joinHint}</p>}
         </div>
-      </div>
-
-      {actionError && <div className="auth-error">{actionError}</div>}
-
-      <div className="detail-acties-rij">
-        <button className="auth-submit" onClick={handleToggleJoin} disabled={joinDisabled}>
-          {buttonLabel}
-        </button>
-        {activity.is_joined && (
-          <Link to={`/activiteiten/${id}/chat`} className="detail-chat-knop" aria-label="Open groepschat">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z" />
-            </svg>
-          </Link>
-        )}
       </div>
     </div>
   );
