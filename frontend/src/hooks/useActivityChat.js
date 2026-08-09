@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { API_URL, getMessages, uploadChatImage } from "../api/client";
+import { API_URL, deleteChatMessage, getMessages, uploadChatImage } from "../api/client";
 
 const WS_BASE_URL = API_URL.replace(/^http/, "ws");
 
@@ -70,6 +70,11 @@ export function useActivityChat(activityId, token, enabled, currentUserId) {
         return;
       }
 
+      if (data.type === "delete") {
+        setMessages((prev) => prev.filter((m) => m.id !== data.id));
+        return;
+      }
+
       setMessages((prev) => [...prev, data]);
       setTypingUsers((prev) => prev.filter((u) => u.id !== data.user.id));
     };
@@ -117,5 +122,19 @@ export function useActivityChat(activityId, token, enabled, currentUserId) {
     [activityId, token]
   );
 
-  return { messages, loading, error, sendError, sendText, sendImage, typingUsers, notifyTyping };
+  // Geen lokale verwijdering nodig: de backend broadcast een delete-event
+  // naar de eigen open WebSocket hierboven, die haalt het bericht dan weg
+  const deleteMessage = useCallback(
+    async (messageId) => {
+      setSendError("");
+      try {
+        await deleteChatMessage(activityId, messageId, token);
+      } catch (err) {
+        setSendError(err.message);
+      }
+    },
+    [activityId, token]
+  );
+
+  return { messages, loading, error, sendError, sendText, sendImage, deleteMessage, typingUsers, notifyTyping };
 }

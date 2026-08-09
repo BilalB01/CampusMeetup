@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import uuid4
 
 from fastapi import (
@@ -92,7 +93,9 @@ async def activity_chat_ws(
         manager.disconnect(activity_id, websocket)
 
 
-# Chatgeschiedenis van een activiteit, oudste eerst — enkel voor deelnemers
+# Chatgeschiedenis van een activiteit, oudste eerst — enkel voor deelnemers.
+# Markeert de chat meteen als gelezen (voor het chatoverzicht/ongelezen-teller,
+# zie GET /users/me/conversations in main.py)
 @router.get("/{activity_id}/messages", response_model=list[schemas.MessageOut])
 def get_messages(
     activity_id: int,
@@ -105,17 +108,19 @@ def get_messages(
             status_code=status.HTTP_404_NOT_FOUND, detail="Activiteit niet gevonden"
         )
 
-    is_participant = (
+    participation = (
         db.query(models.Participation)
         .filter_by(activity_id=activity_id, user_id=current_user.id)
         .first()
-        is not None
     )
-    if not is_participant:
+    if participation is None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Enkel deelnemers hebben toegang tot deze chat",
         )
+
+    participation.last_read_at = datetime.now(timezone.utc)
+    db.commit()
 
     return (
         db.query(models.Message)
@@ -200,3 +205,33 @@ async def post_chat_image(
     payload = schemas.MessageOut.model_validate(message).model_dump(mode="json")
     await manager.broadcast(activity_id, payload)
     return message
+
+
+# Verwijdert een eigen bericht — enkel de verzender zelf mag dit, geen
+# organisator-override. Broadcast een "delete"-event zodat elke open
+# WebSocket-verbinding in de room (ook de eigen) het bericht meteen weghaalt
+@router.delete("/{activity_id}/messages/{message_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_message(
+    activity_id: int,
+    message_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    message = db.get(models.Message, message_id)
+    if message is None or message.activity_id != activity_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Bericht niet gevonden"
+        )
+    if message.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Je kan enkel je eigen berichten verwijderen",
+        )
+
+    if message.image_url:
+        (UPLOADS_DIR / message.image_url.removeprefix("/uploads/")).unlink(missing_ok=True)
+
+    db.delete(message)
+    db.commit()
+
+    await manager.broadcast(activity_id, {"type": "delete", "id": message_id})

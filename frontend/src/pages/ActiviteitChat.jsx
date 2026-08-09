@@ -43,6 +43,7 @@ export default function ActiviteitChat() {
     sendError,
     sendText,
     sendImage,
+    deleteMessage,
     typingUsers,
     notifyTyping,
   } = useActivityChat(id, token, activity?.is_joined ?? false, user?.id);
@@ -64,6 +65,10 @@ export default function ActiviteitChat() {
   function handleChatInputChange(e) {
     setChatInput(e.target.value);
     notifyTyping();
+  }
+
+  function handleDeleteMessage(messageId) {
+    if (window.confirm("Dit bericht verwijderen?")) deleteMessage(messageId);
   }
 
   function handlePickImage(e) {
@@ -118,6 +123,19 @@ export default function ActiviteitChat() {
         <div className="chat-scherm-berichten">
           {messages.map((m) => (
             <div key={m.id} className={`chat-bubbel-rij ${m.user.id === user.id ? "chat-bubbel-rij--eigen" : ""}`}>
+              {m.user.id === user.id && (
+                <button
+                  type="button"
+                  className="chat-bubbel-verwijder"
+                  onClick={() => handleDeleteMessage(m.id)}
+                  aria-label="Bericht verwijderen"
+                  title="Bericht verwijderen"
+                >
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0-1 13a1 1 0 01-1 1H8a1 1 0 01-1-1L6 7" />
+                  </svg>
+                </button>
+              )}
               <div className={`chat-bubbel ${m.user.id === user.id ? "chat-bubbel--eigen" : ""}`}>
                 <span className="chat-bubbel-naam">{m.user.name}</span>
                 {m.content && <p className="chat-bubbel-tekst">{m.content}</p>}
