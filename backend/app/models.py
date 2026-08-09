@@ -11,8 +11,28 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import TypeDecorator
 
+from app.crypto import decrypt_text, encrypt_text
 from app.database import Base
+
+
+# Versleutelt/ontsleutelt transparant bij elke schrijf/leesactie — de rest
+# van de app (chat.py, schemas.py) merkt hier niets van, Message.content
+# gedraagt zich gewoon als een normale string-kolom
+class EncryptedText(TypeDecorator):
+    impl = Text
+    cache_ok = True
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return None
+        return encrypt_text(value)
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return None
+        return decrypt_text(value)
 
 
 def utcnow():
@@ -77,6 +97,8 @@ class Participation(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     activity_id = Column(Integer, ForeignKey("activities.id"), nullable=False)
     joined_at = Column(DateTime(timezone=True), default=utcnow)
+    # NULL = nog nooit geopend, dus alle berichten tellen als ongelezen
+    last_read_at = Column(DateTime(timezone=True), nullable=True)
 
     user = relationship("User", back_populates="participations")
     activity = relationship("Activity", back_populates="participations")
@@ -91,8 +113,9 @@ class Message(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     # nullable: een afbeeldingsbericht heeft geen tekst. "Minstens content
     # OF image_url" wordt afgedwongen in de router, niet via een
-    # DB-constraint — zelfde aanpak als ActivityCategory hierboven
-    content = Column(Text, nullable=True)
+    # DB-constraint — zelfde aanpak als ActivityCategory hierboven.
+    # EncryptedText: staat versleuteld in de database, zie app/crypto.py
+    content = Column(EncryptedText, nullable=True)
     # Relatief pad zoals teruggegeven door StaticFiles, bv. "/uploads/<uuid>.jpg"
     image_url = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), default=utcnow)
