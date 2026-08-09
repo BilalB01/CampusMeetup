@@ -92,6 +92,154 @@
   gap: 16px;
 }
 
+/* Velden die enkel op één breedte tonen (bv. mobiele <select> vs. desktop
+   categoriepillen) — .veld-mobiel is standaard zichtbaar (geen eigen regel
+   nodig, .auth-field/.auth-field--rij tonen zichzelf al), .veld-desktop
+   verbergt zich hier en toont pas vanaf 900px (zie media query onderaan) */
+.veld-desktop {
+  display: none;
+}
+
+/* Categoriepillen — desktop-vervanging van de <select id="category"> */
+.categorie-pillen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.categorie-pil {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid #e6e1fb;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5c5876;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.categorie-pil.actief {
+  background: var(--cat-bg);
+  border-color: var(--cat-accent);
+  color: var(--cat-accent);
+  font-weight: 800;
+}
+
+/* Week/dag-kiezer + tijdslot-grid — desktop-vervanging van de
+   datetime-local-input, zie components/ActiviteitDatumKiezer.jsx */
+.datum-kiezer {
+  background: #efebf9;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.datum-kiezer-weeknav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1b1830;
+}
+.datum-kiezer-weeknav button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  color: #6c4ff5;
+  font-size: 15px;
+  cursor: pointer;
+}
+.datum-kiezer-weeknav button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.dag-rij {
+  display: flex;
+  gap: 6px;
+}
+.dag-chip {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: none;
+  background: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1b1830;
+  cursor: pointer;
+}
+.dag-chip.actief {
+  background: #1b1830;
+  color: #fff;
+}
+.dag-chip:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.dag-chip-stip {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #6c4ff5;
+}
+.dag-chip.actief .dag-chip-stip {
+  background: #fff;
+}
+.al-gepland {
+  font-size: 12px;
+  color: #5c5876;
+  line-height: 1.5;
+}
+.tijdslot-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.tijdslot {
+  padding: 9px 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(27, 24, 48, 0.08);
+  background: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #1b1830;
+  cursor: pointer;
+}
+.tijdslot.actief {
+  background: #6c4ff5;
+  border-color: #6c4ff5;
+  color: #fff;
+}
+.tijdslot:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Live voorbeeldkaart — hergebruikt .activiteit-rij (Activiteiten.css)
+   rechtstreeks op een <div> i.p.v. een Link; enkel de hover-lift daarvan
+   is hier zinloos (niet-klikbaar). Combinatieselector nodig (i.p.v. enkel
+   .activiteit-voorbeeld:hover): .activiteit-rij:hover staat door de
+   @import-volgorde later in het effectieve stylesheet en zou anders
+   winnen bij gelijke specificiteit */
+.activiteit-rij.activiteit-voorbeeld:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .auth-error {
   background: #fff1ef;
   border: 1.5px solid #ffd2c9;
@@ -242,12 +390,22 @@ a.auth-switch:hover {
    gebruiken .auth-card zonder deze modifier en blijven dus ongewijzigd */
 @media (min-width: 900px) {
   .auth-card--form {
-    max-width: 640px;
+    /* Breder dan de 640px hierboven ooit was — de week/dag-kiezer +
+       4-koloms tijdslot-grid (zie ActiviteitDatumKiezer.jsx) hebben meer
+       ademruimte nodig dan de eenvoudige 2-veldenrij waarvoor 640px
+       oorspronkelijk gekozen was */
+    max-width: 760px;
   }
   .auth-field--rij {
     flex-direction: row;
   }
   .auth-field--rij > .auth-field {
     flex: 1;
+  }
+  .veld-mobiel {
+    display: none;
+  }
+  .veld-desktop {
+    display: flex;
   }
 }

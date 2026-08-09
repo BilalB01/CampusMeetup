@@ -19,6 +19,13 @@ export function toDatetimeLocalValue(isoString) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
+// Zelfde als toDatetimeLocalValue, maar enkel het datumdeel — voor de
+// week/dag-kiezer, die dag en tijdstip apart bijhoudt
+export function toDateInputValue(date) {
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
 // Enkel het uur, bv. "18:30" — voor de tijd-linkerkolom op activiteitenkaarten
 export function formatTime(isoString) {
   return new Intl.DateTimeFormat("nl-BE", { hour: "2-digit", minute: "2-digit" }).format(new Date(isoString));

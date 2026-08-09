@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Map, Marker, useMap } from "@vis.gl/react-google-maps";
-import { CATEGORIES } from "../constants/categories";
+import { listActivities } from "../api/client";
+import ActiviteitDatumKiezer from "./ActiviteitDatumKiezer";
+import { CATEGORIES, getCategoryByValue } from "../constants/categories";
 import { EHB_CAMPUS_CENTER, PIN_ICON } from "../constants/maps";
 import { useAddressAutocomplete } from "../hooks/useAddressAutocomplete";
+import { formatWeekdayShort, toDateInputValue } from "../utils/formatDate";
 import "../pages/Activiteiten.css";
 
 // Stuurt de kaart imperatief aan: defaultCenter werkt enkel bij het
@@ -32,6 +35,31 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
   const [loading, setLoading] = useState(false);
   const { suggestions, search, selectSuggestion } = useAddressAutocomplete();
 
+  // Enkel voor de desktop week/dag-kiezer (zie ActiviteitDatumKiezer.jsx) —
+  // startTime blijft de echte bron van waarheid, pickerDate stuurt enkel
+  // welke dag daar geselecteerd is
+  const [pickerDate, setPickerDate] = useState(
+    initialValues.startTime ? new Date(initialValues.startTime) : new Date(),
+  );
+  // Enkel voor dagstippen/"al gepland" in de kiezer, geen invloed op opslaan
+  const [activities, setActivities] = useState([]);
+  useEffect(() => {
+    listActivities().then(setActivities).catch(() => {});
+  }, []);
+
+  function handleSelectDay(date) {
+    setPickerDate(date);
+    if (startTime) {
+      // dag wijzigen terwijl er al een tijdstip gekozen is: uur behouden
+      const [, timePart] = startTime.split("T");
+      setStartTime(`${toDateInputValue(date)}T${timePart}`);
+    }
+  }
+
+  function handleSelectSlot(timeStr) {
+    setStartTime(`${toDateInputValue(pickerDate)}T${timeStr}`);
+  }
+
   function handleMapClick(e) {
     if (e.detail.latLng) setPosition(e.detail.latLng);
   }
@@ -51,6 +79,14 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
+    // Op desktop is de datetime-local-input (met het required-attribuut)
+    // verborgen — een verborgen required-veld telt in sommige browsers nog
+    // mee voor validatie en kan de submit stil laten mislukken, dus hier
+    // expliciet gecheckt i.p.v. enkel op native HTML-validatie te vertrouwen
+    if (!startTime) {
+      setError("Kies een datum en tijdstip.");
+      return;
+    }
     setLoading(true);
     try {
       // datetime-local geeft lokale tijd zonder tijdzone; Date zet dit correct om naar ISO/UTC
@@ -93,7 +129,9 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
           />
         </div>
 
-        <div className="auth-field">
+        {/* Categorie: mobiel een <select>, desktop pillen — zelfde category-state,
+            CSS wisselt welke variant getoond wordt vanaf 900px */}
+        <div className="auth-field veld-mobiel">
           <label htmlFor="category">Categorie</label>
           <select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>
             {CATEGORIES.map((c) => (
@@ -102,6 +140,23 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="auth-field veld-desktop">
+          <label>Categorie</label>
+          <div className="categorie-pillen">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c.slug}
+                type="button"
+                className={`categorie-pil${category === c.value ? " actief" : ""}`}
+                style={{ "--cat-bg": c.bg, "--cat-accent": c.accent }}
+                onClick={() => setCategory(c.value)}
+              >
+                <span>{c.icon}</span> {c.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="auth-field auth-field--autocomplete">
@@ -145,13 +200,17 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
           <span className="auth-hint">Tik op de kaart om de exacte locatie te kiezen.</span>
         </div>
 
-        <div className="auth-field--rij">
+        {/* datetime-local + max_participants: mobiel de bestaande eenvoudige
+            velden, desktop de week/dag-kiezer + tijdslot-grid + voorbeeldkaart
+            (zie ActiviteitDatumKiezer.jsx). required weg bij de datetime-local-
+            input: die staat verborgen op desktop, en een verborgen required-
+            veld kan de submit daar stil laten mislukken (zie handleSubmit) */}
+        <div className="auth-field--rij veld-mobiel">
           <div className="auth-field">
             <label htmlFor="start_time">Datum en tijd</label>
             <input
               id="start_time"
               type="datetime-local"
-              required
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
             />
@@ -169,6 +228,56 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
               onChange={(e) => setMaxParticipants(e.target.value)}
             />
           </div>
+        </div>
+
+        <div className="auth-field veld-desktop">
+          <label>Datum en tijd</label>
+          <ActiviteitDatumKiezer
+            activities={activities}
+            pickerDate={pickerDate}
+            onSelectDay={handleSelectDay}
+            selectedTime={startTime ? startTime.split("T")[1] : null}
+            onSelectSlot={handleSelectSlot}
+          />
+        </div>
+
+        <div className="auth-field veld-desktop">
+          <label htmlFor="max_participants_desktop">Max. aantal deelnemers</label>
+          <input
+            id="max_participants_desktop"
+            type="number"
+            min="1"
+            max="500"
+            value={maxParticipants}
+            onChange={(e) => setMaxParticipants(e.target.value)}
+          />
+        </div>
+
+        <div className="auth-field veld-desktop">
+          <label>Voorbeeld</label>
+          {(() => {
+            const previewCategory = getCategoryByValue(category);
+            const previewTime = startTime ? startTime.split("T")[1] : "--:--";
+            return (
+              <div className="activiteit-rij activiteit-voorbeeld">
+                <div className="activiteit-rij-tijd" style={{ "--accent": previewCategory?.accent ?? "#6c4ff5" }}>
+                  <span className="activiteit-rij-uur">{previewTime}</span>
+                  <span className="activiteit-rij-dag">{formatWeekdayShort(pickerDate)}</span>
+                  <span className="activiteit-rij-balk" />
+                </div>
+                <div className="activiteit-rij-inhoud">
+                  <span
+                    className="badge"
+                    style={{ background: previewCategory?.bg, color: previewCategory?.accent }}
+                  >
+                    {previewCategory?.label}
+                  </span>
+                  <div className="activiteit-rij-titel">{title || "Titel van je activiteit"}</div>
+                  <div className="activiteit-rij-plaats">{locationName || "Locatie"}</div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         <button className="auth-submit" type="submit" disabled={loading}>
