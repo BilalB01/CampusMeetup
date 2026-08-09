@@ -63,7 +63,8 @@ export default function Login() {
       } catch (err) {
         if (!cancelled) setError(err.message || "Inloggen met Microsoft is mislukt");
       } finally {
-        if (!cancelled) setMsLoading(false);
+        // altijd resetten, ook als cancelled — anders blijft de knop "Bezig..." tonen
+        setMsLoading(false);
       }
     })();
     return () => {
