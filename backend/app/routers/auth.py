@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
+from app.config import settings
 from app.database import get_db
+from app.ms_auth import verify_microsoft_id_token
 from app.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -23,6 +25,7 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
         name=payload.name,
         email=payload.email,
         hashed_password=hash_password(payload.password),
+        auth_provider="password",
     )
     db.add(user)
     db.commit()
@@ -36,11 +39,61 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 @router.post("/login", response_model=schemas.Token)
 def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == payload.email).first()
-    if not user or not verify_password(payload.password, user.hashed_password):
+    if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Ongeldig e-mailadres of wachtwoord",
         )
+    if user.hashed_password is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Dit account gebruikt Microsoft om in te loggen — gebruik de Microsoft-knop",
+        )
+    if not verify_password(payload.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Ongeldig e-mailadres of wachtwoord",
+        )
+
+    token = create_access_token(subject=str(user.id))
+    return schemas.Token(access_token=token, user=user)
+
+
+# Inloggen met een Microsoft-account (EHB-studenten). Het ID-token komt van
+# MSAL in de browser, hier wordt het server-side geverifieerd (handtekening +
+# audience) vóór het vertrouwd wordt. Zelfde e-mailadres als een bestaand
+# wachtwoord-account logt gewoon in op dat account — geen dubbele accounts
+@router.post("/microsoft", response_model=schemas.Token)
+def login_with_microsoft(payload: schemas.MicrosoftLogin, db: Session = Depends(get_db)):
+    if not settings.microsoft_client_id:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Microsoft-login is nog niet geconfigureerd",
+        )
+
+    try:
+        claims = verify_microsoft_id_token(payload.id_token, settings.microsoft_client_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ongeldig Microsoft-token")
+
+    email = (claims.get("preferred_username") or claims.get("email") or "").lower()
+    if not email.endswith("@student.ehb.be"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Enkel toegankelijk met een @student.ehb.be-account",
+        )
+
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if user is None:
+        user = models.User(
+            name=claims.get("name", email),
+            email=email,
+            hashed_password=None,
+            auth_provider="microsoft",
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
     token = create_access_token(subject=str(user.id))
     return schemas.Token(access_token=token, user=user)

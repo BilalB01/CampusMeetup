@@ -31,6 +31,13 @@ class UserLogin(BaseModel):
     password: str
 
 
+# Payload van POST /auth/microsoft — het ID-token dat MSAL in de browser
+# al bij Microsoft heeft opgehaald; de backend verifieert dit zelf nog
+# eens (zie ms_auth.py) vóór het vertrouwd wordt
+class MicrosoftLogin(BaseModel):
+    id_token: str
+
+
 # Wat er teruggestuurd wordt naar de frontend (nooit het wachtwoord)
 class UserOut(BaseModel):
     id: int
