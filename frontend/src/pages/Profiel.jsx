@@ -108,65 +108,69 @@ export default function Profiel() {
             ))}
           </div>
 
-          {badges.length > 0 && (
-            <div className="badges-grid">
-              {badges.map((b) => (
-                <div
-                  key={b.key}
-                  className={`badge-tegel${b.earned ? "" : " badge-tegel--onverdiend"}`}
-                  title={b.description}
+          <div className="profiel-content-grid">
+            {badges.length > 0 && (
+              <div className="badges-grid">
+                {badges.map((b) => (
+                  <div
+                    key={b.key}
+                    className={`badge-tegel${b.earned ? "" : " badge-tegel--onverdiend"}`}
+                    title={b.description}
+                  >
+                    <span className="badge-tegel-icoon">{b.icon}</span>
+                    <span className="badge-tegel-label">{b.label}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="profiel-activiteiten-kolom">
+              {/* Tabwissel is pure lokale state: beide lijsten zijn al opgehaald
+                  in de useEffect hierboven, dus wisselen kost geen extra API-call */}
+              <div className="profiel-tabs">
+                <button
+                  className={`profiel-tab${tab === "organized" ? " actief" : ""}`}
+                  onClick={() => setTab("organized")}
                 >
-                  <span className="badge-tegel-icoon">{b.icon}</span>
-                  <span className="badge-tegel-label">{b.label}</span>
-                </div>
-              ))}
+                  Georganiseerd ({data.organized.length})
+                </button>
+                <button
+                  className={`profiel-tab${tab === "joined" ? " actief" : ""}`}
+                  onClick={() => setTab("joined")}
+                >
+                  Deelgenomen ({data.joined.length})
+                </button>
+              </div>
+
+              {activeList.length === 0 ? (
+                <p className="activiteiten-empty">{emptyMessage}</p>
+              ) : (
+                <ul className="activiteiten-lijst">
+                  {activeList.map((a) => {
+                    const cat = getCategoryByValue(a.category);
+                    return (
+                      <li key={a.id}>
+                        <Link to={`/activiteiten/${a.id}`} className="profiel-item">
+                          <span className="profiel-item-icoon" style={{ background: cat?.bg ?? "#ede8fb" }}>
+                            {cat?.icon ?? "📌"}
+                          </span>
+                          <span className="profiel-item-tekst">
+                            <span className="profiel-item-titel">{a.title}</span>
+                            <span className="profiel-item-sub">
+                              {formatDateTime(a.start_time)} · {a.location_name}
+                            </span>
+                          </span>
+                          <span className="profiel-item-tag" style={{ color: cat?.accent ?? "#6c4ff5" }}>
+                            {statusLabel(a.start_time)}
+                          </span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </div>
-          )}
-
-          {/* Tabwissel is pure lokale state: beide lijsten zijn al opgehaald
-              in de useEffect hierboven, dus wisselen kost geen extra API-call */}
-          <div className="profiel-tabs">
-            <button
-              className={`profiel-tab${tab === "organized" ? " actief" : ""}`}
-              onClick={() => setTab("organized")}
-            >
-              Georganiseerd ({data.organized.length})
-            </button>
-            <button
-              className={`profiel-tab${tab === "joined" ? " actief" : ""}`}
-              onClick={() => setTab("joined")}
-            >
-              Deelgenomen ({data.joined.length})
-            </button>
           </div>
-
-          {activeList.length === 0 ? (
-            <p className="activiteiten-empty">{emptyMessage}</p>
-          ) : (
-            <ul className="activiteiten-lijst">
-              {activeList.map((a) => {
-                const cat = getCategoryByValue(a.category);
-                return (
-                  <li key={a.id}>
-                    <Link to={`/activiteiten/${a.id}`} className="profiel-item">
-                      <span className="profiel-item-icoon" style={{ background: cat?.bg ?? "#ede8fb" }}>
-                        {cat?.icon ?? "📌"}
-                      </span>
-                      <span className="profiel-item-tekst">
-                        <span className="profiel-item-titel">{a.title}</span>
-                        <span className="profiel-item-sub">
-                          {formatDateTime(a.start_time)} · {a.location_name}
-                        </span>
-                      </span>
-                      <span className="profiel-item-tag" style={{ color: cat?.accent ?? "#6c4ff5" }}>
-                        {statusLabel(a.start_time)}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
         </>
       )}
     </div>

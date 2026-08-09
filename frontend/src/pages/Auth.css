@@ -84,6 +84,14 @@
   color: #a29dbc;
 }
 
+/* Groepeert 2 velden op één rij vanaf desktopbreedte (zie media query
+   onderaan) — op mobiel gewoon gestapeld, zelfde gap als .auth-card */
+.auth-field--rij {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .auth-error {
   background: #fff1ef;
   border: 1.5px solid #ffd2c9;
@@ -228,4 +236,18 @@ a.auth-switch:hover {
 }
 .auth-info-callout strong {
   color: #1b1830;
+}
+
+/* Enkel voor het aanmaakformulier (.auth-card--form) — Login/Register
+   gebruiken .auth-card zonder deze modifier en blijven dus ongewijzigd */
+@media (min-width: 900px) {
+  .auth-card--form {
+    max-width: 640px;
+  }
+  .auth-field--rij {
+    flex-direction: row;
+  }
+  .auth-field--rij > .auth-field {
+    flex: 1;
+  }
 }

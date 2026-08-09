@@ -199,6 +199,12 @@
   font-weight: 700;
 }
 
+/* Enkel zichtbaar vanaf 900px (zie desktop-blok verderop) — op mobiel
+   bewust geen statistieken tonen, dat scherm blijft ongewijzigd */
+.start-stats-kolom {
+  display: none;
+}
+
 .categorieen-sectiekop {
   display: flex;
   align-items: baseline;
@@ -480,6 +486,13 @@
   border-radius: 18px;
   padding: 20px;
   box-shadow: 0 4px 16px rgba(124, 92, 252, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+/* Zelfde gap als .detail-card hierboven — puur een groepeer-laag voor de
+   desktop-grid (zie 900px-blok), geeft op mobiel geen visueel verschil */
+.detail-hoofdinhoud {
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -846,6 +859,19 @@
   text-transform: uppercase;
   letter-spacing: 0.07em;
   margin-top: 3px;
+}
+
+/* Groepeer-lagen voor de desktop-grid (zie 900px-blok) — zelfde 18px-gap
+   als de rest van .activiteiten-screen, dus geen visueel verschil op mobiel */
+.profiel-content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.profiel-activiteiten-kolom {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .badges-grid {
@@ -1322,5 +1348,72 @@
   .sidebar,
   .top-bar {
     display: flex;
+  }
+
+  /* Meer ademruimte nu de zijbalk/topbalk de vaste 260px/72px al
+     reserveren — de gecentreerde kolom mag hier breder dan de 880px
+     van het 768px-blok hierboven */
+  .activiteiten-screen {
+    max-width: 1040px;
+  }
+
+  /* Start: kop + datum staan al in Sidebar/TopBar, hier dubbel */
+  .activiteiten-header--start {
+    display: none;
+  }
+  .categorieen-datum {
+    display: none;
+  }
+
+  .start-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 240px;
+    gap: 20px;
+  }
+  .start-stats-kolom {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .categorie-grid {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+  }
+
+  /* Ontdek: meer kolommen dan het 768px-blok (2) */
+  .activiteiten-lijst {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  /* Detail: hoofdinhoud + sticky deelnemers/join-zijkolom */
+  .detail-card {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    align-items: start;
+    gap: 20px 28px;
+  }
+  .detail-participants {
+    position: sticky;
+    top: 92px;
+    border-top: none;
+    padding-top: 0;
+  }
+
+  /* Profiel: badges-kolom + tabs/lijst-kolom */
+  .profiel-content-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    align-items: start;
+    gap: 24px;
+  }
+  .badges-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* Een eigen kaartgrid is te krap in de 1fr-kolom hiernaast — een
+     gestapelde lijst leest hier beter dan de 3-koloms Ontdek-regel hierboven */
+  .profiel-activiteiten-kolom .activiteiten-lijst {
+    display: flex;
+    flex-direction: column;
   }
 }

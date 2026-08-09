@@ -73,7 +73,7 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
 
   return (
     <div className="auth-screen">
-      <form className="auth-card" onSubmit={handleSubmit}>
+      <form className="auth-card auth-card--form" onSubmit={handleSubmit}>
         <h1 className="auth-title">{heading}</h1>
 
         {error && <div className="auth-error">{error}</div>}
@@ -145,28 +145,30 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
           <span className="auth-hint">Tik op de kaart om de exacte locatie te kiezen.</span>
         </div>
 
-        <div className="auth-field">
-          <label htmlFor="start_time">Datum en tijd</label>
-          <input
-            id="start_time"
-            type="datetime-local"
-            required
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-          />
-        </div>
+        <div className="auth-field--rij">
+          <div className="auth-field">
+            <label htmlFor="start_time">Datum en tijd</label>
+            <input
+              id="start_time"
+              type="datetime-local"
+              required
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+            />
+          </div>
 
-        <div className="auth-field">
-          <label htmlFor="max_participants">Max. aantal deelnemers</label>
-          <input
-            id="max_participants"
-            type="number"
-            min="1"
-            max="500"
-            required
-            value={maxParticipants}
-            onChange={(e) => setMaxParticipants(e.target.value)}
-          />
+          <div className="auth-field">
+            <label htmlFor="max_participants">Max. aantal deelnemers</label>
+            <input
+              id="max_participants"
+              type="number"
+              min="1"
+              max="500"
+              required
+              value={maxParticipants}
+              onChange={(e) => setMaxParticipants(e.target.value)}
+            />
+          </div>
         </div>
 
         <button className="auth-submit" type="submit" disabled={loading}>

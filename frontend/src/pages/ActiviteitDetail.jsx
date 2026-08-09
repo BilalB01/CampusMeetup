@@ -126,63 +126,65 @@ export default function ActiviteitDetail() {
       </div>
 
       <div className="detail-card">
-        {activity.description && <p className="detail-description">{activity.description}</p>}
+        <div className="detail-hoofdinhoud">
+          {activity.description && <p className="detail-description">{activity.description}</p>}
 
-        <div className="detail-meta">
-          <span className="detail-meta-row">
-            <span className="detail-meta-icon">📅</span>
-            {formatDateTime(activity.start_time)}
-          </span>
-          <span className="detail-meta-row">
-            <span className="detail-meta-icon">📍</span>
-            {activity.location_name}
-          </span>
-          <span className="detail-meta-row">
-            <span className="detail-meta-icon">👤</span>
-            Georganiseerd door {activity.organizer.name}
-          </span>
+          <div className="detail-meta">
+            <span className="detail-meta-row">
+              <span className="detail-meta-icon">📅</span>
+              {formatDateTime(activity.start_time)}
+            </span>
+            <span className="detail-meta-row">
+              <span className="detail-meta-icon">📍</span>
+              {activity.location_name}
+            </span>
+            <span className="detail-meta-row">
+              <span className="detail-meta-icon">👤</span>
+              Georganiseerd door {activity.organizer.name}
+            </span>
+          </div>
+
+          {activity.organizer.id === user.id && (
+            <div className="organizer-acties">
+              <Link
+                to={`/activiteiten/${activity.id}/bewerken`}
+                className="organizer-actie organizer-actie--bewerken"
+              >
+                Bewerken
+              </Link>
+              <button
+                type="button"
+                className="organizer-actie organizer-actie--verwijderen"
+                onClick={handleDelete}
+                disabled={actionLoading}
+              >
+                Verwijderen
+              </button>
+            </div>
+          )}
+
+          {activity.latitude && activity.longitude && (
+            <div className="locatie-kaart">
+              <Map
+                style={{ width: "100%", height: "160px" }}
+                defaultCenter={{ lat: activity.latitude, lng: activity.longitude }}
+                defaultZoom={16}
+                gestureHandling="cooperative"
+                disableDefaultUI
+              >
+                <Marker position={{ lat: activity.latitude, lng: activity.longitude }} icon={PIN_ICON} />
+              </Map>
+              <a
+                className="route-link"
+                href={`https://www.google.com/maps/dir/?api=1&destination=${activity.latitude},${activity.longitude}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Route bekijken →
+              </a>
+            </div>
+          )}
         </div>
-
-        {activity.organizer.id === user.id && (
-          <div className="organizer-acties">
-            <Link
-              to={`/activiteiten/${activity.id}/bewerken`}
-              className="organizer-actie organizer-actie--bewerken"
-            >
-              Bewerken
-            </Link>
-            <button
-              type="button"
-              className="organizer-actie organizer-actie--verwijderen"
-              onClick={handleDelete}
-              disabled={actionLoading}
-            >
-              Verwijderen
-            </button>
-          </div>
-        )}
-
-        {activity.latitude && activity.longitude && (
-          <div className="locatie-kaart">
-            <Map
-              style={{ width: "100%", height: "160px" }}
-              defaultCenter={{ lat: activity.latitude, lng: activity.longitude }}
-              defaultZoom={16}
-              gestureHandling="cooperative"
-              disableDefaultUI
-            >
-              <Marker position={{ lat: activity.latitude, lng: activity.longitude }} icon={PIN_ICON} />
-            </Map>
-            <a
-              className="route-link"
-              href={`https://www.google.com/maps/dir/?api=1&destination=${activity.latitude},${activity.longitude}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Route bekijken →
-            </a>
-          </div>
-        )}
 
         <div className="detail-participants">
           <p className="detail-section-title">
