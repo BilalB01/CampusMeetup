@@ -9,6 +9,7 @@ import ActiviteitBewerken from "./pages/ActiviteitBewerken";
 import ActiviteitDetail from "./pages/ActiviteitDetail";
 import ActiviteitChat from "./pages/ActiviteitChat";
 import Profiel from "./pages/Profiel";
+import Instellingen from "./pages/Instellingen";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import BottomNav from "./components/BottomNav";
 import Sidebar from "./components/Sidebar";
@@ -93,6 +94,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profiel />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/instellingen"
+            element={
+              <ProtectedRoute>
+                <Instellingen />
               </ProtectedRoute>
             }
           />

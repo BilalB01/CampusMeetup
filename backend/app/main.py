@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func
@@ -10,6 +10,7 @@ from app import models, schemas
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.routers import activities, auth, chat
+from app.security import hash_password, verify_password
 from app.uploads import UPLOADS_DIR
 
 app = FastAPI(title="CampusMeetup API")
@@ -59,6 +60,58 @@ def read_platform_stats(db: Session = Depends(get_db)):
 @app.get("/users/me", response_model=schemas.UserOut)
 def read_current_user(current_user: models.User = Depends(get_current_user)):
     return current_user
+
+
+# Naam bewerken op het Instellingen-scherm
+@app.patch("/users/me", response_model=schemas.UserOut)
+def update_current_user(
+    payload: schemas.UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    current_user.name = payload.name
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+# Wachtwoord wijzigen — niet van toepassing op Microsoft-accounts (geen
+# hashed_password om tegen te verifiëren, zie ook login() in routers/auth.py
+# voor dezelfde check bij het gewone inloggen)
+@app.put("/users/me/password")
+def change_password(
+    payload: schemas.PasswordChange,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if current_user.hashed_password is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Dit account gebruikt Microsoft om in te loggen — wachtwoord kan hier niet gewijzigd worden",
+        )
+    if not verify_password(payload.current_password, current_user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Huidig wachtwoord is onjuist")
+    current_user.hashed_password = hash_password(payload.new_password)
+    db.commit()
+    return {"status": "ok"}
+
+
+# Account verwijderen: eerst eigen berichten/deelnames (overal, ongeacht wie
+# organiseert), dan de eigen georganiseerde activiteiten via ORM db.delete()
+# per activiteit (zodat de bestaande cascade op Activity.participations/
+# messages ook deelnames/berichten van ANDERE gebruikers in die activiteiten
+# meeneemt), pas dan de gebruiker zelf — anders blokkeren de foreign keys
+@app.delete("/users/me", status_code=status.HTTP_204_NO_CONTENT)
+def delete_current_user(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    db.query(models.Message).filter(models.Message.user_id == current_user.id).delete()
+    db.query(models.Participation).filter(models.Participation.user_id == current_user.id).delete()
+    for activiteit in db.query(models.Activity).filter(models.Activity.organizer_id == current_user.id):
+        db.delete(activiteit)
+    db.delete(current_user)
+    db.commit()
 
 
 # Activiteiten van de ingelogde gebruiker voor het profielscherm, opgesplitst

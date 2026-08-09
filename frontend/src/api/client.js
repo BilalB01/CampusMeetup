@@ -67,6 +67,21 @@ export function loginWithMicrosoft(idToken) {
   });
 }
 
+// Wijzigt de naam van de ingelogde gebruiker (Instellingen-scherm)
+export function updateProfile(name, token) {
+  return request("/users/me", { method: "PATCH", body: JSON.stringify({ name }), token });
+}
+
+// Wijzigt het wachtwoord — niet van toepassing op Microsoft-accounts
+export function changePassword(payload, token) {
+  return request("/users/me/password", { method: "PUT", body: JSON.stringify(payload), token });
+}
+
+// Verwijdert het account (en alles eraan gekoppeld) definitief
+export function deleteAccount(token) {
+  return request("/users/me", { method: "DELETE", token });
+}
+
 // Haalt de activiteitenlijst op, optioneel gefilterd op categorie
 export function listActivities({ category } = {}) {
   const query = category ? `?category=${encodeURIComponent(category)}` : "";

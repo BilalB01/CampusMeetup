@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { msalInstance } from "./msalInstance";
 
 const AuthContext = createContext(null);
 
@@ -18,15 +19,31 @@ export function AuthProvider({ children }) {
     setUser(user);
   }
 
-  function logout() {
+  // Wist de MSAL-cache en het eigen token/user uit localStorage
+  async function logout() {
+    try {
+      await msalInstance.clearCache();
+    } catch {
+      // negeert fouten bij het wissen van de MSAL-cache
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setToken(null);
     setUser(null);
   }
 
+  // Past de opgeslagen gebruiker gedeeltelijk aan (bv. na een naamswijziging
+  // op het Instellingen-scherm) zonder opnieuw te moeten inloggen
+  function updateUser(partial) {
+    setUser((prev) => {
+      const next = { ...prev, ...partial };
+      localStorage.setItem("user", JSON.stringify(next));
+      return next;
+    });
+  }
+
   return (
-    <AuthContext.Provider value={{ token, user, saveSession, logout }}>
+    <AuthContext.Provider value={{ token, user, saveSession, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

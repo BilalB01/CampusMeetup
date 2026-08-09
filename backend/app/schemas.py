@@ -43,10 +43,24 @@ class UserOut(BaseModel):
     id: int
     name: str
     email: EmailStr
+    # "password" of "microsoft" — frontend heeft dit nodig om te weten of
+    # wachtwoord-wijzigen zinvol is (niet van toepassing bij Microsoft)
+    auth_provider: str
     created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+# Payload van PATCH /users/me
+class UserUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+
+
+# Payload van PUT /users/me/password
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=8, max_length=128)
 
 
 # Antwoord bij succesvolle login/registratie: JWT-token + gebruikersgegevens
