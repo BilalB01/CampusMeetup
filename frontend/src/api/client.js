@@ -52,6 +52,15 @@ export function login({ email, password }) {
   });
 }
 
+// Logt in met een Microsoft-ID-token (opgehaald via MSAL in de browser) —
+// de backend verifieert dit token zelf nog eens vóór het vertrouwd wordt
+export function loginWithMicrosoft(idToken) {
+  return request("/auth/microsoft", {
+    method: "POST",
+    body: JSON.stringify({ id_token: idToken }),
+  });
+}
+
 // Haalt de activiteitenlijst op, optioneel gefilterd op categorie
 export function listActivities({ category } = {}) {
   const query = category ? `?category=${encodeURIComponent(category)}` : "";

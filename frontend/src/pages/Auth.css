@@ -118,6 +118,28 @@
   transform: none;
 }
 
+.auth-microsoft-knop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  border: 1.5px solid #e6e1fb;
+  border-radius: 999px;
+  background: #fff;
+  color: #1b1830;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.auth-microsoft-knop:hover:not(:disabled) {
+  background: #efebf9;
+}
+.auth-microsoft-knop:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .auth-switch {
   text-align: center;
   font-size: 13px;
