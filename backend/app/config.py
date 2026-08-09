@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
     uploads_dir: str = "uploads"
+    # Optioneel (None): de backend blijft werken zonder Microsoft-login
+    # geconfigureerd, dat endpoint geeft dan gewoon een duidelijke 501 terug
+    microsoft_client_id: str | None = None
 
     class Config:
         env_file = ".env"
