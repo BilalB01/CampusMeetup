@@ -26,7 +26,13 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    # Nullable: accounts aangemaakt via Microsoft-login (zie routers/auth.py)
+    # hebben geen eigen wachtwoord
+    hashed_password = Column(String, nullable=True)
+    # "password" of "microsoft" — enkel gebruikt voor een duidelijke
+    # foutmelding als iemand met een Microsoft-account per ongeluk het
+    # wachtwoordformulier probeert
+    auth_provider = Column(String(20), nullable=False, default="password")
     created_at = Column(DateTime(timezone=True), default=utcnow)
 
     activities = relationship("Activity", back_populates="organizer")
