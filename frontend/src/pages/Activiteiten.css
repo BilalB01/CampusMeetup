@@ -1160,3 +1160,167 @@
     position: absolute;
   }
 }
+
+/* Desktop-schil: vaste linker-zijbalk + topbalk i.p.v. de onderaan-
+   navigatiebalk. Los van het 768px-blok hierboven (dat blijft gewoon de
+   gecentreerde telefoonkolom breder maken) — dit is een apart, hoger
+   breakpoint voor echte desktop-chrome */
+.sidebar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 260px;
+  flex-direction: column;
+  gap: 22px;
+  padding: 28px 20px;
+  background: #fff;
+  border-right: 1px solid rgba(27, 24, 48, 0.06);
+  box-sizing: border-box;
+  overflow-y: auto;
+  z-index: 30;
+}
+
+.sidebar-profiel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #1b1830;
+}
+.sidebar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  font-weight: 800;
+  font-family: "Bricolage Grotesque", sans-serif;
+  flex-shrink: 0;
+}
+.sidebar-profiel-naam {
+  font-weight: 700;
+  font-size: 14.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 999px;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 8px 20px rgba(108, 79, 245, 0.35);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #a29dbc;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.sidebar-nav-item:hover {
+  background: #efebf9;
+}
+.sidebar-nav-item.actief {
+  background: #ede8fb;
+  color: #6c4ff5;
+}
+
+.sidebar-volgende {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #efebf9;
+  text-decoration: none;
+  color: #1b1830;
+}
+.sidebar-volgende-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8c87a6;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.sidebar-volgende-titel {
+  font-size: 13.5px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sidebar-volgende-badge {
+  font-size: 11.5px;
+  color: #6c4ff5;
+  font-weight: 700;
+}
+
+.top-bar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 260px;
+  right: 0;
+  height: 72px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  background: rgba(239, 235, 249, 0.85);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(27, 24, 48, 0.06);
+  box-sizing: border-box;
+  z-index: 25;
+}
+.top-bar-logo {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  color: #1b1830;
+}
+.top-bar-datum {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #8c87a6;
+}
+
+@media (min-width: 900px) {
+  .app-shell--chrome {
+    padding-left: 260px;
+    padding-top: 72px;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  .sidebar,
+  .top-bar {
+    display: flex;
+  }
+}

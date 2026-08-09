@@ -1,0 +1,24 @@
+import { useLocation } from "react-router-dom";
+import { isAuthScreen } from "../utils/nav";
+
+// Vaste topbalk vanaf desktopbreedte (≥900px, zie Activiteiten.css).
+// Bewust geen zoekbalk: die was in de mockup niet aan iets gekoppeld,
+// en een niet-werkende zoekbalk bouwen zou een nepfunctie zijn
+export default function TopBar() {
+  const { pathname } = useLocation();
+  if (isAuthScreen(pathname)) return null;
+
+  const vandaag = new Intl.DateTimeFormat("nl-BE", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(new Date());
+  const vandaagMetHoofdletter = vandaag.charAt(0).toUpperCase() + vandaag.slice(1);
+
+  return (
+    <header className="top-bar">
+      <span className="top-bar-logo">CampusMeetup</span>
+      <span className="top-bar-datum">{vandaagMetHoofdletter}</span>
+    </header>
+  );
+}
