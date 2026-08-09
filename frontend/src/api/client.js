@@ -137,6 +137,12 @@ export function getMyBadges(token) {
   return request("/users/me/badges", { token });
 }
 
+// Haalt het chatoverzicht van de ingelogde gebruiker op: alle groepschats
+// waar die aan deelneemt, met laatste bericht + ongelezen-teller
+export function getConversations(token) {
+  return request("/users/me/conversations", { token });
+}
+
 // Haalt de chatgeschiedenis van een activiteit op (enkel voor deelnemers)
 export function getMessages(activityId, token) {
   return request(`/activities/${activityId}/messages`, { token });
@@ -153,4 +159,9 @@ export function uploadChatImage(activityId, file, token) {
     body: formData,
     token,
   });
+}
+
+// Verwijdert een eigen chatbericht — de backend weigert dit voor andermans berichten
+export function deleteChatMessage(activityId, messageId, token) {
+  return request(`/activities/${activityId}/messages/${messageId}`, { method: "DELETE", token });
 }

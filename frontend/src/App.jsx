@@ -8,6 +8,7 @@ import ActiviteitAanmaken from "./pages/ActiviteitAanmaken";
 import ActiviteitBewerken from "./pages/ActiviteitBewerken";
 import ActiviteitDetail from "./pages/ActiviteitDetail";
 import ActiviteitChat from "./pages/ActiviteitChat";
+import ChatOverzicht from "./pages/ChatOverzicht";
 import Profiel from "./pages/Profiel";
 import Instellingen from "./pages/Instellingen";
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -86,6 +87,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ActiviteitChat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/chats"
+            element={
+              <ProtectedRoute>
+                <ChatOverzicht />
               </ProtectedRoute>
             }
           />

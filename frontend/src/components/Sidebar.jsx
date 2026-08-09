@@ -9,6 +9,7 @@ import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
 const TABS = [
   { key: "home", label: "Start", path: ICONS.home, to: "/" },
   { key: "ontdek", label: "Ontdek", path: ICONS.kompas, to: "/activiteiten" },
+  { key: "chats", label: "Chats", path: ICONS.chat, to: "/chats" },
   { key: "instellingen", label: "Instellingen", path: ICONS.tandwiel, to: "/instellingen" },
 ];
 

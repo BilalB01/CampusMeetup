@@ -2,13 +2,12 @@ import { Link, useLocation } from "react-router-dom";
 import { CATEGORIES } from "../constants/categories";
 import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
 
-// Vaste onderaan-navigatiebalk, overal zichtbaar behalve op login/register.
-// Geen Chat-tab: chat zit per activiteit, er bestaat geen algemene chatlijst
-// om naar te linken
+// Vaste onderaan-navigatiebalk, overal zichtbaar behalve op login/register
 const TABS = [
   { key: "home", label: "Start", path: ICONS.home, to: "/" },
   { key: "ontdek", label: "Ontdek", path: ICONS.kompas, to: "/activiteiten" },
   { key: "nieuw", label: "Nieuw", path: ICONS.plus, to: `/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw` },
+  { key: "chats", label: "Chats", path: ICONS.chat, to: "/chats" },
   { key: "profiel", label: "Profiel", path: ICONS.persoon, to: "/profiel" },
 ];
 

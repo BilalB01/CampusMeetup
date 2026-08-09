@@ -4,7 +4,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app import models, schemas
 from app.database import get_db
@@ -218,3 +218,69 @@ def read_my_badges(
         schemas.BadgeOut(key=k, label=l, description=d, icon=i, earned=e)
         for k, l, d, i, e in definities
     ]
+
+
+# Chatoverzicht voor het profielscherm: alle groepschats waar de gebruiker
+# aan deelneemt, met laatste bericht + ongelezen-teller. Bulkqueries + verwerking
+# in Python, zelfde aanpak als read_my_activities/read_my_badges hierboven
+@app.get("/users/me/conversations", response_model=list[schemas.ConversationOut])
+def read_my_conversations(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    participations = (
+        db.query(models.Participation)
+        .filter(models.Participation.user_id == current_user.id)
+        .all()
+    )
+    if not participations:
+        return []
+    activity_ids = [p.activity_id for p in participations]
+    participation_by_activity = {p.activity_id: p for p in participations}
+
+    activities_by_id = {
+        a.id: a
+        for a in db.query(models.Activity).filter(models.Activity.id.in_(activity_ids)).all()
+    }
+    messages = (
+        db.query(models.Message)
+        .options(joinedload(models.Message.user))
+        .filter(models.Message.activity_id.in_(activity_ids))
+        .order_by(models.Message.created_at.desc())
+        .all()
+    )
+
+    last_message_by_activity: dict[int, models.Message] = {}
+    unread_by_activity: dict[int, int] = {aid: 0 for aid in activity_ids}
+    for m in messages:
+        last_message_by_activity.setdefault(m.activity_id, m)
+        participation = participation_by_activity[m.activity_id]
+        is_unread = m.user_id != current_user.id and (
+            participation.last_read_at is None or m.created_at > participation.last_read_at
+        )
+        if is_unread:
+            unread_by_activity[m.activity_id] += 1
+
+    def preview(m: models.Message | None) -> str | None:
+        if m is None:
+            return None
+        tekst = "📷 Afbeelding" if m.image_url else m.content
+        return f"Jij: {tekst}" if m.user_id == current_user.id else tekst
+
+    result = [
+        schemas.ConversationOut(
+            activity_id=aid,
+            title=activities_by_id[aid].title,
+            category=activities_by_id[aid].category,
+            last_message=preview(last_message_by_activity.get(aid)),
+            last_message_at=(
+                last_message_by_activity[aid].created_at
+                if aid in last_message_by_activity
+                else participation_by_activity[aid].joined_at
+            ),
+            unread_count=unread_by_activity[aid],
+        )
+        for aid in activity_ids
+    ]
+    result.sort(key=lambda c: c.last_message_at, reverse=True)
+    return result

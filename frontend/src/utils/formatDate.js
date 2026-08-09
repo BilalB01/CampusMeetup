@@ -36,6 +36,24 @@ export function formatWeekdayShort(isoString) {
   return new Intl.DateTimeFormat("nl-BE", { weekday: "short" }).format(new Date(isoString)).replace(".", "");
 }
 
+// Relatieve tijd voor het chatoverzicht: "14:02" vandaag, "gisteren",
+// "ma" deze week, anders "3 aug"
+export function formatRelativeTime(isoString) {
+  const d = new Date(isoString);
+  const nu = new Date();
+  if (d.toDateString() === nu.toDateString()) return formatTime(isoString);
+
+  const gisteren = new Date(nu);
+  gisteren.setDate(gisteren.getDate() - 1);
+  if (d.toDateString() === gisteren.toDateString()) return "gisteren";
+
+  const zevenDagenGeleden = new Date(nu);
+  zevenDagenGeleden.setDate(zevenDagenGeleden.getDate() - 7);
+  if (d > zevenDagenGeleden) return formatWeekdayShort(isoString);
+
+  return new Intl.DateTimeFormat("nl-BE", { day: "numeric", month: "short" }).format(d);
+}
+
 // Geeft een korte badge-tekst terug voor een naderende activiteit
 // ("Start binnen 45 min", "Vandaag", "Morgen"), of null als het te ver in
 // de toekomst ligt (of al voorbij is) om te benadrukken

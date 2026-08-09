@@ -186,3 +186,13 @@ class MessageOut(BaseModel):
 class PlatformStatsOut(BaseModel):
     student_count: int
     activities_this_week: int
+
+
+# Eén rij in GET /users/me/conversations (chatoverzicht)
+class ConversationOut(BaseModel):
+    activity_id: int
+    title: str
+    category: ActivityCategory
+    last_message: str | None
+    last_message_at: datetime
+    unread_count: int
