@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { getMyActivities, getMyBadges } from "../api/client";
+import Skeleton from "../components/Skeleton";
+import StatTegel from "../components/StatTegel";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { formatDateTime } from "../utils/formatDate";
@@ -95,16 +97,34 @@ export default function Profiel() {
       </div>
 
       {error && <div className="auth-error">{error}</div>}
-      {loading && <p>Bezig met laden...</p>}
+      {loading && (
+        <>
+          <div className="profiel-stats-rij">
+            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
+            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
+            <Skeleton className="profiel-stat-tegel" style={{ height: 62 }} />
+          </div>
+          <ul className="activiteiten-lijst">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <li key={i}>
+                <div className="profiel-item">
+                  <Skeleton style={{ width: 42, height: 42, borderRadius: 15, flexShrink: 0 }} />
+                  <div className="profiel-item-tekst">
+                    <Skeleton style={{ height: 13, width: "60%", marginBottom: 6 }} />
+                    <Skeleton style={{ height: 10, width: "40%" }} />
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       {!loading && !error && (
         <>
           <div className="profiel-stats-rij">
             {stats.map((s) => (
-              <div key={s.l} className="profiel-stat-tegel">
-                <div className="profiel-stat-getal">{s.n}</div>
-                <div className="profiel-stat-label">{s.l}</div>
-              </div>
+              <StatTegel key={s.l} n={s.n} l={s.l} />
             ))}
           </div>
 
@@ -128,6 +148,10 @@ export default function Profiel() {
               {/* Tabwissel is pure lokale state: beide lijsten zijn al opgehaald
                   in de useEffect hierboven, dus wisselen kost geen extra API-call */}
               <div className="profiel-tabs">
+                <span
+                  className="profiel-tabs-indicator"
+                  style={{ transform: tab === "organized" ? "translateX(0%)" : "translateX(100%)" }}
+                />
                 <button
                   className={`profiel-tab${tab === "organized" ? " actief" : ""}`}
                   onClick={() => setTab("organized")}

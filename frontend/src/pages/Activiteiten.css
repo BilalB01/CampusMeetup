@@ -1,5 +1,61 @@
 @import "./Auth.css";
 
+/* Gestaggerde intrede voor kaarten/tegels zodra hun echte inhoud (i.p.v.
+   een skeleton) gerenderd wordt */
+@keyframes kaart-intrede {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.categorie-grid > a,
+.activiteiten-lijst > li,
+.badges-grid > div {
+  animation: kaart-intrede 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+/* Oplopende vertraging per item, gecapt op 8 stappen — alles daarna
+   deelt gewoon de laatste stap, geen probleem bij lange lijsten */
+.categorie-grid > a:nth-child(1),
+.activiteiten-lijst > li:nth-child(1),
+.badges-grid > div:nth-child(1) {
+  animation-delay: 0.03s;
+}
+.categorie-grid > a:nth-child(2),
+.activiteiten-lijst > li:nth-child(2),
+.badges-grid > div:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.categorie-grid > a:nth-child(3),
+.activiteiten-lijst > li:nth-child(3),
+.badges-grid > div:nth-child(3) {
+  animation-delay: 0.09s;
+}
+.categorie-grid > a:nth-child(4),
+.activiteiten-lijst > li:nth-child(4),
+.badges-grid > div:nth-child(4) {
+  animation-delay: 0.12s;
+}
+.categorie-grid > a:nth-child(5),
+.activiteiten-lijst > li:nth-child(5),
+.badges-grid > div:nth-child(5) {
+  animation-delay: 0.15s;
+}
+.categorie-grid > a:nth-child(6),
+.activiteiten-lijst > li:nth-child(6),
+.badges-grid > div:nth-child(6) {
+  animation-delay: 0.18s;
+}
+.activiteiten-lijst > li:nth-child(7) {
+  animation-delay: 0.21s;
+}
+.activiteiten-lijst > li:nth-child(8) {
+  animation-delay: 0.24s;
+}
+
 .activiteiten-screen {
   min-height: 100vh;
   background: #efebf9;
@@ -282,6 +338,7 @@
   font-weight: 600;
   color: #5c5876;
   cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 .filter-pil.actief {
   background: #1b1830;
@@ -966,13 +1023,29 @@
    Figma is nooit gebouwd, Kaartweergave is out of scope), dus hier bewust
    nieuw opgezet maar met het bestaande palet */
 .profiel-tabs {
+  position: relative;
   display: flex;
   background: #ede8fb;
   border-radius: 12px;
   padding: 4px;
   gap: 4px;
 }
+/* Glijdende achtergrond i.p.v. dat elke knop zijn eigen achtergrond apart
+   faket — .profiel-tab(.actief) hieronder geeft enkel nog de tekstkleur */
+.profiel-tabs-indicator {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: calc(50% - 4px);
+  height: calc(100% - 8px);
+  background: #fff;
+  border-radius: 9px;
+  box-shadow: 0 2px 8px rgba(124, 92, 252, 0.18);
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 .profiel-tab {
+  position: relative;
+  z-index: 1;
   flex: 1;
   border: none;
   background: transparent;
@@ -982,12 +1055,10 @@
   font-weight: 700;
   color: #5c5876;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition: color 0.15s ease;
 }
 .profiel-tab.actief {
-  background: #fff;
   color: #6c4ff5;
-  box-shadow: 0 2px 8px rgba(124, 92, 252, 0.18);
 }
 
 /* Uitloggen: bewust geen gevulde violette .auth-submit-stijl (die staat
@@ -1416,4 +1487,24 @@
     display: flex;
     flex-direction: column;
   }
+}
+
+/* Herbruikbare shimmer-placeholder (zie components/Skeleton.jsx) — helemaal
+   onderaan het bestand zodat de gradient-achtergrond altijd wint van de eigen
+   background van kaart-classes die er via className bij gegeven worden
+   (bv. .categorie-tile2, .profiel-stat-tegel — anders zou hún later
+   gedeclareerde background: #fff deze overschrijven bij gelijke specificiteit) */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -150% 0;
+  }
+  100% {
+    background-position: 150% 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(90deg, #ede8fb 25%, #f5f2fc 37%, #ede8fb 63%);
+  background-size: 300% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 12px;
 }

@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
 import { deleteActivity, getActivity, joinActivity, leaveActivity } from "../api/client";
 import AvatarStack from "../components/AvatarStack";
+import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { PIN_ICON } from "../constants/maps";
@@ -81,7 +82,20 @@ export default function ActiviteitDetail() {
   if (loading) {
     return (
       <div className="activiteiten-screen">
-        <p>Bezig met laden...</p>
+        <div className="detail-hero">
+          <div className="detail-hero-top">
+            <Skeleton style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.35)" }} />
+          </div>
+          <Skeleton style={{ width: "60%", height: 24, background: "rgba(255,255,255,.35)" }} />
+        </div>
+        <div className="detail-card">
+          <div className="detail-hoofdinhoud">
+            <Skeleton style={{ height: 16, width: "90%" }} />
+            <Skeleton style={{ height: 16, width: "70%" }} />
+            <Skeleton style={{ height: 60 }} />
+          </div>
+          <Skeleton style={{ height: 100 }} />
+        </div>
       </div>
     );
   }

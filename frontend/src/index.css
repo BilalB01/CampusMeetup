@@ -15,3 +15,16 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* Schakelt alle CSS-animaties/-overgangen nagenoeg uit voor wie dat via
+   het besturingssysteem heeft aangevraagd (shimmer, kaart-intrede,
+   tab-indicator, filterpil-overgang zitten hier allemaal onder) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

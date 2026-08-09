@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Map, Marker, InfoWindow } from "@vis.gl/react-google-maps";
 import { listActivities } from "../api/client";
 import AvatarStack from "../components/AvatarStack";
+import Skeleton from "../components/Skeleton";
 import { getCategoryBySlug, getCategoryByValue } from "../constants/categories";
 import { EHB_CAMPUS_CENTER, PIN_ICON } from "../constants/maps";
 import { distanceInMeters, formatDistance } from "../utils/distance";
@@ -92,6 +93,10 @@ export default function ActiviteitenLijst() {
       </header>
 
       <div className="profiel-tabs">
+        <span
+          className="profiel-tabs-indicator"
+          style={{ transform: view === "lijst" ? "translateX(0%)" : "translateX(100%)" }}
+        />
         <button
           className={`profiel-tab${view === "lijst" ? " actief" : ""}`}
           onClick={() => setView("lijst")}
@@ -107,7 +112,21 @@ export default function ActiviteitenLijst() {
       </div>
 
       {error && <div className="auth-error">{error}</div>}
-      {loading && <p>Bezig met laden...</p>}
+      {loading && (
+        <ul className="activiteiten-lijst">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <li key={i}>
+              <div className="activiteit-rij">
+                <Skeleton style={{ width: 50, height: 50, borderRadius: 12, flexShrink: 0 }} />
+                <div className="activiteit-rij-inhoud">
+                  <Skeleton style={{ height: 14, width: "70%", marginBottom: 8 }} />
+                  <Skeleton style={{ height: 11, width: "40%" }} />
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
       {!loading && !error && activities.length === 0 && (
         <p className="activiteiten-empty">
           {isOntdek ? "Nog geen activiteiten. Maak er zelf een aan!" : "Nog geen activiteiten in deze categorie. Maak er zelf een aan!"}
