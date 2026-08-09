@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 import { login, loginWithMicrosoft } from "../api/client";
+import AuthSplitScreen from "../components/AuthSplitScreen";
 import { useAuth } from "../auth/AuthContext";
 import "./Auth.css";
 
@@ -72,75 +73,78 @@ export default function Login() {
   }, [accounts.length]);
 
   return (
-    <div className="auth-screen">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <div className="auth-hero">
-          <div className="auth-hero-content">
-            <p className="auth-hero-title">
-              Zin in iets
-              <br />
-              vanavond?
-            </p>
-            <p className="auth-hero-subtitle">Spontane plannen op en rond de campus.</p>
-          </div>
+    <AuthSplitScreen onSubmit={handleSubmit}>
+      {/* Enkel op mobiel: op desktop staat merk/branding al in het
+          linkerpaneel van AuthSplitScreen */}
+      <div className="auth-hero veld-mobiel">
+        <div className="auth-hero-content">
+          <p className="auth-hero-title">
+            Zin in iets
+            <br />
+            vanavond?
+          </p>
+          <p className="auth-hero-subtitle">Spontane plannen op en rond de campus.</p>
         </div>
+      </div>
+      <h1 className="auth-title veld-desktop">Welkom terug</h1>
+      <p className="auth-subtitle veld-desktop">Log in om activiteiten te zien en mee te doen.</p>
 
-        {error && <div className="auth-error">{error}</div>}
+      {error && <div className="auth-error">{error}</div>}
 
-        <div className="auth-field">
-          <label htmlFor="email">E-mailadres</label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="voornaam.achternaam@student.ehb.be"
-          />
-        </div>
+      <div className="auth-field">
+        <label htmlFor="email">E-mailadres</label>
+        <input
+          id="email"
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="voornaam.achternaam@student.ehb.be"
+        />
+      </div>
 
-        <div className="auth-field">
-          <label htmlFor="password">Wachtwoord</label>
-          <input
-            id="password"
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+      <div className="auth-field">
+        <label htmlFor="password">Wachtwoord</label>
+        <input
+          id="password"
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
 
-        <button className="auth-submit" type="submit" disabled={loading}>
-          {loading ? "Bezig..." : "Inloggen"}
-        </button>
+      <button className="auth-submit" type="submit" disabled={loading}>
+        {loading ? "Bezig..." : "Inloggen"}
+      </button>
 
-        <button
-          type="button"
-          className="auth-microsoft-knop"
-          onClick={handleMicrosoftLogin}
-          disabled={msLoading}
-        >
-          <svg width="18" height="18" viewBox="0 0 21 21">
-            <rect x="1" y="1" width="9" height="9" fill="#f25022" />
-            <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
-            <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
-            <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
-          </svg>
-          {msLoading ? "Bezig..." : "Inloggen met Microsoft"}
-        </button>
+      <button
+        type="button"
+        className="auth-microsoft-knop"
+        onClick={handleMicrosoftLogin}
+        disabled={msLoading}
+      >
+        <svg width="18" height="18" viewBox="0 0 21 21">
+          <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+          <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+          <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+          <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+        </svg>
+        {msLoading ? "Bezig..." : "Inloggen met Microsoft"}
+      </button>
 
-        <p className="auth-switch">
-          Nog geen account? <Link to="/register">Registreer</Link>
-        </p>
+      {/* Enkel op mobiel: op desktop doet de tabbalk in AuthSplitScreen dit al */}
+      <p className="auth-switch veld-mobiel">
+        Nog geen account? <Link to="/register">Registreer</Link>
+      </p>
 
-        <div className="auth-info-callout">
-          <span>🎓</span>
-          <span>
-            Enkel met je <strong>@student.ehb.be</strong>-adres. Zo weet je dat iedereen op de app ook echt
-            medestudent is.
-          </span>
-        </div>
-      </form>
-    </div>
+      <div className="auth-info-callout">
+        <span>🎓</span>
+        <span>
+          Enkel met je <strong>@student.ehb.be</strong>-adres. Zo weet je dat iedereen op de app ook echt
+          medestudent is.
+        </span>
+      </div>
+    </AuthSplitScreen>
   );
 }

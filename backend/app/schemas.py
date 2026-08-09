@@ -165,3 +165,10 @@ class MessageOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# Antwoord van GET /stats — publieke, platform-brede tellingen voor het
+# login/registreerscherm. Enkel echte cijfers, geen nepdata
+class PlatformStatsOut(BaseModel):
+    student_count: int
+    activities_this_week: int

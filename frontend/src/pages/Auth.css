@@ -386,6 +386,107 @@ a.auth-switch:hover {
   color: #1b1830;
 }
 
+/* Wrapper rond hero+kaart, zie AuthSplitScreen.jsx voor waarom dit een
+   aparte laag is (i.p.v. hero/kaart rechtstreeks in .auth-screen) */
+.auth-split-paneel {
+  display: flex;
+}
+
+/* Linkerpaneel van AuthSplitScreen.jsx (Login/Register) — enkel vanaf
+   900px zichtbaar (zie veld-desktop hieronder), op mobiel blijft enkel
+   .auth-card over zoals vandaag. Decoratieve cirkels + kleurverloop
+   hergebruiken dezelfde aanpak als .auth-hero (Login, mobiel) */
+.auth-split-hero {
+  position: relative;
+  overflow: hidden;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+  width: 460px;
+  /* Zonder dit kan .auth-split-card (die lange, niet-afbreekbare tekst
+     bevat, bv. het schoolmail-voorbeeld) de hero laten meekrimpen op
+     Register — vaste breedte, nooit toegeven aan de buur */
+  flex-shrink: 0;
+  min-height: 460px;
+  padding: 40px;
+  /* Enkel de buitenste hoeken rond — rechts vlak tegen .auth-split-card
+     aan, samen moeten ze als één blok ogen i.p.v. 2 losse kaarten */
+  border-radius: 32px 0 0 32px;
+  background: linear-gradient(155deg, #8b6bff, #6c4ff5 55%, #5a3ae8);
+  color: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 20px 50px rgba(90, 58, 232, 0.28);
+}
+.auth-split-hero::before {
+  content: "";
+  position: absolute;
+  right: -60px;
+  top: -70px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+.auth-split-hero::after {
+  content: "";
+  position: absolute;
+  left: -50px;
+  bottom: -70px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.auth-split-hero-merk {
+  position: relative;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+}
+.auth-split-hero-copy {
+  position: relative;
+}
+.auth-split-hero-titel {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 14px;
+}
+.auth-split-hero-sub {
+  margin: 0;
+  max-width: 320px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #e2dbff;
+}
+.auth-split-stats {
+  position: relative;
+  display: flex;
+  gap: 10px;
+}
+.auth-split-stat {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.auth-split-stat-getal {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+}
+.auth-split-stat-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #e2dbff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 3px;
+}
+
 /* Enkel voor het aanmaakformulier (.auth-card--form) — Login/Register
    gebruiken .auth-card zonder deze modifier en blijven dus ongewijzigd */
 @media (min-width: 900px) {
@@ -407,5 +508,28 @@ a.auth-switch:hover {
   }
   .veld-desktop {
     display: flex;
+  }
+  /* .auth-split-hero + .auth-split-card moeten als één blok ogen (geen
+     tussenruimte, vlakke binnenkant, gedeelde afronding enkel buitenaan —
+     zie de aangepaste border-radius bij .auth-split-hero hierboven) */
+  .auth-split-card {
+    border-radius: 0 32px 32px 0;
+    /* De basis .auth-card heeft max-width:380px — die cap moet hier ook
+       overschreven worden, anders blijft width hieronder genegeerd.
+       Vast i.p.v. enkel max-width omdat .auth-card's width:100% in deze
+       flex-context zonder gedefinieerde containerbreedte terugvalt op de
+       eigen inhoud — Login (met MS-knop/callout) en Register (korter
+       formulier) kwamen zo elk op een andere breedte uit */
+    width: 500px;
+    max-width: 500px;
+    flex-shrink: 0;
+    min-width: 0;
+  }
+  /* .auth-title/.auth-subtitle zijn standaard gecentreerd (voor de oude
+     mobiele kaart) — links tegen het rechterpaneel past linkse uitlijning
+     beter, geldt zo automatisch ook voor Register.jsx */
+  .auth-split-card .auth-title,
+  .auth-split-card .auth-subtitle {
+    text-align: left;
   }
 }

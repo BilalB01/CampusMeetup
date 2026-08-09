@@ -38,6 +38,12 @@ function extractErrorMessage(data) {
   return "Er ging iets mis. Probeer het opnieuw.";
 }
 
+// Publieke, platform-brede tellingen voor het login/registreerscherm — geen
+// token nodig, dit scherm bekijk je per definitie nog niet ingelogd
+export function getPlatformStats() {
+  return request("/stats");
+}
+
 export function register({ name, email, password }) {
   return request("/auth/register", {
     method: "POST",

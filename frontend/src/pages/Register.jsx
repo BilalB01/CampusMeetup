@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { register } from "../api/client";
+import AuthSplitScreen from "../components/AuthSplitScreen";
 import { useAuth } from "../auth/AuthContext";
 import "./Auth.css";
 
@@ -30,60 +31,59 @@ export default function Register() {
   }
 
   return (
-    <div className="auth-screen">
-      <form className="auth-card" onSubmit={handleSubmit}>
-        <h1 className="auth-title">Maak je account</h1>
-        <p className="auth-subtitle">Enkel je schoolmail is nodig om te starten.</p>
+    <AuthSplitScreen onSubmit={handleSubmit}>
+      <h1 className="auth-title">Maak je account</h1>
+      <p className="auth-subtitle">Enkel je schoolmail is nodig om te starten.</p>
 
-        {error && <div className="auth-error">{error}</div>}
+      {error && <div className="auth-error">{error}</div>}
 
-        <div className="auth-field">
-          <label htmlFor="name">Naam</label>
-          <input
-            id="name"
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+      <div className="auth-field">
+        <label htmlFor="name">Naam</label>
+        <input
+          id="name"
+          type="text"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
 
-        <div className="auth-field">
-          <label htmlFor="email">E-mailadres</label>
-          <input
-            id="email"
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="voornaam.achternaam@student.ehb.be"
-          />
-          <span className="auth-hint">
-            Gebruik je schoolmail: voornaam.achternaam@student.ehb.be
-          </span>
-        </div>
+      <div className="auth-field">
+        <label htmlFor="email">E-mailadres</label>
+        <input
+          id="email"
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="voornaam.achternaam@student.ehb.be"
+        />
+        <span className="auth-hint">
+          Gebruik je schoolmail: voornaam.achternaam@student.ehb.be
+        </span>
+      </div>
 
-        <div className="auth-field">
-          <label htmlFor="password">Wachtwoord</label>
-          <input
-            id="password"
-            type="password"
-            required
-            minLength={8}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <span className="auth-hint">Minstens 8 tekens</span>
-        </div>
+      <div className="auth-field">
+        <label htmlFor="password">Wachtwoord</label>
+        <input
+          id="password"
+          type="password"
+          required
+          minLength={8}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <span className="auth-hint">Minstens 8 tekens</span>
+      </div>
 
-        <button className="auth-submit" type="submit" disabled={loading}>
-          {loading ? "Bezig..." : "Account aanmaken"}
-        </button>
+      <button className="auth-submit" type="submit" disabled={loading}>
+        {loading ? "Bezig..." : "Account aanmaken"}
+      </button>
 
-        <p className="auth-switch">
-          Al een account? <Link to="/login">Log in</Link>
-        </p>
-      </form>
-    </div>
+      {/* Enkel op mobiel: op desktop doet de tabbalk in AuthSplitScreen dit al */}
+      <p className="auth-switch veld-mobiel">
+        Al een account? <Link to="/login">Log in</Link>
+      </p>
+    </AuthSplitScreen>
   );
 }

@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -32,6 +34,25 @@ app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+# Publiek (geen login nodig) — gebruikt op het login/registreerscherm, dat je
+# per definitie nog niet ingelogd bekijkt
+@app.get("/stats", response_model=schemas.PlatformStatsOut)
+def read_platform_stats(db: Session = Depends(get_db)):
+    student_count = db.query(func.count(models.User.id)).scalar()
+
+    nu = datetime.now(timezone.utc)
+    over_zeven_dagen = nu + timedelta(days=7)
+    activities_this_week = (
+        db.query(func.count(models.Activity.id))
+        .filter(models.Activity.start_time >= nu, models.Activity.start_time <= over_zeven_dagen)
+        .scalar()
+    )
+
+    return schemas.PlatformStatsOut(
+        student_count=student_count, activities_this_week=activities_this_week
+    )
 
 
 # Beveiligde route: enkel bereikbaar met een geldig JWT-token, geeft de ingelogde gebruiker terug
