@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { getMyActivities, getNotifications } from "../api/client";
+import { getNotifications, listActivities } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES } from "../constants/categories";
 import { formatStartBadge } from "../utils/formatDate";
@@ -20,18 +20,23 @@ const TABS = [
 export default function Sidebar() {
   const { pathname } = useLocation();
   const { user, token } = useAuth();
-  const [volgende, setVolgende] = useState(null);
+  const [volgendeActiviteiten, setVolgendeActiviteiten] = useState([]);
   const [ongelezenMeldingen, setOngelezenMeldingen] = useState(0);
 
   useEffect(() => {
     if (!token) return;
-    getMyActivities(token)
+    // Bewust van iedereen (listActivities, geen token nodig) i.p.v. enkel
+    // eigen georganiseerde/deelgenomen activiteiten -- de eerste 3 die
+    // ergens op het platform plaatsvinden, niet enkel waar je zelf bij
+    // betrokken bent
+    listActivities()
       .then((data) => {
         const nu = new Date();
-        const eerst = [...data.organized, ...data.joined]
+        const eerstDrie = data
           .filter((a) => new Date(a.start_time) > nu)
-          .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))[0];
-        setVolgende(eerst ?? null);
+          .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
+          .slice(0, 3);
+        setVolgendeActiviteiten(eerstDrie);
       })
       .catch(() => {}); // stille fallback: widget toont dan gewoon niets
     // Eenmalig bij mount, geen polling — ververst bij een volle paginalaad
@@ -80,12 +85,16 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {volgende && (
-        <Link to={`/activiteiten/${volgende.id}`} className="sidebar-volgende">
-          <span className="sidebar-volgende-label">Volgende activiteit</span>
-          <span className="sidebar-volgende-titel">{volgende.title}</span>
-          <span className="sidebar-volgende-badge">{formatStartBadge(volgende.start_time) ?? "Binnenkort"}</span>
-        </Link>
+      {volgendeActiviteiten.length > 0 && (
+        <div className="sidebar-volgende-lijst">
+          {volgendeActiviteiten.map((activiteit) => (
+            <Link key={activiteit.id} to={`/activiteiten/${activiteit.id}`} className="sidebar-volgende">
+              <span className="sidebar-volgende-label">Volgende activiteit</span>
+              <span className="sidebar-volgende-titel">{activiteit.title}</span>
+              <span className="sidebar-volgende-badge">{formatStartBadge(activiteit.start_time) ?? "Binnenkort"}</span>
+            </Link>
+          ))}
+        </div>
       )}
     </aside>
   );

@@ -1989,8 +1989,16 @@
   }
 }
 
-.sidebar-volgende {
+/* Wrapper voor tot 3 gestapelde .sidebar-volgende-kaarten -- enkel deze
+   krijgt margin-top:auto, zodat de hele groep samen onderaan de zijbalk
+   blijft staan i.p.v. elke kaart individueel naar beneden te duwen */
+.sidebar-volgende-lijst {
   margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sidebar-volgende {
   display: flex;
   flex-direction: column;
   gap: 4px;

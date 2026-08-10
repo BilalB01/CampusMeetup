@@ -41,13 +41,14 @@ export default function Categorieen() {
   }).format(new Date());
   const vandaagMetHoofdletter = vandaag.charAt(0).toUpperCase() + vandaag.slice(1);
 
-  // Eerstvolgende activiteit waar de gebruiker zelf iets mee te maken heeft
-  // (georganiseerd of deelgenomen) — niets tonen als die er niet is, geen
-  // nepdata verzinnen
+  // Uitgelichte activiteit waar de gebruiker zelf iets mee te maken heeft
+  // (georganiseerd of deelgenomen) — de populairste (meeste deelnemers) van
+  // de nog komende, niet per se de eerstvolgende in tijd. Bij gelijke stand
+  // wint de eerstvolgende. Niets tonen als die er niet is, geen nepdata verzinnen
   const nu = new Date();
   const volgende = eigenActiviteiten
     .filter((a) => new Date(a.start_time) > nu)
-    .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))[0];
+    .sort((a, b) => b.participant_count - a.participant_count || new Date(a.start_time) - new Date(b.start_time))[0];
   const volgendeBadge = volgende ? formatStartBadge(volgende.start_time) : null;
 
   // Statistieken voor de desktop-statistiekenkolom (zie start-stats-kolom in
