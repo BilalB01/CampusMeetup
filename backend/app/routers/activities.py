@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi.responses import Response
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
@@ -181,6 +182,55 @@ def get_activity(
             status_code=status.HTTP_404_NOT_FOUND, detail="Activiteit niet gevonden"
         )
     return _to_detail(activity, db, current_user)
+
+
+# Geen einduur/duur opgeslagen op Activity -- 2u is een redelijke standaard-
+# inschatting voor een meetup, zowel hier als in de "Google Agenda"-link
+# (frontend/src/utils/calendar.js), zodat beide dezelfde aanname volgen
+ICS_STANDAARD_DUUR = timedelta(hours=2)
+
+
+def _naar_ics_datum(dt: datetime) -> str:
+    return dt.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def _ics_escape(tekst: str) -> str:
+    return tekst.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
+
+
+# Publiek net als het detail hierboven -- toont dezelfde gegevens, enkel als
+# .ics-bestand i.p.v. JSON, zodat de gebruiker de activiteit in zijn eigen
+# agenda-app (Google/Outlook/Apple) kan zetten
+@router.get("/{activity_id}/ics")
+def get_activity_ics(activity_id: int, db: Session = Depends(get_db)):
+    activity = db.get(models.Activity, activity_id)
+    if activity is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Activiteit niet gevonden"
+        )
+
+    regels = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//CampusMeetup//NL",
+        "CALSCALE:GREGORIAN",
+        "BEGIN:VEVENT",
+        f"UID:activiteit-{activity.id}@campusmeetup.ehb",
+        f"DTSTAMP:{_naar_ics_datum(datetime.now(timezone.utc))}",
+        f"DTSTART:{_naar_ics_datum(activity.start_time)}",
+        f"DTEND:{_naar_ics_datum(activity.start_time + ICS_STANDAARD_DUUR)}",
+        f"SUMMARY:{_ics_escape(activity.title)}",
+        f"LOCATION:{_ics_escape(activity.location_name)}",
+    ]
+    if activity.description:
+        regels.append(f"DESCRIPTION:{_ics_escape(activity.description)}")
+    regels += ["END:VEVENT", "END:VCALENDAR"]
+
+    return Response(
+        content="\r\n".join(regels) + "\r\n",
+        media_type="text/calendar",
+        headers={"Content-Disposition": f'attachment; filename="activiteit-{activity.id}.ics"'},
+    )
 
 
 # Controleert dat de ingelogde gebruiker de organisator is — hergebruikt

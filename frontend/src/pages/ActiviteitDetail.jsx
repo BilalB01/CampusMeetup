@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
-import { deleteActivity, getActivity, joinActivity, leaveActivity, shareActivityByEmail } from "../api/client";
+import { API_URL, deleteActivity, getActivity, joinActivity, leaveActivity, shareActivityByEmail } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { PIN_ICON } from "../constants/maps";
+import { getGoogleAgendaUrl } from "../utils/calendar";
 import { distanceInMeters, formatDistance } from "../utils/distance";
 import { formatDateTime } from "../utils/formatDate";
 import { useUserLocation } from "../hooks/useUserLocation";
@@ -22,6 +23,7 @@ export default function ActiviteitDetail() {
   const [actionError, setActionError] = useState("");
   const [gekopieerd, setGekopieerd] = useState(false);
   const [toonDeelPaneel, setToonDeelPaneel] = useState(false);
+  const [toonAgendaPaneel, setToonAgendaPaneel] = useState(false);
   const [deelEmail, setDeelEmail] = useState("");
   const [deelBericht, setDeelBericht] = useState("");
   const [deelBezig, setDeelBezig] = useState(false);
@@ -165,41 +167,71 @@ export default function ActiviteitDetail() {
           <button className="detail-hero-back detail-hero-back--tekst" onClick={() => navigate(overzichtLink)}>
             &larr; Alle activiteiten
           </button>
-          <div className="detail-deel-wrap">
-            <button
-              className="detail-hero-back detail-hero-back--tekst"
-              onClick={() => setToonDeelPaneel((v) => !v)}
-            >
-              ⇪ Delen
-            </button>
-            {toonDeelPaneel && (
-              <div className="detail-deel-paneel">
-                <button type="button" className="detail-deel-link-knop" onClick={handleCopyLink}>
-                  {gekopieerd ? "✓ Link gekopieerd" : "Link kopiëren"}
-                </button>
-                <form className="detail-deel-form" onSubmit={handleEmailDelen}>
-                  <label htmlFor="deel-email">Versturen via e-mail</label>
-                  <input
-                    id="deel-email"
-                    type="email"
-                    required
-                    placeholder="vriend@student.ehb.be"
-                    value={deelEmail}
-                    onChange={(e) => setDeelEmail(e.target.value)}
-                  />
-                  <textarea
-                    placeholder="Persoonlijk berichtje (optioneel)"
-                    value={deelBericht}
-                    onChange={(e) => setDeelBericht(e.target.value)}
-                  />
-                  {deelFout && <div className="auth-error">{deelFout}</div>}
-                  {deelGelukt && <div className="instellingen-gelukt">Uitnodiging verstuurd!</div>}
-                  <button className="auth-submit" type="submit" disabled={deelBezig}>
-                    {deelBezig ? "Bezig..." : "Versturen"}
+          <div className="detail-hero-acties">
+            <div className="detail-deel-wrap">
+              <button
+                className="detail-hero-back detail-hero-back--tekst"
+                onClick={() => setToonAgendaPaneel((v) => !v)}
+              >
+                📅 Agenda
+              </button>
+              {toonAgendaPaneel && (
+                <div className="detail-deel-paneel">
+                  <a
+                    className="detail-deel-link-knop"
+                    href={`${API_URL}/activities/${activity.id}/ics`}
+                    onClick={() => setToonAgendaPaneel(false)}
+                  >
+                    📥 Downloaden (.ics)
+                  </a>
+                  <a
+                    className="detail-deel-link-knop"
+                    href={getGoogleAgendaUrl(activity)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setToonAgendaPaneel(false)}
+                  >
+                    🗓️ Google Agenda
+                  </a>
+                </div>
+              )}
+            </div>
+            <div className="detail-deel-wrap">
+              <button
+                className="detail-hero-back detail-hero-back--tekst"
+                onClick={() => setToonDeelPaneel((v) => !v)}
+              >
+                ⇪ Delen
+              </button>
+              {toonDeelPaneel && (
+                <div className="detail-deel-paneel">
+                  <button type="button" className="detail-deel-link-knop" onClick={handleCopyLink}>
+                    {gekopieerd ? "✓ Link gekopieerd" : "Link kopiëren"}
                   </button>
-                </form>
-              </div>
-            )}
+                  <form className="detail-deel-form" onSubmit={handleEmailDelen}>
+                    <label htmlFor="deel-email">Versturen via e-mail</label>
+                    <input
+                      id="deel-email"
+                      type="email"
+                      required
+                      placeholder="vriend@student.ehb.be"
+                      value={deelEmail}
+                      onChange={(e) => setDeelEmail(e.target.value)}
+                    />
+                    <textarea
+                      placeholder="Persoonlijk berichtje (optioneel)"
+                      value={deelBericht}
+                      onChange={(e) => setDeelBericht(e.target.value)}
+                    />
+                    {deelFout && <div className="auth-error">{deelFout}</div>}
+                    {deelGelukt && <div className="instellingen-gelukt">Uitnodiging verstuurd!</div>}
+                    <button className="auth-submit" type="submit" disabled={deelBezig}>
+                      {deelBezig ? "Bezig..." : "Versturen"}
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="detail-hero-content">

@@ -758,6 +758,11 @@
 /* Groepeert badge/titel/ondertitel met een kleine, eigen gap — de 36px-gap
    op .detail-hero zelf is enkel bedoeld tussen .detail-hero-top en deze
    groep, niet tussen elk los onderdeel */
+.detail-hero-acties {
+  position: relative;
+  display: flex;
+  gap: 8px;
+}
 .detail-deel-wrap {
   position: relative;
 }
@@ -786,6 +791,7 @@
   font-weight: 700;
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
 }
 .detail-deel-form {
   display: flex;
