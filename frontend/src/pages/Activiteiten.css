@@ -114,6 +114,20 @@
 .bottom-nav-item.actief {
   color: #6c4ff5;
 }
+.bottom-nav-icoon-wrap {
+  position: relative;
+  display: flex;
+}
+.bottom-nav-badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6c4ff5;
+  border: 1.5px solid #fff;
+}
 
 .activiteiten-header {
   display: flex;
@@ -603,6 +617,75 @@
 /* Groepeert badge/titel/ondertitel met een kleine, eigen gap — de 36px-gap
    op .detail-hero zelf is enkel bedoeld tussen .detail-hero-top en deze
    groep, niet tussen elk los onderdeel */
+.detail-deel-wrap {
+  position: relative;
+}
+.detail-deel-paneel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  width: 280px;
+  background: #fff;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 20px 45px -20px rgba(27, 24, 48, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  color: #1b1830;
+}
+.detail-deel-link-knop {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: none;
+  background: #f6f3ff;
+  color: #6c4ff5;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+.detail-deel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #ede8fb;
+}
+.detail-deel-form label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #a29dbc;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.detail-deel-form input,
+.detail-deel-form textarea {
+  padding: 10px 12px;
+  border: 1.5px solid #e6e1fb;
+  border-radius: 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #1b1830;
+  background: #efebf9;
+}
+.detail-deel-form textarea {
+  min-height: 56px;
+  resize: vertical;
+}
+.detail-deel-form input:focus,
+.detail-deel-form textarea:focus {
+  outline: none;
+  border-color: #8b6bff;
+  background: #fff;
+}
+.detail-deel-form .auth-submit {
+  margin-top: 2px;
+  padding: 10px;
+  font-size: 13px;
+}
+
 .detail-hero-content {
   position: relative;
   display: flex;
@@ -875,6 +958,141 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Meldingencentrum (MeldingenOverzicht.jsx) */
+.meldingen-lijst {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.melding-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid rgba(27, 24, 48, 0.06);
+  border-radius: 18px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  color: #1b1830;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
+}
+.melding-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 30px -18px rgba(76, 45, 180, 0.5);
+}
+.melding-stip {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+}
+.melding-item--ongelezen .melding-stip {
+  background: #6c4ff5;
+}
+.melding-inhoud {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.melding-tekst {
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.melding-item--ongelezen .melding-tekst {
+  font-weight: 800;
+}
+.melding-tijd {
+  font-size: 11px;
+  color: #a29dbc;
+  font-weight: 600;
+}
+
+/* Toast-pop-ups (NotificationToasts.jsx) — los van .meldingen-lijst
+   hierboven, verschijnt bovenaan het scherm ongeacht welke pagina open
+   staat */
+.melding-toasts {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 60;
+  pointer-events: none;
+}
+.melding-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: #1b1830;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  padding: 13px 14px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 16px 32px -14px rgba(27, 24, 48, 0.55);
+  animation: melding-toast-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes melding-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.melding-toast-stip {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #8b6bff;
+}
+.melding-toast-tekst {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.melding-toast-sluit {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+}
+.melding-toast-sluit:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
 }
 
 .chat-loading {
@@ -1161,6 +1379,55 @@
   font-weight: 800;
   color: #1b1830;
 }
+.instellingen-toggle-rij {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 6px 0;
+}
+.instellingen-toggle-tekst {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.instellingen-toggle-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1b1830;
+}
+.instellingen-toggle-sub {
+  font-size: 11.5px;
+  color: #8c87a6;
+}
+.instellingen-toggle {
+  flex: none;
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  border: none;
+  padding: 3px;
+  background: #e6e1fb;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: background 0.2s ease;
+}
+.instellingen-toggle.aan {
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+}
+.instellingen-toggle-knop {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(27, 24, 48, 0.25);
+  transition: transform 0.2s cubic-bezier(0.33, 0.72, 0.32, 1);
+}
+.instellingen-toggle.aan .instellingen-toggle-knop {
+  transform: translateX(18px);
+}
+
 .instellingen-gelukt {
   background: #e8f7ee;
   border: 1.5px solid #b9e8c9;
@@ -1668,6 +1935,20 @@
   background: currentColor;
   animation: pulseDot 2s infinite ease-in-out;
 }
+.sidebar-nav-badge {
+  flex: none;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #6c4ff5;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 @keyframes pulseDot {
   0%,
   100% {
@@ -1814,6 +2095,10 @@
   .sidebar,
   .top-bar {
     display: flex;
+  }
+
+  .melding-toasts {
+    top: 88px;
   }
 
   /* Meer ademruimte nu de zijbalk/topbalk de vaste 260px/72px al
