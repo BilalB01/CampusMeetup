@@ -5,7 +5,7 @@ import { useCountUp } from "../hooks/useCountUp";
 export default function StartStatKaart({ n, l, icoon, bg, accent }) {
   const animated = useCountUp(n);
   return (
-    <div className="start-stat-kaart">
+    <div className="start-stat-kaart" style={{ "--tile-bg": bg, "--tile-accent": accent }}>
       <div className="start-stat-tekst">
         <div className="start-stat-getal" style={{ color: accent }}>
           {animated}

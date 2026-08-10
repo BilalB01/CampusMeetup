@@ -58,8 +58,13 @@ export default function Categorieen() {
   // en hetzelfde tijdvak, anders lijken de cijfers elkaar tegen te spreken
   const startVanVandaag = new Date(nu);
   startVanVandaag.setHours(0, 0, 0, 0);
-  const inZevenDagen = new Date(nu);
-  inZevenDagen.setDate(inZevenDagen.getDate() + 7);
+  // Einde van de LOPENDE kalenderweek (zondag), niet "rollend 7 dagen
+  // vooruit" -- dat laatste zou "deze week" op een maandag tot in de
+  // volgende week laten doorlopen, wat niet is wat "deze week" betekent
+  const eindeVanDeWeek = new Date(startVanVandaag);
+  const dagenTotZondag = (7 - startVanVandaag.getDay()) % 7;
+  eindeVanDeWeek.setDate(eindeVanDeWeek.getDate() + dagenTotZondag);
+  eindeVanDeWeek.setHours(23, 59, 59, 999);
   const activiteitenVandaag = activities.filter((a) => new Date(a.start_time).toDateString() === nu.toDateString());
   // "Deelnemers": som van participant_count over vandaag's activiteiten
   // i.p.v. een activiteitentelling — klopt zo ook echt met het label
@@ -82,7 +87,7 @@ export default function Categorieen() {
       // Zelfde ondergrens als "vandaag" (start van de kalenderdag, niet
       // dit exacte moment) zodat "vandaag" altijd binnen "deze week" past
       n: activities.filter(
-        (a) => new Date(a.start_time) >= startVanVandaag && new Date(a.start_time) <= inZevenDagen,
+        (a) => new Date(a.start_time) >= startVanVandaag && new Date(a.start_time) <= eindeVanDeWeek,
       ).length,
       l: "Deze week",
       icoon: "📅",
