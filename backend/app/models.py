@@ -145,7 +145,12 @@ class Notification(Base):
     __tablename__ = "notifications"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    # ondelete="CASCADE": een melding zonder eigenaar heeft geen nut (enkel
+    # de eigenaar kan 'm ooit zien) -- anders blokkeert delete_current_user
+    # zodra iemand nog een melding heeft staan (zelfde soort bug als
+    # activity_id hieronder, ontdekt tijdens het testen van account
+    # verwijderen)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     # ondelete="SET NULL": als de activiteit zelf verwijderd wordt (bv. de
     # "activiteit_verwijderd"-melding hieronder), blijft de melding bestaan
     # maar wordt de dode verwijzing opgeruimd i.p.v. een FK-fout te geven
