@@ -1,5 +1,14 @@
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
+// AuthContext registreert hier zijn logout-functie zodat deze module (die
+// geen React-hooks kan gebruiken) de sessie kan opruimen zodra de backend
+// een meegestuurd token afwijst -- geldt voor élke aanroep, niet enkel de
+// paginawissel-check in ProtectedRoute.jsx
+let unauthorizedHandler = null;
+export function setUnauthorizedHandler(fn) {
+  unauthorizedHandler = fn;
+}
+
 // Kleine fetch-wrapper: voegt JSON-headers toe en gooit een Error bij een foutstatus.
 // Een optioneel token wordt omgezet naar een Authorization-header — register/login
 // geven nooit een token door, dus hun gedrag blijft ongewijzigd. Bij een FormData-body
@@ -21,6 +30,9 @@ async function request(path, { token, ...options } = {}) {
   const data = await response.json().catch(() => null);
 
   if (!response.ok) {
+    // Enkel als er een token meeging: een 401 op /auth/login zelf is een
+    // gewoon "verkeerd wachtwoord"-antwoord, geen verlopen sessie
+    if (response.status === 401 && token && unauthorizedHandler) unauthorizedHandler();
     const message = extractErrorMessage(data);
     throw new Error(message);
   }
@@ -65,6 +77,13 @@ export function loginWithMicrosoft(idToken) {
     method: "POST",
     body: JSON.stringify({ id_token: idToken }),
   });
+}
+
+// Haalt de ingelogde gebruiker zelf op -- gebruikt om een opgeslagen token
+// echt bij de backend te verifiëren (ProtectedRoute.jsx), niet enkel te
+// controleren of er lokaal een token-string bestaat
+export function getCurrentUser(token) {
+  return request("/users/me", { token });
 }
 
 // Wijzigt de naam van de ingelogde gebruiker (Instellingen-scherm)

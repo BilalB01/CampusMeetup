@@ -1,4 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { setUnauthorizedHandler } from "../api/client";
 import { msalInstance } from "./msalInstance";
 
 const AuthContext = createContext(null);
@@ -11,6 +13,8 @@ export function AuthProvider({ children }) {
     const stored = localStorage.getItem("user");
     return stored ? JSON.parse(stored) : null;
   });
+
+  const navigate = useNavigate();
 
   function saveSession({ access_token, user }) {
     localStorage.setItem("token", access_token);
@@ -31,6 +35,17 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
   }
+
+  // Elke API-aanroep met een token die de backend als ongeldig/verlopen
+  // afwijst (401) stuurt de gebruiker meteen terug naar /login, ongeacht op
+  // welke pagina dat gebeurt
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      logout();
+      navigate("/login", { replace: true });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Past de opgeslagen gebruiker gedeeltelijk aan (bv. na een naamswijziging
   // op het Instellingen-scherm) zonder opnieuw te moeten inloggen
