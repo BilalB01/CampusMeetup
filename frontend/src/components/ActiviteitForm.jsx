@@ -124,9 +124,11 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
           <textarea
             id="description"
             required
+            maxLength={1000}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+          <span className="auth-hint auth-hint--rechts">{description.length} / 1000</span>
         </div>
 
         {/* Categorie: mobiel een <select>, desktop pillen — zelfde category-state,

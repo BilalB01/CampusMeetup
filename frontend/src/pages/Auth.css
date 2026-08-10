@@ -83,6 +83,11 @@
   font-size: 11.5px;
   color: #a29dbc;
 }
+.auth-hint--rechts {
+  display: block;
+  text-align: right;
+  margin-top: -2px;
+}
 
 /* Groepeert 2 velden op één rij vanaf desktopbreedte (zie media query
    onderaan) — op mobiel gewoon gestapeld, zelfde gap als .auth-card */

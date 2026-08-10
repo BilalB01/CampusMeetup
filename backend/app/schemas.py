@@ -89,7 +89,7 @@ class ActivityCategory(str, Enum):
 # Wat een gebruiker moet meesturen om een nieuwe activiteit aan te maken
 class ActivityCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
-    description: str | None = None
+    description: str | None = Field(default=None, max_length=1000)
     location_name: str = Field(min_length=1, max_length=200)
     latitude: float | None = None
     longitude: float | None = None
