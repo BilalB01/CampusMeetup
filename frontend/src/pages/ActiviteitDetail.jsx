@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
-import { deleteActivity, getActivity, joinActivity, leaveActivity } from "../api/client";
+import { deleteActivity, getActivity, joinActivity, leaveActivity, shareActivityByEmail } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
@@ -21,6 +21,12 @@ export default function ActiviteitDetail() {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState("");
   const [gekopieerd, setGekopieerd] = useState(false);
+  const [toonDeelPaneel, setToonDeelPaneel] = useState(false);
+  const [deelEmail, setDeelEmail] = useState("");
+  const [deelBericht, setDeelBericht] = useState("");
+  const [deelBezig, setDeelBezig] = useState(false);
+  const [deelFout, setDeelFout] = useState("");
+  const [deelGelukt, setDeelGelukt] = useState(false);
   const userLocation = useUserLocation();
 
   useEffect(() => {
@@ -75,10 +81,30 @@ export default function ActiviteitDetail() {
     }
   }
 
-  async function handleShare() {
+  async function handleCopyLink() {
     await navigator.clipboard.writeText(window.location.href);
     setGekopieerd(true);
     setTimeout(() => setGekopieerd(false), 2000);
+  }
+
+  async function handleEmailDelen(e) {
+    e.preventDefault();
+    setDeelFout("");
+    setDeelBezig(true);
+    try {
+      await shareActivityByEmail(id, { email: deelEmail, message: deelBericht || null }, token);
+      setDeelGelukt(true);
+      setDeelEmail("");
+      setDeelBericht("");
+      setTimeout(() => {
+        setDeelGelukt(false);
+        setToonDeelPaneel(false);
+      }, 1500);
+    } catch (err) {
+      setDeelFout(err.message);
+    } finally {
+      setDeelBezig(false);
+    }
   }
 
   if (loading) {
@@ -138,9 +164,42 @@ export default function ActiviteitDetail() {
           <button className="detail-hero-back detail-hero-back--tekst" onClick={() => navigate(overzichtLink)}>
             &larr; Alle activiteiten
           </button>
-          <button className="detail-hero-back detail-hero-back--tekst" onClick={handleShare}>
-            {gekopieerd ? "✓ Gekopieerd" : "⇪ Delen"}
-          </button>
+          <div className="detail-deel-wrap">
+            <button
+              className="detail-hero-back detail-hero-back--tekst"
+              onClick={() => setToonDeelPaneel((v) => !v)}
+            >
+              ⇪ Delen
+            </button>
+            {toonDeelPaneel && (
+              <div className="detail-deel-paneel">
+                <button type="button" className="detail-deel-link-knop" onClick={handleCopyLink}>
+                  {gekopieerd ? "✓ Link gekopieerd" : "Link kopiëren"}
+                </button>
+                <form className="detail-deel-form" onSubmit={handleEmailDelen}>
+                  <label htmlFor="deel-email">Versturen via e-mail</label>
+                  <input
+                    id="deel-email"
+                    type="email"
+                    required
+                    placeholder="vriend@student.ehb.be"
+                    value={deelEmail}
+                    onChange={(e) => setDeelEmail(e.target.value)}
+                  />
+                  <textarea
+                    placeholder="Persoonlijk berichtje (optioneel)"
+                    value={deelBericht}
+                    onChange={(e) => setDeelBericht(e.target.value)}
+                  />
+                  {deelFout && <div className="auth-error">{deelFout}</div>}
+                  {deelGelukt && <div className="instellingen-gelukt">Uitnodiging verstuurd!</div>}
+                  <button className="auth-submit" type="submit" disabled={deelBezig}>
+                    {deelBezig ? "Bezig..." : "Versturen"}
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
         </div>
         <div className="detail-hero-content">
           {category && <span className="detail-hero-badge">{category.label}</span>}
