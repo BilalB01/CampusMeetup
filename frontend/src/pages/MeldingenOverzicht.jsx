@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { getNotifications, markAllNotificationsRead, markNotificationRead } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
+import { useNotifications } from "../notifications/NotificationsContext";
 import { formatRelativeTime } from "../utils/formatDate";
 import "./Activiteiten.css";
 
 export default function MeldingenOverzicht() {
   const navigate = useNavigate();
   const { token } = useAuth();
+  // refresh() ververst de gedeelde teller (zijbalk/onderbalk-badges) meteen
+  // na een mutatie hieronder, i.p.v. te wachten op de volgende achtergrond-poll
+  const { refresh } = useNotifications();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -35,7 +39,9 @@ export default function MeldingenOverzicht() {
   async function handleOpen(notification) {
     if (!notification.read) {
       setNotifications((prev) => prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n)));
-      markNotificationRead(notification.id, token).catch(() => {}); // stille fallback: badge-teller kan dan tijdelijk afwijken, geen blokkerende fout
+      markNotificationRead(notification.id, token)
+        .then(refresh)
+        .catch(() => {}); // stille fallback: badge-teller kan dan tijdelijk afwijken, geen blokkerende fout
     }
     if (notification.activity_id) {
       const pad = notification.type === "chatbericht" ? "chat" : null;
@@ -47,6 +53,7 @@ export default function MeldingenOverzicht() {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     try {
       await markAllNotificationsRead(token);
+      refresh();
     } catch (err) {
       setError(err.message);
     }

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { getNotifications, listActivities } from "../api/client";
+import { listActivities } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES } from "../constants/categories";
+import { useNotifications } from "../notifications/NotificationsContext";
 import { formatStartBadge } from "../utils/formatDate";
 import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
 
@@ -21,7 +22,7 @@ export default function Sidebar() {
   const { pathname } = useLocation();
   const { user, token } = useAuth();
   const [volgendeActiviteiten, setVolgendeActiviteiten] = useState([]);
-  const [ongelezenMeldingen, setOngelezenMeldingen] = useState(0);
+  const { unreadCount, chatUnreadCount } = useNotifications();
 
   useEffect(() => {
     if (!token) return;
@@ -39,11 +40,6 @@ export default function Sidebar() {
         setVolgendeActiviteiten(eerstDrie);
       })
       .catch(() => {}); // stille fallback: widget toont dan gewoon niets
-    // Eenmalig bij mount, geen polling — ververst bij een volle paginalaad
-    // of bezoek aan /meldingen (zelfde bewuste keuze als bij "volgende activiteit")
-    getNotifications(token)
-      .then((data) => setOngelezenMeldingen(data.filter((n) => !n.read).length))
-      .catch(() => {});
   }, [token]);
 
   if (isAuthScreen(pathname)) return null;
@@ -76,8 +72,11 @@ export default function Sidebar() {
                 <path d={tab.path} />
               </svg>
               <span className="sidebar-nav-label">{tab.label}</span>
-              {tab.key === "meldingen" && ongelezenMeldingen > 0 && (
-                <span className="sidebar-nav-badge">{ongelezenMeldingen}</span>
+              {tab.key === "meldingen" && unreadCount > 0 && (
+                <span className="sidebar-nav-badge">{unreadCount}</span>
+              )}
+              {tab.key === "chats" && chatUnreadCount > 0 && (
+                <span className="sidebar-nav-badge">{chatUnreadCount}</span>
               )}
               {active && <span className="sidebar-nav-dot" />}
             </Link>
