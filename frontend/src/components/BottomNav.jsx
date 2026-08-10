@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { getNotifications } from "../api/client";
+import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES } from "../constants/categories";
 import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
 
@@ -8,11 +11,23 @@ const TABS = [
   { key: "ontdek", label: "Ontdek", path: ICONS.kompas, to: "/activiteiten" },
   { key: "nieuw", label: "Nieuw", path: ICONS.plus, to: `/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw` },
   { key: "chats", label: "Chats", path: ICONS.chat, to: "/chats" },
+  { key: "meldingen", label: "Meldingen", path: ICONS.melding, to: "/meldingen" },
   { key: "profiel", label: "Profiel", path: ICONS.persoon, to: "/profiel" },
 ];
 
 export default function BottomNav() {
   const { pathname } = useLocation();
+  const { token } = useAuth();
+  const [ongelezenMeldingen, setOngelezenMeldingen] = useState(0);
+
+  useEffect(() => {
+    if (!token) return;
+    // Eenmalig bij mount, geen polling — zelfde bewuste keuze als Sidebar.jsx
+    getNotifications(token)
+      .then((data) => setOngelezenMeldingen(data.filter((n) => !n.read).length))
+      .catch(() => {});
+  }, [token]);
+
   if (isAuthScreen(pathname)) return null;
 
   return (
@@ -21,9 +36,12 @@ export default function BottomNav() {
         const active = isNavActive(pathname, tab);
         return (
           <Link key={tab.key} to={tab.to} className={`bottom-nav-item${active ? " actief" : ""}`}>
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-              <path d={tab.path} />
-            </svg>
+            <span className="bottom-nav-icoon-wrap">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                <path d={tab.path} />
+              </svg>
+              {tab.key === "meldingen" && ongelezenMeldingen > 0 && <span className="bottom-nav-badge" />}
+            </span>
             <span>{tab.label}</span>
           </Link>
         );
