@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 
 from sqlalchemy import (
+    Boolean,
     Column,
     Integer,
     String,
@@ -54,6 +55,12 @@ class User(Base):
     # wachtwoordformulier probeert
     auth_provider = Column(String(20), nullable=False, default="password")
     created_at = Column(DateTime(timezone=True), default=utcnow)
+    # Meldingsvoorkeuren (in-app + e-mail, zie app/email.py) — elk kanaal
+    # apart aan/uit zou de Instellingen-UI onnodig verdubbelen, dus één
+    # schakelaar per type stuurt beide kanalen samen aan
+    notify_new_participant = Column(Boolean, nullable=False, default=True)
+    notify_chat_messages = Column(Boolean, nullable=False, default=True)
+    notify_reminder = Column(Boolean, nullable=False, default=True)
 
     activities = relationship("Activity", back_populates="organizer")
     participations = relationship("Participation", back_populates="user")
@@ -122,3 +129,21 @@ class Message(Base):
 
     activity = relationship("Activity", back_populates="messages")
     user = relationship("User", back_populates="messages")
+
+
+# Meldingen voor het meldingencentrum (nieuwe deelnemer/chatbericht/
+# herinnering) — activity_id is nullable voor eventuele toekomstige
+# meldingstypes zonder activiteit-context
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    activity_id = Column(Integer, ForeignKey("activities.id"), nullable=True)
+    type = Column(String(30), nullable=False)
+    text = Column(String, nullable=False)
+    read_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+
+    user = relationship("User")
+    activity = relationship("Activity")
