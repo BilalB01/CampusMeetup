@@ -1622,29 +1622,129 @@
   grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
   gap: 10px;
 }
+/* Zelfde kleurwas/gloed/bewegende-blob-behandeling als .categorie-tile2,
+   in de eigen kleur van elke badge (--tile-bg/--tile-accent, zie
+   BADGE_KLEUREN in Profiel.jsx) — enkel voor verdiende badges, zie
+   .badge-tegel--onverdiend hieronder voor de "op slot"-variant */
 .badge-tegel {
-  background: #fff;
+  position: relative;
+  background: linear-gradient(155deg, var(--tile-bg, #f5f2fc) 0%, #fff 62%);
   border: 1px solid rgba(27, 24, 48, 0.06);
   border-radius: 18px;
-  padding: 14px 8px;
+  padding: 16px 8px 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-align: center;
+  /* Geen overflow:hidden op de tegel zelf -- anders wordt de tooltip die
+     erboven verschijnt mee afgesneden (zelfde valkuil als .detail-hero
+     eerder). De blob krijgt daarom zijn eigen geklipte laag hieronder */
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s, border-color 0.18s;
 }
-.badge-tegel--onverdiend {
-  filter: grayscale(1);
-  opacity: 0.4;
+.badge-tegel-blob {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.badge-tegel-blob::before {
+  content: "";
+  position: absolute;
+  right: -18px;
+  bottom: -20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--tile-accent, #6c4ff5);
+  opacity: 0.12;
+  animation: floatBlob 9s infinite ease-in-out;
+}
+.badge-tegel:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--tile-accent, #6c4ff5) 35%, transparent);
+  box-shadow: 0 14px 26px -16px rgba(76, 45, 180, 0.4);
 }
 .badge-tegel-icoon {
-  font-size: 24px;
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: color-mix(in srgb, var(--tile-accent, #6c4ff5) 16%, #fff);
+  box-shadow: 0 6px 14px -6px var(--tile-accent, #6c4ff5);
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.badge-tegel:hover .badge-tegel-icoon {
+  transform: scale(1.08) rotate(-4deg);
 }
 .badge-tegel-label {
+  position: relative;
   font-size: 10.5px;
   font-weight: 700;
   color: #1b1830;
   line-height: 1.3;
+}
+/* Onverdiend: rustig grijs i.p.v. de hele tegel grauw + halftransparant
+   (was moeilijk leesbaar) — enkel het icoon oogt "op slot", het label
+   blijft goed leesbaar */
+.badge-tegel--onverdiend {
+  background: #f7f6fb;
+}
+.badge-tegel--onverdiend .badge-tegel-blob {
+  display: none;
+}
+.badge-tegel--onverdiend .badge-tegel-icoon {
+  background: rgba(27, 24, 48, 0.06);
+  box-shadow: none;
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+.badge-tegel--onverdiend .badge-tegel-label {
+  color: #9891ab;
+}
+.badge-tegel--onverdiend:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: rgba(27, 24, 48, 0.06);
+}
+/* Eigen tooltip i.p.v. het standaard title-attribuut (lelijk zwart
+   browservak, kan aan de rand van het scherm afgesneden worden) — verschijnt
+   gecentreerd boven de tegel op hover/focus */
+.badge-tegel[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  transform: translate(-50%, 4px);
+  background: #1b1830;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 7px 11px;
+  border-radius: 10px;
+  /* Smal + terugloop i.p.v. nowrap -- de beschrijvingen zijn soms lang
+     (bv. "Je hebt je eerste activiteit georganiseerd") en de tegels smal,
+     op één lange regel zou dat over de schermrand lopen bij de eerste/
+     laatste tegel in de grid */
+  width: max-content;
+  max-width: 130px;
+  white-space: normal;
+  text-align: center;
+  box-shadow: 0 10px 24px -10px rgba(27, 24, 48, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 5;
+}
+.badge-tegel[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
 }
 
 .profiel-item {

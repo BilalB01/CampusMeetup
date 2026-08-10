@@ -8,6 +8,18 @@ import { getCategoryByValue } from "../constants/categories";
 import { formatDateTime } from "../utils/formatDate";
 import "./Activiteiten.css";
 
+// Eigen kleurenpalet per badge (losstaand van CATEGORIES — badges zijn geen
+// categorieën) voor dezelfde kleurwas/gloed-behandeling als categorie-tile2 —
+// enkel toegepast als de badge al verdiend is, zie badge-tegel hieronder
+const BADGE_KLEUREN = {
+  eerste_organisatie: { bg: "#FFE7D9", accent: "#E1571E" },
+  drukbezet_organisator: { bg: "#DCE9FF", accent: "#2F6FE4" },
+  nieuwsgierig: { bg: "#E9E1FF", accent: "#6C4FF5" },
+  sociale_vlinder: { bg: "#FFE0EC", accent: "#D62F73" },
+  prater: { bg: "#FFF1C9", accent: "#A87400" },
+  alleskunner: { bg: "#D8F5E9", accent: "#0E8A64" },
+};
+
 // "Vandaag"/"Actief"/"Voorbij", afgeleid van start_time t.o.v. nu — geen
 // nieuw databaseveld nodig
 function statusLabel(startTime) {
@@ -144,8 +156,15 @@ export default function Profiel() {
                 <div
                   key={b.key}
                   className={`badge-tegel${b.earned ? "" : " badge-tegel--onverdiend"}`}
-                  title={b.description}
+                  style={
+                    b.earned
+                      ? { "--tile-bg": BADGE_KLEUREN[b.key]?.bg, "--tile-accent": BADGE_KLEUREN[b.key]?.accent }
+                      : undefined
+                  }
+                  data-tooltip={b.description}
+                  aria-label={b.description}
                 >
+                  <span className="badge-tegel-blob" aria-hidden="true" />
                   <span className="badge-tegel-icoon">{b.icon}</span>
                   <span className="badge-tegel-label">{b.label}</span>
                 </div>
