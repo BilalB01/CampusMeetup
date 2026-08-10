@@ -4,8 +4,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
 
 from app import models, schemas
+from app.config import settings
 from app.database import get_db
 from app.dependencies import get_current_user, get_current_user_optional
+from app.email import send_activity_share_email
+from app.notifications import create_notification
 
 router = APIRouter(prefix="/activities", tags=["activities"])
 
@@ -282,6 +285,16 @@ def join_activity(
         )
 
     db.refresh(activity)
+
+    create_notification(
+        db,
+        activity.organizer,
+        "nieuwe_deelnemer",
+        f'{current_user.name} is aangesloten bij "{activity.title}"',
+        activity.id,
+        activity.organizer.notify_new_participant,
+    )
+
     return _to_detail(activity, db, current_user)
 
 
@@ -313,3 +326,38 @@ def leave_activity(
     db.commit()
     db.refresh(activity)
     return _to_detail(activity, db, current_user)
+
+
+# Activiteit delen via e-mail — enkel voor ingelogde gebruikers, naar een
+# willekeurig e-mailadres (de ontvanger hoeft geen account te hebben, het
+# detailscherm is publiek toegankelijk). Geen best-effort: de gebruiker
+# vraagt hier expliciet om te versturen en moet weten of dat gelukt is
+@router.post("/{activity_id}/share", status_code=status.HTTP_204_NO_CONTENT)
+def share_activity(
+    activity_id: int,
+    payload: schemas.ActivityShare,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    activity = db.get(models.Activity, activity_id)
+    if activity is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Activiteit niet gevonden"
+        )
+
+    try:
+        send_activity_share_email(
+            to_email=payload.email,
+            sender_name=current_user.name,
+            message=payload.message or "Kom erbij!",
+            activity_title=activity.title,
+            activity_category=activity.category,
+            activity_location=activity.location_name,
+            activity_start=activity.start_time,
+            activity_url=f"{settings.frontend_url}/activiteiten/{activity.id}",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Kon de uitnodiging niet versturen. Probeer het later opnieuw.",
+        )
