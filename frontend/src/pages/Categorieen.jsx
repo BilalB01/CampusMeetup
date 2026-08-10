@@ -149,7 +149,6 @@ export default function Categorieen() {
               <div className="uitgelicht-sub">{volgende.location_name}</div>
               <div className="uitgelicht-footer">
                 <AvatarStack participants={volgende.participants_preview} />
-                <span className="uitgelicht-cta">Bekijken</span>
               </div>
             </Link>
           )}

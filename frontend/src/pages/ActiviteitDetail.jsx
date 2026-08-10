@@ -160,6 +160,7 @@ export default function ActiviteitDetail() {
   return (
     <div className="activiteiten-screen">
       <div className="detail-hero">
+        <div className="detail-hero-blob-clip" />
         <div className="detail-hero-top">
           <button className="detail-hero-back detail-hero-back--tekst" onClick={() => navigate(overzichtLink)}>
             &larr; Alle activiteiten

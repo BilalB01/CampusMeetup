@@ -205,7 +205,7 @@ export default function ActiviteitenLijst() {
       {!loading && !error && activities.length > 0 && view === "kaart" && (
         <div className="kaart-weergave">
           <Map
-            style={{ width: "100%", height: "420px" }}
+            style={{ width: "100%", height: "650px" }}
             defaultCenter={EHB_CAMPUS_CENTER}
             defaultZoom={15}
             gestureHandling="greedy"
