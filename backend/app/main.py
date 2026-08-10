@@ -8,6 +8,8 @@ from datetime import datetime, timedelta, timezone
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
@@ -15,6 +17,7 @@ from app import models, schemas
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.notifications import create_notification
+from app.rate_limit import limiter
 from app.routers import activities, auth, chat
 from app.security import hash_password, verify_password
 from app.uploads import UPLOADS_DIR
@@ -24,6 +27,11 @@ from app.uploads import UPLOADS_DIR
 REMINDER_WINDOW = timedelta(minutes=60)
 
 app = FastAPI(title="CampusMeetup API")
+
+# Rate limiting (login-brute-force en het delen-endpoint als open
+# e-mail-relay tegengaan) -- key_func=get_remote_address limiteert per IP
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Staat de React-frontend (op localhost:5173) toe om de API aan te spreken
 app.add_middleware(

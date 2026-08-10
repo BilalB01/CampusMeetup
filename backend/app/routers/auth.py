@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.config import settings
 from app.database import get_db
 from app.ms_auth import verify_microsoft_id_token
+from app.rate_limit import limiter
 from app.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -37,7 +38,8 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
 
 # Bestaande gebruiker inloggen: controleert e-mail + wachtwoord, geeft bij succes een JWT-token terug
 @router.post("/login", response_model=schemas.Token)
-def login(payload: schemas.UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, payload: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.email == payload.email).first()
     if user is None:
         raise HTTPException(

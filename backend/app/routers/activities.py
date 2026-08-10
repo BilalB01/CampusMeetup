@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, joinedload
@@ -9,6 +9,7 @@ from app.database import get_db
 from app.dependencies import get_current_user, get_current_user_optional
 from app.email import send_activity_share_email
 from app.notifications import create_notification
+from app.rate_limit import limiter
 
 router = APIRouter(prefix="/activities", tags=["activities"])
 
@@ -333,7 +334,9 @@ def leave_activity(
 # detailscherm is publiek toegankelijk). Geen best-effort: de gebruiker
 # vraagt hier expliciet om te versturen en moet weten of dat gelukt is
 @router.post("/{activity_id}/share", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("5/hour")
 def share_activity(
+    request: Request,
     activity_id: int,
     payload: schemas.ActivityShare,
     db: Session = Depends(get_db),
