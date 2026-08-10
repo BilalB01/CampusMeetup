@@ -18,6 +18,7 @@ from app import models, schemas
 from app.chat import manager
 from app.database import get_db
 from app.dependencies import get_current_user, get_current_user_ws
+from app.notifications import create_notification
 from app.uploads import UPLOADS_DIR
 
 router = APIRouter(prefix="/activities", tags=["chat"])
@@ -29,6 +30,29 @@ ALLOWED_IMAGE_TYPES = {
     "image/webp": ".webp",
 }
 MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+
+
+# Meldt elke andere deelnemer (nooit de verzender zelf) dat er een nieuw
+# bericht is — bewust ZONDER de berichttekst zelf, anders zou de encryptie
+# van Message.content zinloos worden door een tweede, onversleutelde kopie
+# in de meldingentekst
+def _notify_new_message(db: Session, activity: models.Activity, sender_id: int) -> None:
+    andere_deelnemers = (
+        db.query(models.Participation)
+        .options(joinedload(models.Participation.user))
+        .filter(models.Participation.activity_id == activity.id)
+        .filter(models.Participation.user_id != sender_id)
+        .all()
+    )
+    for deelname in andere_deelnemers:
+        create_notification(
+            db,
+            deelname.user,
+            "chatbericht",
+            f'Nieuw bericht in "{activity.title}"',
+            activity.id,
+            deelname.user.notify_chat_messages,
+        )
 
 
 # Live groepschat van een activiteit — enkel voor deelnemers. Validatie
@@ -87,6 +111,7 @@ async def activity_chat_ws(
 
             payload = schemas.MessageOut.model_validate(message).model_dump(mode="json")
             await manager.broadcast(activity_id, payload)
+            _notify_new_message(db, activity, current_user.id)
     except WebSocketDisconnect:
         pass
     finally:
@@ -204,6 +229,7 @@ async def post_chat_image(
 
     payload = schemas.MessageOut.model_validate(message).model_dump(mode="json")
     await manager.broadcast(activity_id, payload)
+    _notify_new_message(db, activity, current_user.id)
     return message
 
 
