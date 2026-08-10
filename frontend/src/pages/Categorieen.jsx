@@ -52,7 +52,12 @@ export default function Categorieen() {
   const volgendeBadge = volgende ? formatStartBadge(volgende.start_time) : null;
 
   // Statistieken voor de desktop-statistiekenkolom (zie start-stats-kolom in
-  // Activiteiten.css) — enkel uit al opgehaalde data, geen nepcijfers
+  // Activiteiten.css) — enkel uit al opgehaalde data, geen nepcijfers.
+  // Bewust van ALLE gebruikers samen (activities), niet enkel eigen
+  // activiteiten — en alle 3 tegels + de subtitel gebruiken dezelfde bron
+  // en hetzelfde tijdvak, anders lijken de cijfers elkaar tegen te spreken
+  const startVanVandaag = new Date(nu);
+  startVanVandaag.setHours(0, 0, 0, 0);
   const inZevenDagen = new Date(nu);
   inZevenDagen.setDate(inZevenDagen.getDate() + 7);
   const activiteitenVandaag = activities.filter((a) => new Date(a.start_time).toDateString() === nu.toDateString());
@@ -67,15 +72,18 @@ export default function Categorieen() {
 
   const stats = [
     {
-      n: eigenActiviteiten.filter((a) => new Date(a.start_time).toDateString() === nu.toDateString()).length,
+      n: activiteitenVandaag.length,
       l: "Vandaag",
       icoon: "⚡",
       bg: "#FFE7D9",
       accent: "#E1571E",
     },
     {
-      n: eigenActiviteiten.filter((a) => new Date(a.start_time) >= nu && new Date(a.start_time) <= inZevenDagen)
-        .length,
+      // Zelfde ondergrens als "vandaag" (start van de kalenderdag, niet
+      // dit exacte moment) zodat "vandaag" altijd binnen "deze week" past
+      n: activities.filter(
+        (a) => new Date(a.start_time) >= startVanVandaag && new Date(a.start_time) <= inZevenDagen,
+      ).length,
       l: "Deze week",
       icoon: "📅",
       bg: "#DCE9FF",
