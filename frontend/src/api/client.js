@@ -126,6 +126,11 @@ export function leaveActivity(id, token) {
   return request(`/activities/${id}/join`, { method: "DELETE", token });
 }
 
+// Deelt een activiteit via e-mail met een willekeurig e-mailadres (geen account nodig om te bekijken)
+export function shareActivityByEmail(id, payload, token) {
+  return request(`/activities/${id}/share`, { method: "POST", body: JSON.stringify(payload), token });
+}
+
 // Haalt de activiteiten van de ingelogde gebruiker op voor het
 // profielscherm, opgesplitst in georganiseerd en (elders) deelgenomen
 export function getMyActivities(token) {
@@ -141,6 +146,27 @@ export function getMyBadges(token) {
 // waar die aan deelneemt, met laatste bericht + ongelezen-teller
 export function getConversations(token) {
   return request("/users/me/conversations", { token });
+}
+
+// Haalt het meldingencentrum van de ingelogde gebruiker op (nieuwe
+// deelnemer/chatbericht/herinnering)
+export function getNotifications(token) {
+  return request("/users/me/notifications", { token });
+}
+
+// Markeert één melding als gelezen
+export function markNotificationRead(id, token) {
+  return request(`/users/me/notifications/${id}/read`, { method: "PUT", token });
+}
+
+// Markeert alle meldingen als gelezen
+export function markAllNotificationsRead(token) {
+  return request("/users/me/notifications/read-all", { method: "PUT", token });
+}
+
+// Wijzigt de meldingsvoorkeuren (in-app + e-mail samen per type)
+export function updateNotificationPreferences(payload, token) {
+  return request("/users/me/notification-preferences", { method: "PUT", body: JSON.stringify(payload), token });
 }
 
 // Haalt de chatgeschiedenis van een activiteit op (enkel voor deelnemers)
