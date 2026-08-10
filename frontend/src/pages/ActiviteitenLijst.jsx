@@ -4,6 +4,7 @@ import { Map, Marker, InfoWindow } from "@vis.gl/react-google-maps";
 import { listActivities } from "../api/client";
 import AvatarStack from "../components/AvatarStack";
 import Skeleton from "../components/Skeleton";
+import { useAuth } from "../auth/AuthContext";
 import { getCategoryBySlug, getCategoryByValue } from "../constants/categories";
 import { EHB_CAMPUS_CENTER, PIN_ICON } from "../constants/maps";
 import { distanceInMeters, formatDistance } from "../utils/distance";
@@ -39,6 +40,7 @@ function matchesFilter(a, filter, userLocation) {
 export default function ActiviteitenLijst() {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const category = slug ? getCategoryBySlug(slug) : null;
   const isOntdek = !slug;
   const [activities, setActivities] = useState([]);
@@ -47,7 +49,7 @@ export default function ActiviteitenLijst() {
   const [view, setView] = useState("lijst");
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState(null);
-  const userLocation = useUserLocation();
+  const userLocation = useUserLocation(user?.share_location);
 
   useEffect(() => {
     if (!isOntdek && !category) return;

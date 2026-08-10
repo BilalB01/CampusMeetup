@@ -61,6 +61,10 @@ class User(Base):
     notify_new_participant = Column(Boolean, nullable=False, default=True)
     notify_chat_messages = Column(Boolean, nullable=False, default=True)
     notify_reminder = Column(Boolean, nullable=False, default=True)
+    # Stuurt useUserLocation() aan de frontend aan: bij False wordt
+    # navigator.geolocation nooit aangeroepen en tonen activiteitenkaarten
+    # geen afstand
+    share_location = Column(Boolean, nullable=False, default=True)
 
     activities = relationship("Activity", back_populates="organizer")
     participations = relationship("Participation", back_populates="user")

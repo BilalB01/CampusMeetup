@@ -14,7 +14,7 @@ import "./Activiteiten.css";
 
 export default function Categorieen() {
   const { user, token } = useAuth();
-  const userLocation = useUserLocation();
+  const userLocation = useUserLocation(user?.share_location);
   const initial = user?.name?.[0]?.toUpperCase() ?? "?";
   const voornaam = user?.name?.split(" ")[0];
   const [activities, setActivities] = useState([]);

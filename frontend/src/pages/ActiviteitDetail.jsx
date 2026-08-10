@@ -27,7 +27,7 @@ export default function ActiviteitDetail() {
   const [deelBezig, setDeelBezig] = useState(false);
   const [deelFout, setDeelFout] = useState("");
   const [deelGelukt, setDeelGelukt] = useState(false);
-  const userLocation = useUserLocation();
+  const userLocation = useUserLocation(user?.share_location);
 
   useEffect(() => {
     let cancelled = false;
@@ -252,7 +252,7 @@ export default function ActiviteitDetail() {
           {activity.latitude && activity.longitude && (
             <div className="locatie-kaart">
               <Map
-                style={{ width: "100%", height: "160px" }}
+                style={{ width: "100%", height: "320px" }}
                 defaultCenter={{ lat: activity.latitude, lng: activity.longitude }}
                 defaultZoom={16}
                 gestureHandling="cooperative"

@@ -188,6 +188,15 @@ export function updateNotificationPreferences(payload, token) {
   return request("/users/me/notification-preferences", { method: "PUT", body: JSON.stringify(payload), token });
 }
 
+// Zet locatie delen aan/uit -- stuurt useUserLocation() aan op elk scherm dat afstand toont
+export function updateLocationPreference(shareLocation, token) {
+  return request("/users/me/location-preference", {
+    method: "PUT",
+    body: JSON.stringify({ share_location: shareLocation }),
+    token,
+  });
+}
+
 // Haalt de chatgeschiedenis van een activiteit op (enkel voor deelnemers)
 export function getMessages(activityId, token) {
   return request(`/activities/${activityId}/messages`, { token });

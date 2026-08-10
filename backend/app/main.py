@@ -414,3 +414,15 @@ def update_notification_preferences(
     db.commit()
     db.refresh(current_user)
     return current_user
+
+
+@app.put("/users/me/location-preference", response_model=schemas.UserOut)
+def update_location_preference(
+    payload: schemas.LocationPreference,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    current_user.share_location = payload.share_location
+    db.commit()
+    db.refresh(current_user)
+    return current_user

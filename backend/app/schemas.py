@@ -50,6 +50,7 @@ class UserOut(BaseModel):
     notify_new_participant: bool
     notify_chat_messages: bool
     notify_reminder: bool
+    share_location: bool
 
     class Config:
         from_attributes = True
@@ -216,6 +217,11 @@ class NotificationPreferences(BaseModel):
     notify_new_participant: bool
     notify_chat_messages: bool
     notify_reminder: bool
+
+
+# Payload van PUT /users/me/location-preference
+class LocationPreference(BaseModel):
+    share_location: bool
 
 
 # Payload van POST /activities/{id}/share

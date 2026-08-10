@@ -1,13 +1,20 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { changePassword, deleteAccount, updateNotificationPreferences, updateProfile } from "../api/client";
+import {
+  changePassword,
+  deleteAccount,
+  updateLocationPreference,
+  updateNotificationPreferences,
+  updateProfile,
+} from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import "./Activiteiten.css";
 
-// Kleine herbruikbare toggle-switch, enkel gebruikt door de meldingen-sectie
-// hieronder — een <button role="switch"> i.p.v. de gebruikelijke verborgen-
-// checkbox-truc, consistent met de andere knop-gebaseerde controls in de app
-function MeldingToggle({ label, sub, checked, onChange }) {
+// Kleine herbruikbare toggle-switch, gebruikt door de meldingen- en
+// privacy-secties hieronder — een <button role="switch"> i.p.v. de
+// gebruikelijke verborgen-checkbox-truc, consistent met de andere
+// knop-gebaseerde controls in de app
+function InstellingToggle({ label, sub, checked, onChange }) {
   return (
     <div className="instellingen-toggle-rij">
       <span className="instellingen-toggle-tekst">
@@ -71,6 +78,21 @@ export default function Instellingen() {
     } catch (err) {
       setVoorkeuren(vorige);
       setVoorkeurenFout(err.message);
+    }
+  }
+
+  const [shareLocation, setShareLocation] = useState(user?.share_location ?? true);
+  const [locatieFout, setLocatieFout] = useState("");
+
+  async function handleLocatieWijzigen(waarde) {
+    setShareLocation(waarde);
+    setLocatieFout("");
+    try {
+      const bijgewerkt = await updateLocationPreference(waarde, token);
+      updateUser(bijgewerkt);
+    } catch (err) {
+      setShareLocation(!waarde);
+      setLocatieFout(err.message);
     }
   }
 
@@ -151,23 +173,34 @@ export default function Instellingen() {
         <h2 className="instellingen-sectie-titel">Meldingen</h2>
         <p className="auth-hint">In-app én per e-mail, per type apart uit te zetten.</p>
         {voorkeurenFout && <div className="auth-error">{voorkeurenFout}</div>}
-        <MeldingToggle
+        <InstellingToggle
           label="Nieuwe deelnemer"
           sub="Wanneer iemand zich aanmeldt voor jouw activiteit"
           checked={voorkeuren.notify_new_participant}
           onChange={(waarde) => handleVoorkeurWijzigen("notify_new_participant", waarde)}
         />
-        <MeldingToggle
+        <InstellingToggle
           label="Chatberichten"
           sub="Nieuw bericht in een groepschat waar je in zit"
           checked={voorkeuren.notify_chat_messages}
           onChange={(waarde) => handleVoorkeurWijzigen("notify_chat_messages", waarde)}
         />
-        <MeldingToggle
+        <InstellingToggle
           label="Herinnering"
           sub="Vlak voor een activiteit waar je aan deelneemt begint"
           checked={voorkeuren.notify_reminder}
           onChange={(waarde) => handleVoorkeurWijzigen("notify_reminder", waarde)}
+        />
+      </div>
+
+      <div className="instellingen-sectie">
+        <h2 className="instellingen-sectie-titel">Privacy</h2>
+        {locatieFout && <div className="auth-error">{locatieFout}</div>}
+        <InstellingToggle
+          label="Locatie delen"
+          sub="Nodig om de afstand tot activiteiten te tonen — staat dit uit, dan wordt je locatie nooit opgevraagd"
+          checked={shareLocation}
+          onChange={handleLocatieWijzigen}
         />
       </div>
 
