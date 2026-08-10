@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
@@ -134,15 +136,21 @@ def _participants_preview_by_activity(
 
 
 # Lijst van activiteiten, eventueel gefilterd op categorie — publiek
-# toegankelijk zodat niet-ingelogde bezoekers ook kunnen rondkijken
+# toegankelijk zodat niet-ingelogde bezoekers ook kunnen rondkijken.
+# Activiteiten die al meer dan een uur bezig zijn, vallen hier bewust weg
+# (Ontdek/Start/categorieën/kaart) — de activiteit zelf blijft gewoon
+# bestaan (detailpagina, groepschat, profielgeschiedenis blijven werken),
+# ze wordt enkel niet meer opgelijst als "iets om aan deel te nemen"
 @router.get("", response_model=list[schemas.ActivityListItem])
 def list_activities(
     category: schemas.ActivityCategory | None = None,
     db: Session = Depends(get_db),
 ):
+    verlopen_grens = datetime.now(timezone.utc) - timedelta(hours=1)
     query = (
         db.query(models.Activity, func.count(models.Participation.id).label("participant_count"))
         .outerjoin(models.Participation, models.Participation.activity_id == models.Activity.id)
+        .filter(models.Activity.start_time >= verlopen_grens)
         .group_by(models.Activity.id)
         .order_by(models.Activity.start_time)
     )
