@@ -70,10 +70,12 @@ export default function Register() {
           type="password"
           required
           minLength={8}
+          pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+          title="Minstens 8 tekens, met een hoofdletter, een cijfer en een speciaal teken"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <span className="auth-hint">Minstens 8 tekens</span>
+        <span className="auth-hint">Minstens 8 tekens, met een hoofdletter, een cijfer en een speciaal teken</span>
       </div>
 
       <button className="auth-submit" type="submit" disabled={loading}>

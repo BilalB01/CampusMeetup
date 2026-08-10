@@ -10,6 +10,17 @@ SCHOOL_EMAIL_PATTERN = re.compile(
 )
 
 
+# Gedeeld door UserCreate.password en PasswordChange.new_password -- geen
+# @field_validator zelf (die kan niet los van een class hergebruikt worden),
+# enkel de eigenlijke check zodat beide plekken dezelfde regel volgen
+def _check_password_strength(v: str) -> str:
+    if not (re.search(r"[A-Z]", v) and re.search(r"\d", v) and re.search(r"[^A-Za-z0-9]", v)):
+        raise ValueError(
+            "Wachtwoord moet minstens 8 tekens bevatten, met minstens 1 hoofdletter, 1 cijfer en 1 speciaal teken"
+        )
+    return v
+
+
 class UserCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     email: EmailStr
@@ -24,6 +35,11 @@ class UserCreate(BaseModel):
                 "Gebruik je schoolmail in het formaat voornaam.achternaam@student.ehb.be"
             )
         return v.lower()
+
+    @field_validator("password")
+    @classmethod
+    def validate_password(cls, v: str) -> str:
+        return _check_password_strength(v)
 
 
 class UserLogin(BaseModel):
@@ -66,6 +82,11 @@ class UserUpdate(BaseModel):
 class PasswordChange(BaseModel):
     current_password: str
     new_password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_new_password(cls, v: str) -> str:
+        return _check_password_strength(v)
 
 
 # Antwoord bij succesvolle login/registratie: JWT-token + gebruikersgegevens
