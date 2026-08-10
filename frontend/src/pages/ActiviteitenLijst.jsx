@@ -8,7 +8,7 @@ import { useAuth } from "../auth/AuthContext";
 import { getCategoryBySlug, getCategoryByValue } from "../constants/categories";
 import { EHB_CAMPUS_CENTER, PIN_ICON } from "../constants/maps";
 import { distanceInMeters, formatDistance } from "../utils/distance";
-import { formatDateTime, formatTime, formatWeekdayShort } from "../utils/formatDate";
+import { formatDateTime, formatDayMonth, formatTime, formatWeekdayShort } from "../utils/formatDate";
 import { useUserLocation } from "../hooks/useUserLocation";
 import "./Activiteiten.css";
 
@@ -168,6 +168,7 @@ export default function ActiviteitenLijst() {
                       <div className="activiteit-rij-tijd" style={{ "--accent": itemCategory?.accent ?? "#6c4ff5" }}>
                         <span className="activiteit-rij-uur">{formatTime(a.start_time)}</span>
                         <span className="activiteit-rij-dag">{formatWeekdayShort(a.start_time)}</span>
+                        <span className="activiteit-rij-datum">{formatDayMonth(a.start_time)}</span>
                         <span className="activiteit-rij-balk" />
                       </div>
                       <div className="activiteit-rij-inhoud">

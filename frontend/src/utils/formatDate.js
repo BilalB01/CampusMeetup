@@ -36,6 +36,15 @@ export function formatWeekdayShort(isoString) {
   return new Intl.DateTimeFormat("nl-BE", { weekday: "short" }).format(new Date(isoString)).replace(".", "");
 }
 
+// Dag + korte maand, bv. "13 aug" — naast formatWeekdayShort op
+// activiteitenkaarten, want een weekdag alleen ("do") is dubbelzinnig
+// zodra een lijst meerdere weken bestrijkt
+export function formatDayMonth(isoString) {
+  return new Intl.DateTimeFormat("nl-BE", { day: "numeric", month: "short" })
+    .format(new Date(isoString))
+    .replace(".", "");
+}
+
 // Relatieve tijd voor het chatoverzicht: "14:02" vandaag, "gisteren",
 // "ma" deze week, anders "3 aug"
 export function formatRelativeTime(isoString) {

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import AvatarStack from "./AvatarStack";
-import { formatTime, formatWeekdayShort } from "../utils/formatDate";
+import { formatDayMonth, formatTime, formatWeekdayShort } from "../utils/formatDate";
 
 // Presentationele activiteitenkaart, zelfde opmaak (.activiteit-rij) als
 // ActiviteitenLijst.jsx — apart component zodat andere schermen (bv. de
@@ -14,6 +14,7 @@ export default function ActiviteitRijKaart({ activiteit, categorie, afstand }) {
       <div className="activiteit-rij-tijd" style={{ "--accent": categorie?.accent ?? "#6c4ff5" }}>
         <span className="activiteit-rij-uur">{formatTime(activiteit.start_time)}</span>
         <span className="activiteit-rij-dag">{formatWeekdayShort(activiteit.start_time)}</span>
+        <span className="activiteit-rij-datum">{formatDayMonth(activiteit.start_time)}</span>
         <span className="activiteit-rij-balk" />
       </div>
       <div className="activiteit-rij-inhoud">
