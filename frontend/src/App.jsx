@@ -9,12 +9,14 @@ import ActiviteitBewerken from "./pages/ActiviteitBewerken";
 import ActiviteitDetail from "./pages/ActiviteitDetail";
 import ActiviteitChat from "./pages/ActiviteitChat";
 import ChatOverzicht from "./pages/ChatOverzicht";
+import MeldingenOverzicht from "./pages/MeldingenOverzicht";
 import Profiel from "./pages/Profiel";
 import Instellingen from "./pages/Instellingen";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import BottomNav from "./components/BottomNav";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
+import NotificationToasts from "./components/NotificationToasts";
 import { MAPS_API_KEY } from "./constants/maps";
 import { isAuthScreen } from "./utils/nav";
 
@@ -30,6 +32,7 @@ function App() {
       <div className={`app-shell${toonChrome ? " app-shell--chrome" : ""}`}>
         <Sidebar />
         <TopBar />
+        <NotificationToasts />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -95,6 +98,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ChatOverzicht />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/meldingen"
+            element={
+              <ProtectedRoute>
+                <MeldingenOverzicht />
               </ProtectedRoute>
             }
           />
