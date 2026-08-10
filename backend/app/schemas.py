@@ -47,6 +47,9 @@ class UserOut(BaseModel):
     # wachtwoord-wijzigen zinvol is (niet van toepassing bij Microsoft)
     auth_provider: str
     created_at: datetime
+    notify_new_participant: bool
+    notify_chat_messages: bool
+    notify_reminder: bool
 
     class Config:
         from_attributes = True
@@ -196,3 +199,26 @@ class ConversationOut(BaseModel):
     last_message: str | None
     last_message_at: datetime
     unread_count: int
+
+
+# Eén rij in GET /users/me/notifications (meldingencentrum)
+class NotificationOut(BaseModel):
+    id: int
+    type: str
+    text: str
+    activity_id: int | None
+    read: bool
+    created_at: datetime
+
+
+# Payload van PUT /users/me/notification-preferences
+class NotificationPreferences(BaseModel):
+    notify_new_participant: bool
+    notify_chat_messages: bool
+    notify_reminder: bool
+
+
+# Payload van POST /activities/{id}/share
+class ActivityShare(BaseModel):
+    email: EmailStr
+    message: str | None = None
