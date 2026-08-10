@@ -231,10 +231,12 @@ export default function Instellingen() {
               type="password"
               required
               minLength={8}
+              pattern="(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+              title="Minstens 8 tekens, met een hoofdletter, een cijfer en een speciaal teken"
               value={nieuwWachtwoord}
               onChange={(e) => setNieuwWachtwoord(e.target.value)}
             />
-            <span className="auth-hint">Minstens 8 tekens</span>
+            <span className="auth-hint">Minstens 8 tekens, met een hoofdletter, een cijfer en een speciaal teken</span>
           </div>
           <div className="auth-field">
             <label htmlFor="bevestig_wachtwoord">Bevestig nieuw wachtwoord</label>
