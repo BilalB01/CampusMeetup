@@ -411,6 +411,7 @@ def update_notification_preferences(
     current_user.notify_new_participant = payload.notify_new_participant
     current_user.notify_chat_messages = payload.notify_chat_messages
     current_user.notify_reminder = payload.notify_reminder
+    current_user.notify_activity_updates = payload.notify_activity_updates
     db.commit()
     db.refresh(current_user)
     return current_user

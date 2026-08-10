@@ -185,6 +185,21 @@ def _ensure_organizer(activity: models.Activity, current_user: models.User) -> N
         )
 
 
+# Deelnemers van een activiteit, de organisator zelf uitgesloten — gebruikt
+# om te bepalen wie een melding krijgt bij bewerken/verwijderen. Geeft User-
+# rijen terug (niet Participation) zodat ze ook na het verwijderen van de
+# activiteit (en dus de bijhorende Participation-rijen, via cascade) nog
+# geldig blijven om te gebruiken
+def _andere_deelnemers(db: Session, activity_id: int, exclude_user_id: int) -> list[models.User]:
+    return (
+        db.query(models.User)
+        .join(models.Participation, models.Participation.user_id == models.User.id)
+        .filter(models.Participation.activity_id == activity_id)
+        .filter(models.User.id != exclude_user_id)
+        .all()
+    )
+
+
 # PUT i.p.v. PATCH: het bewerkformulier stuurt altijd alle velden mee
 # (zelfde payload-vorm als aanmaken), dus hergebruikt gewoon
 # schemas.ActivityCreate i.p.v. een apart partial-update-schema
@@ -213,6 +228,17 @@ def update_activity(
 
     db.commit()
     db.refresh(activity)
+
+    for deelnemer in _andere_deelnemers(db, activity.id, current_user.id):
+        create_notification(
+            db,
+            deelnemer,
+            "activiteit_bijgewerkt",
+            f'"{activity.title}" is bijgewerkt.',
+            activity.id,
+            deelnemer.notify_activity_updates,
+        )
+
     return _to_detail(activity, db, current_user)
 
 
@@ -231,8 +257,25 @@ def delete_activity(
         )
     _ensure_organizer(activity, current_user)
 
+    # Vóór het verwijderen opvragen: Participation-rijen verdwijnen mee via
+    # de cascade hierboven, dus na het verwijderen is er niets meer om op
+    # te filteren. De activity_id in de melding zelf wordt bewust None
+    # (de activiteit bestaat straks niet meer om naartoe te linken)
+    deelnemers = _andere_deelnemers(db, activity.id, current_user.id)
+    titel = activity.title
+
     db.delete(activity)
     db.commit()
+
+    for deelnemer in deelnemers:
+        create_notification(
+            db,
+            deelnemer,
+            "activiteit_verwijderd",
+            f'"{titel}" is geannuleerd.',
+            None,
+            deelnemer.notify_activity_updates,
+        )
 
 
 # Aansluiten bij een activiteit — weigert bij dubbele deelname of een

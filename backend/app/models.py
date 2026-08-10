@@ -65,6 +65,9 @@ class User(Base):
     # navigator.geolocation nooit aangeroepen en tonen activiteitenkaarten
     # geen afstand
     share_location = Column(Boolean, nullable=False, default=True)
+    # Melding bij bewerken/verwijderen van een activiteit waar je aan
+    # deelneemt (routers/activities.py update_activity/delete_activity)
+    notify_activity_updates = Column(Boolean, nullable=False, default=True)
 
     activities = relationship("Activity", back_populates="organizer")
     participations = relationship("Participation", back_populates="user")
@@ -143,7 +146,10 @@ class Notification(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    activity_id = Column(Integer, ForeignKey("activities.id"), nullable=True)
+    # ondelete="SET NULL": als de activiteit zelf verwijderd wordt (bv. de
+    # "activiteit_verwijderd"-melding hieronder), blijft de melding bestaan
+    # maar wordt de dode verwijzing opgeruimd i.p.v. een FK-fout te geven
+    activity_id = Column(Integer, ForeignKey("activities.id", ondelete="SET NULL"), nullable=True)
     type = Column(String(30), nullable=False)
     text = Column(String, nullable=False)
     read_at = Column(DateTime(timezone=True), nullable=True)

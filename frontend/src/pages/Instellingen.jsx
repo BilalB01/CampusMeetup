@@ -64,6 +64,7 @@ export default function Instellingen() {
     notify_new_participant: user?.notify_new_participant ?? true,
     notify_chat_messages: user?.notify_chat_messages ?? true,
     notify_reminder: user?.notify_reminder ?? true,
+    notify_activity_updates: user?.notify_activity_updates ?? true,
   });
   const [voorkeurenFout, setVoorkeurenFout] = useState("");
 
@@ -190,6 +191,12 @@ export default function Instellingen() {
           sub="Vlak voor een activiteit waar je aan deelneemt begint"
           checked={voorkeuren.notify_reminder}
           onChange={(waarde) => handleVoorkeurWijzigen("notify_reminder", waarde)}
+        />
+        <InstellingToggle
+          label="Activiteit bijgewerkt of verwijderd"
+          sub="Wanneer de organisator iets wijzigt aan een activiteit waar je aan deelneemt"
+          checked={voorkeuren.notify_activity_updates}
+          onChange={(waarde) => handleVoorkeurWijzigen("notify_activity_updates", waarde)}
         />
       </div>
 
