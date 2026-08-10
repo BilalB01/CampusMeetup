@@ -29,7 +29,7 @@ export default function ActiviteitRijKaart({ activiteit, categorie, afstand }) {
         </div>
         <div className="activiteit-rij-footer">
           <AvatarStack participants={activiteit.participants_preview} />
-          <span className="activiteit-rij-spots" style={{ color: vol ? "#a29dbc" : categorie?.accent ?? "#6c4ff5" }}>
+          <span className="activiteit-rij-spots" style={{ color: vol ? "#b4aed4" : categorie?.accent ?? "#6c4ff5" }}>
             {vol ? "Vol" : `${activiteit.max_participants - activiteit.participant_count} plekken`}
           </span>
         </div>

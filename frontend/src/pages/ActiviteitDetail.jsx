@@ -252,7 +252,7 @@ export default function ActiviteitDetail() {
           {activity.latitude && activity.longitude && (
             <div className="locatie-kaart">
               <Map
-                style={{ width: "100%", height: "320px" }}
+                style={{ width: "100%", height: "440px" }}
                 defaultCenter={{ lat: activity.latitude, lng: activity.longitude }}
                 defaultZoom={16}
                 gestureHandling="cooperative"
