@@ -14,6 +14,12 @@ class Settings(BaseSettings):
     # Fernet-sleutel voor het versleutelen van chatberichten in de database
     # (zie app/crypto.py) — genereren met Fernet.generate_key()
     message_encryption_key: str
+    # Optioneel (None): zonder key blijft de app werken, meldingsmails
+    # worden dan gewoon niet verstuurd (zie app/email.py)
+    resend_api_key: str | None = None
+    resend_from_email: str = "onboarding@resend.dev"
+    # Basis-URL van de frontend, voor de link in de "activiteit delen"-e-mail
+    frontend_url: str = "http://localhost:5173"
 
     class Config:
         env_file = ".env"

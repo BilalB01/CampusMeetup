@@ -1,3 +1,8 @@
+import truststore
+
+# Gebruikt de Windows-certificaatwinkel voor TLS-verificatie i.p.v. certifi
+truststore.inject_into_ssl()
+
 from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -9,9 +14,14 @@ from sqlalchemy.orm import Session, joinedload
 from app import models, schemas
 from app.database import get_db
 from app.dependencies import get_current_user
+from app.notifications import create_notification
 from app.routers import activities, auth, chat
 from app.security import hash_password, verify_password
 from app.uploads import UPLOADS_DIR
+
+# Hoe ver vooruit een activiteit een herinnering triggert (zie
+# read_my_notifications hieronder)
+REMINDER_WINDOW = timedelta(minutes=60)
 
 app = FastAPI(title="CampusMeetup API")
 
@@ -284,3 +294,115 @@ def read_my_conversations(
     ]
     result.sort(key=lambda c: c.last_message_at, reverse=True)
     return result
+
+
+# "Lazy" berekend i.p.v. via een achtergrondtaak (die bestaat niet in dit
+# project): maakt een herinnering aan voor elke activiteit van de gebruiker
+# die binnen REMINDER_WINDOW start en nog geen herinnering heeft
+def _ensure_reminder_notifications(db: Session, current_user: models.User) -> None:
+    if not current_user.notify_reminder:
+        return
+    nu = datetime.now(timezone.utc)
+    binnenkort = nu + REMINDER_WINDOW
+    activiteiten = (
+        db.query(models.Activity)
+        .join(models.Participation, models.Participation.activity_id == models.Activity.id)
+        .filter(models.Participation.user_id == current_user.id)
+        .filter(models.Activity.start_time > nu, models.Activity.start_time <= binnenkort)
+        .all()
+    )
+    for activiteit in activiteiten:
+        bestaat_al = (
+            db.query(models.Notification)
+            .filter_by(user_id=current_user.id, activity_id=activiteit.id, type="herinnering")
+            .first()
+        )
+        if bestaat_al:
+            continue
+        create_notification(
+            db,
+            current_user,
+            "herinnering",
+            f'Herinnering: "{activiteit.title}" begint binnen het uur.',
+            activiteit.id,
+            True,
+        )
+
+
+@app.get("/users/me/notifications", response_model=list[schemas.NotificationOut])
+def read_my_notifications(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    _ensure_reminder_notifications(db, current_user)
+    notifications = (
+        db.query(models.Notification)
+        .filter(models.Notification.user_id == current_user.id)
+        .order_by(models.Notification.created_at.desc())
+        .all()
+    )
+    return [
+        schemas.NotificationOut(
+            id=n.id,
+            type=n.type,
+            text=n.text,
+            activity_id=n.activity_id,
+            read=n.read_at is not None,
+            created_at=n.created_at,
+        )
+        for n in notifications
+    ]
+
+
+@app.put("/users/me/notifications/{notification_id}/read", response_model=schemas.NotificationOut)
+def mark_notification_read(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    notification = db.get(models.Notification, notification_id)
+    if notification is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Melding niet gevonden")
+    if notification.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Dit is niet jouw melding")
+
+    if notification.read_at is None:
+        notification.read_at = datetime.now(timezone.utc)
+        db.commit()
+        db.refresh(notification)
+
+    return schemas.NotificationOut(
+        id=notification.id,
+        type=notification.type,
+        text=notification.text,
+        activity_id=notification.activity_id,
+        read=True,
+        created_at=notification.created_at,
+    )
+
+
+@app.put("/users/me/notifications/read-all")
+def mark_all_notifications_read(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    db.query(models.Notification).filter(
+        models.Notification.user_id == current_user.id,
+        models.Notification.read_at.is_(None),
+    ).update({"read_at": datetime.now(timezone.utc)})
+    db.commit()
+    return {"status": "ok"}
+
+
+@app.put("/users/me/notification-preferences", response_model=schemas.UserOut)
+def update_notification_preferences(
+    payload: schemas.NotificationPreferences,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    current_user.notify_new_participant = payload.notify_new_participant
+    current_user.notify_chat_messages = payload.notify_chat_messages
+    current_user.notify_reminder = payload.notify_reminder
+    db.commit()
+    db.refresh(current_user)
+    return current_user
