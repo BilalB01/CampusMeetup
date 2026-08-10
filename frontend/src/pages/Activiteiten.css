@@ -332,38 +332,67 @@
   display: flex;
   flex-direction: column;
   gap: 22px;
-  background: #fff;
+  /* Kleurwas in de eigen accentkleur van de categorie i.p.v. gewoon wit --
+     --tile-bg/--tile-accent komen als inline custom properties mee vanuit
+     Categorieen.jsx, want CATEGORIES leeft in JS, niet in deze stylesheet */
+  background: linear-gradient(155deg, var(--tile-bg, #f5f2fc) 0%, #fff 58%);
   border: 1px solid rgba(27, 24, 48, 0.06);
   border-radius: 24px;
   padding: 17px;
   text-decoration: none;
   color: #1b1830;
-  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s, border-color 0.18s;
+}
+/* Zelfde decoratieve-blob-motief als de donkere kaarten elders in de app,
+   hier in de eigen accentkleur en op zeer lage dekking zodat het licht blijft */
+.categorie-tile2::before {
+  content: "";
+  position: absolute;
+  right: -22px;
+  bottom: -26px;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--tile-accent, #6c4ff5);
+  opacity: 0.12;
+  pointer-events: none;
+  animation: floatBlob 9s infinite ease-in-out;
 }
 .categorie-tile2:hover {
   transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--tile-accent, #6c4ff5) 35%, transparent);
   box-shadow: 0 16px 30px -16px rgba(76, 45, 180, 0.45);
 }
 .categorie-tile2-top {
+  position: relative;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 }
 .categorie-icon {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 21px;
+  box-shadow: 0 8px 16px -6px var(--tile-accent, #6c4ff5);
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.categorie-tile2:hover .categorie-icon {
+  transform: scale(1.06) rotate(-4deg);
 }
 .categorie-tile2-count {
+  position: relative;
   font-family: "Bricolage Grotesque", sans-serif;
   font-size: 19px;
   font-weight: 800;
 }
 .categorie-tile2-label {
+  position: relative;
   font-size: 14.5px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -430,9 +459,9 @@
   overflow: hidden;
   transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
 }
-/* Zelfde decoratieve blob-aanpak als .sidebar-volgende, maar statisch
-   (geen animatie) — in een lijst met meerdere kaarten tegelijk zou een
-   ronddrijvende blob per rij te druk aanvoelen */
+/* Zelfde bewegende blob-aanpak als .sidebar-volgende en .categorie-tile2,
+   in de kleur van de eigen categorie (--accent, meegegeven vanuit
+   ActiviteitRijKaart.jsx/ActiviteitenLijst.jsx) i.p.v. vast paars */
 .activiteit-rij::before {
   content: "";
   position: absolute;
@@ -441,8 +470,10 @@
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  background: rgba(139, 107, 255, 0.22);
+  background: var(--accent, #8b6bff);
+  opacity: 0.3;
   pointer-events: none;
+  animation: floatBlob 9s infinite ease-in-out;
 }
 .activiteit-rij:hover {
   transform: translateY(-2px);

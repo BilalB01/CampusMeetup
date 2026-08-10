@@ -164,8 +164,12 @@ export default function ActiviteitenLijst() {
 
                 return (
                   <li key={a.id}>
-                    <Link to={`/activiteiten/${a.id}`} className="activiteit-rij">
-                      <div className="activiteit-rij-tijd" style={{ "--accent": itemCategory?.accent ?? "#6c4ff5" }}>
+                    <Link
+                      to={`/activiteiten/${a.id}`}
+                      className="activiteit-rij"
+                      style={{ "--accent": itemCategory?.accent ?? "#6c4ff5" }}
+                    >
+                      <div className="activiteit-rij-tijd">
                         <span className="activiteit-rij-uur">{formatTime(a.start_time)}</span>
                         <span className="activiteit-rij-dag">{formatWeekdayShort(a.start_time)}</span>
                         <span className="activiteit-rij-datum">{formatDayMonth(a.start_time)}</span>

@@ -10,8 +10,12 @@ export default function ActiviteitRijKaart({ activiteit, categorie, afstand }) {
   const vol = activiteit.participant_count >= activiteit.max_participants;
 
   return (
-    <Link to={`/activiteiten/${activiteit.id}`} className="activiteit-rij">
-      <div className="activiteit-rij-tijd" style={{ "--accent": categorie?.accent ?? "#6c4ff5" }}>
+    <Link
+      to={`/activiteiten/${activiteit.id}`}
+      className="activiteit-rij"
+      style={{ "--accent": categorie?.accent ?? "#6c4ff5" }}
+    >
+      <div className="activiteit-rij-tijd">
         <span className="activiteit-rij-uur">{formatTime(activiteit.start_time)}</span>
         <span className="activiteit-rij-dag">{formatWeekdayShort(activiteit.start_time)}</span>
         <span className="activiteit-rij-datum">{formatDayMonth(activiteit.start_time)}</span>

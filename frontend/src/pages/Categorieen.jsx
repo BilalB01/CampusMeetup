@@ -164,7 +164,12 @@ export default function Categorieen() {
           : CATEGORIES.map((cat) => {
               const aantal = activities.filter((a) => a.category === cat.value).length;
               return (
-                <Link key={cat.slug} to={`/activiteiten/categorie/${cat.slug}`} className="categorie-tile2">
+                <Link
+                  key={cat.slug}
+                  to={`/activiteiten/categorie/${cat.slug}`}
+                  className="categorie-tile2"
+                  style={{ "--tile-bg": cat.bg, "--tile-accent": cat.accent }}
+                >
                   <div className="categorie-tile2-top">
                     <span className="categorie-icon" style={{ background: cat.bg }}>
                       {cat.icon}
