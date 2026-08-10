@@ -34,7 +34,7 @@ export default function AuthSplitScreen({ onSubmit, children }) {
   }, []);
 
   return (
-    <div className="auth-screen">
+    <div className="auth-screen auth-screen--login">
       {/* Aparte wrapper (i.p.v. hero+kaart rechtstreeks als flex-kinderen van
           .auth-screen) — .auth-screen heeft min-height:100vh voor de oude
           mobiele centrering, waardoor align-items:stretch de panelen tot de

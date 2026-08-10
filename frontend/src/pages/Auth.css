@@ -11,6 +11,39 @@
   padding-bottom: 96px;
   box-sizing: border-box;
 }
+/* Enkel op login/register (AuthSplitScreen.jsx) -- eigen modifier i.p.v. op
+   .auth-screen zelf, want die klasse wordt ook hergebruikt door
+   ActiviteitForm.jsx en daar horen deze cirkels niet thuis. Groot en zeer
+   laag-dekkend zodat het formulier zelf goed leesbaar blijft */
+.auth-screen--login {
+  position: relative;
+  overflow: hidden;
+}
+.auth-screen--login::before {
+  content: "";
+  position: absolute;
+  top: -120px;
+  left: -100px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: rgba(139, 107, 255, 0.16);
+  animation: floatBlob 14s infinite ease-in-out;
+  pointer-events: none;
+}
+.auth-screen--login::after {
+  content: "";
+  position: absolute;
+  bottom: -140px;
+  right: -110px;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: rgba(108, 79, 245, 0.14);
+  animation: floatBlob 16s infinite ease-in-out reverse;
+  animation-delay: -5s;
+  pointer-events: none;
+}
 
 .auth-card {
   width: 100%;
@@ -337,6 +370,9 @@ a.auth-switch:hover {
   align-items: flex-end;
   color: #fff;
 }
+/* floatBlob is gedefinieerd in Activiteiten.css (@import bovenaan dit
+   bestand) -- zelfde zwevende decoratie als de rest van de app (kaarten,
+   hero's, statistiekkaarten), hier op de inlog-/registratieachtergrond */
 .auth-hero::before {
   content: "";
   position: absolute;
@@ -346,6 +382,7 @@ a.auth-switch:hover {
   height: 180px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
+  animation: floatBlob 10s infinite ease-in-out;
 }
 .auth-hero::after {
   content: "";
@@ -356,6 +393,8 @@ a.auth-switch:hover {
   height: 130px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
+  animation: floatBlob 8s infinite ease-in-out reverse;
+  animation-delay: -3s;
 }
 .auth-hero-content {
   position: relative;
@@ -431,6 +470,7 @@ a.auth-switch:hover {
   height: 220px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.12);
+  animation: floatBlob 10s infinite ease-in-out;
 }
 .auth-split-hero::after {
   content: "";
@@ -441,6 +481,8 @@ a.auth-switch:hover {
   height: 160px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
+  animation: floatBlob 8s infinite ease-in-out reverse;
+  animation-delay: -3s;
 }
 .auth-split-hero-merk {
   position: relative;
