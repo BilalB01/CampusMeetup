@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { getMyActivities } from "../api/client";
+import { getMyActivities, getNotifications } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES } from "../constants/categories";
 import { formatStartBadge } from "../utils/formatDate";
@@ -10,6 +10,7 @@ const TABS = [
   { key: "home", label: "Start", path: ICONS.home, to: "/" },
   { key: "ontdek", label: "Ontdek", path: ICONS.kompas, to: "/activiteiten" },
   { key: "chats", label: "Chats", path: ICONS.chat, to: "/chats" },
+  { key: "meldingen", label: "Meldingen", path: ICONS.melding, to: "/meldingen" },
   { key: "instellingen", label: "Instellingen", path: ICONS.tandwiel, to: "/instellingen" },
 ];
 
@@ -20,6 +21,7 @@ export default function Sidebar() {
   const { pathname } = useLocation();
   const { user, token } = useAuth();
   const [volgende, setVolgende] = useState(null);
+  const [ongelezenMeldingen, setOngelezenMeldingen] = useState(0);
 
   useEffect(() => {
     if (!token) return;
@@ -32,6 +34,11 @@ export default function Sidebar() {
         setVolgende(eerst ?? null);
       })
       .catch(() => {}); // stille fallback: widget toont dan gewoon niets
+    // Eenmalig bij mount, geen polling — ververst bij een volle paginalaad
+    // of bezoek aan /meldingen (zelfde bewuste keuze als bij "volgende activiteit")
+    getNotifications(token)
+      .then((data) => setOngelezenMeldingen(data.filter((n) => !n.read).length))
+      .catch(() => {});
   }, [token]);
 
   if (isAuthScreen(pathname)) return null;
@@ -64,6 +71,9 @@ export default function Sidebar() {
                 <path d={tab.path} />
               </svg>
               <span className="sidebar-nav-label">{tab.label}</span>
+              {tab.key === "meldingen" && ongelezenMeldingen > 0 && (
+                <span className="sidebar-nav-badge">{ongelezenMeldingen}</span>
+              )}
               {active && <span className="sidebar-nav-dot" />}
             </Link>
           );
