@@ -1,8 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { changePassword, deleteAccount, updateProfile } from "../api/client";
+import { changePassword, deleteAccount, updateNotificationPreferences, updateProfile } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import "./Activiteiten.css";
+
+// Kleine herbruikbare toggle-switch, enkel gebruikt door de meldingen-sectie
+// hieronder — een <button role="switch"> i.p.v. de gebruikelijke verborgen-
+// checkbox-truc, consistent met de andere knop-gebaseerde controls in de app
+function MeldingToggle({ label, sub, checked, onChange }) {
+  return (
+    <div className="instellingen-toggle-rij">
+      <span className="instellingen-toggle-tekst">
+        <span className="instellingen-toggle-label">{label}</span>
+        <span className="instellingen-toggle-sub">{sub}</span>
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        className={`instellingen-toggle${checked ? " aan" : ""}`}
+        onClick={() => onChange(!checked)}
+      >
+        <span className="instellingen-toggle-knop" />
+      </button>
+    </div>
+  );
+}
 
 export default function Instellingen() {
   const navigate = useNavigate();
@@ -26,6 +50,27 @@ export default function Instellingen() {
       setNaamFout(err.message);
     } finally {
       setNaamOpslaan(false);
+    }
+  }
+
+  const [voorkeuren, setVoorkeuren] = useState({
+    notify_new_participant: user?.notify_new_participant ?? true,
+    notify_chat_messages: user?.notify_chat_messages ?? true,
+    notify_reminder: user?.notify_reminder ?? true,
+  });
+  const [voorkeurenFout, setVoorkeurenFout] = useState("");
+
+  async function handleVoorkeurWijzigen(key, waarde) {
+    const vorige = voorkeuren;
+    const nieuwe = { ...voorkeuren, [key]: waarde };
+    setVoorkeuren(nieuwe);
+    setVoorkeurenFout("");
+    try {
+      const bijgewerkt = await updateNotificationPreferences(nieuwe, token);
+      updateUser(bijgewerkt);
+    } catch (err) {
+      setVoorkeuren(vorige);
+      setVoorkeurenFout(err.message);
     }
   }
 
@@ -101,6 +146,30 @@ export default function Instellingen() {
           {naamOpslaan ? "Bezig..." : "Opslaan"}
         </button>
       </form>
+
+      <div className="instellingen-sectie">
+        <h2 className="instellingen-sectie-titel">Meldingen</h2>
+        <p className="auth-hint">In-app én per e-mail, per type apart uit te zetten.</p>
+        {voorkeurenFout && <div className="auth-error">{voorkeurenFout}</div>}
+        <MeldingToggle
+          label="Nieuwe deelnemer"
+          sub="Wanneer iemand zich aanmeldt voor jouw activiteit"
+          checked={voorkeuren.notify_new_participant}
+          onChange={(waarde) => handleVoorkeurWijzigen("notify_new_participant", waarde)}
+        />
+        <MeldingToggle
+          label="Chatberichten"
+          sub="Nieuw bericht in een groepschat waar je in zit"
+          checked={voorkeuren.notify_chat_messages}
+          onChange={(waarde) => handleVoorkeurWijzigen("notify_chat_messages", waarde)}
+        />
+        <MeldingToggle
+          label="Herinnering"
+          sub="Vlak voor een activiteit waar je aan deelneemt begint"
+          checked={voorkeuren.notify_reminder}
+          onChange={(waarde) => handleVoorkeurWijzigen("notify_reminder", waarde)}
+        />
+      </div>
 
       {user?.auth_provider === "password" ? (
         <form className="instellingen-sectie" onSubmit={handleWachtwoordOpslaan}>
