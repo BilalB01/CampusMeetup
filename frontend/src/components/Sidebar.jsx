@@ -14,6 +14,14 @@ const TABS = [
   { key: "meldingen", label: "Meldingen", path: ICONS.melding, to: "/meldingen" },
   { key: "instellingen", label: "Instellingen", path: ICONS.tandwiel, to: "/instellingen" },
 ];
+// Enkel getoond aan beheerders (user.is_admin) -- zie tabs hieronder. Twee
+// losse knoppen i.p.v. één "Admin"-tab met interne tabjes: rechtstreeks
+// navigeerbaar, geen tab-wissel-UI die (net als op het profielscherm)
+// hergebruikt zou worden voor iets heel anders
+const ADMIN_TABS = [
+  { key: "admin-gebruikers", label: "Gebruikers", path: ICONS.persoon, to: "/admin/gebruikers" },
+  { key: "admin-activiteiten", label: "Activiteiten", path: ICONS.lijst, to: "/admin/activiteiten" },
+];
 
 // Vaste linker-navigatie vanaf desktopbreedte (≥900px, zie Activiteiten.css),
 // vervangt op die breedte de onderaan-navigatiebalk. Geen "Nieuw"-tab in de
@@ -25,7 +33,10 @@ export default function Sidebar() {
   const { unreadCount, chatUnreadCount } = useNotifications();
 
   useEffect(() => {
-    if (!token) return;
+    // Beheerders nemen zelf niet deel aan activiteiten (zie hieronder) --
+    // deze widget gaat net daarover, dus geen reden om 'm voor hen op te
+    // halen
+    if (!token || user?.is_admin) return;
     // Bewust van iedereen (listActivities, geen token nodig) i.p.v. enkel
     // eigen georganiseerde/deelgenomen activiteiten -- de eerste 3 die
     // ergens op het platform plaatsvinden, niet enkel waar je zelf bij
@@ -40,11 +51,15 @@ export default function Sidebar() {
         setVolgendeActiviteiten(eerstDrie);
       })
       .catch(() => {}); // stille fallback: widget toont dan gewoon niets
-  }, [token]);
+  }, [token, user?.is_admin]);
 
   if (isAuthScreen(pathname)) return null;
 
   const initial = user?.name?.[0]?.toUpperCase() ?? "?";
+  // Een beheerder is geen deelnemer: enkel de twee beheertaken te zien, geen
+  // Start/Ontdek/Chats/Meldingen/Instellingen (die gaan allemaal over zelf
+  // activiteiten bijwonen/organiseren)
+  const tabs = user?.is_admin ? ADMIN_TABS : TABS;
 
   return (
     <aside className="sidebar">
@@ -56,15 +71,17 @@ export default function Sidebar() {
         </span>
       </Link>
 
-      <Link to={`/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw`} className="sidebar-cta">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-          <path d={ICONS.plus} />
-        </svg>
-        Nieuwe activiteit
-      </Link>
+      {!user?.is_admin && (
+        <Link to={`/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw`} className="sidebar-cta">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d={ICONS.plus} />
+          </svg>
+          Nieuwe activiteit
+        </Link>
+      )}
 
       <nav className="sidebar-nav">
-        {TABS.map((tab) => {
+        {tabs.map((tab) => {
           const active = isNavActive(pathname, tab);
           return (
             <Link key={tab.key} to={tab.to} className={`sidebar-nav-item${active ? " actief" : ""}`}>

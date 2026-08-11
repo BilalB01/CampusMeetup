@@ -219,3 +219,35 @@ export function uploadChatImage(activityId, file, token) {
 export function deleteChatMessage(activityId, messageId, token) {
   return request(`/activities/${activityId}/messages/${messageId}`, { method: "DELETE", token });
 }
+
+// Admin: alle gebruikers ophalen (enkel voor beheerders, zie is_admin op user)
+export function getAdminUsers(token) {
+  return request("/admin/users", { token });
+}
+
+// Admin: detail van één gebruiker + zijn/haar activiteiten
+export function getAdminUserDetail(userId, token) {
+  return request(`/admin/users/${userId}`, { token });
+}
+
+// Admin: een gebruiker permanent verwijderen -- geen soft-delete, echt weg
+export function deleteAdminUser(userId, token) {
+  return request(`/admin/users/${userId}`, { method: "DELETE", token });
+}
+
+// Admin: alle activiteiten ophalen, optioneel gefilterd op categorie --
+// i.t.t. listActivities() worden hier ook verlopen activiteiten getoond
+export function getAdminActivities({ category } = {}, token) {
+  const query = category ? `?category=${encodeURIComponent(category)}` : "";
+  return request(`/admin/activities${query}`, { token });
+}
+
+// Admin: een activiteit permanent verwijderen -- reason is verplicht en komt
+// terecht in de melding die de deelnemers krijgen
+export function deleteAdminActivity(activityId, reason, token) {
+  return request(`/admin/activities/${activityId}`, {
+    method: "DELETE",
+    body: JSON.stringify({ reason }),
+    token,
+  });
+}

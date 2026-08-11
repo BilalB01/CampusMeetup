@@ -8,9 +8,13 @@ import { useAuth } from "./AuthContext";
 // de achtergrond ook echt verifiëren dat dat token nog geldig is -- bij een
 // afwijzing (verlopen/ongeldig) logt logout() de gebruiker uit en stuurt
 // deze render dan alsnog naar /login. Draait bij elke paginawissel opnieuw
-// dankzij location.pathname in de dependency-array
-export default function ProtectedRoute({ children }) {
-  const { token, logout } = useAuth();
+// dankzij location.pathname in de dependency-array.
+// adminOnly: extra check bovenop "is er een geldig token" -- een niet-
+// beheerder die rechtstreeks naar /admin navigeert, wordt naar / gestuurd
+// i.p.v. dat de 403 van de backend zichtbaar wordt. Hergebruikt bewust deze
+// component (i.p.v. een aparte AdminRoute) om de token-verify-logica hierboven niet te dupliceren
+export default function ProtectedRoute({ children, adminOnly = false }) {
+  const { token, user, logout } = useAuth();
   const location = useLocation();
   const [ongeldig, setOngeldig] = useState(false);
 
@@ -29,5 +33,6 @@ export default function ProtectedRoute({ children }) {
   }, [token, location.pathname]);
 
   if (!token || ongeldig) return <Navigate to="/login" replace />;
+  if (adminOnly && !user?.is_admin) return <Navigate to="/" replace />;
   return children;
 }

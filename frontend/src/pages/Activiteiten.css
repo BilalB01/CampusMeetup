@@ -287,6 +287,40 @@
 .uitgelicht-leeg-cta:hover {
   transform: translateY(-1px);
 }
+/* Zoekbalk op AdminGebruikers.jsx/AdminActiviteiten.jsx -- client-side
+   filter, geen apart zoek-endpoint nodig want beide schermen halen toch al
+   de volledige lijst op */
+.admin-zoekbalk {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border: 1.5px solid rgba(27, 24, 48, 0.08);
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-family: inherit;
+  color: #1b1830;
+  background: #fff;
+  margin-bottom: 14px;
+}
+.admin-zoekbalk::placeholder {
+  color: #a29dbc;
+}
+.admin-zoekbalk:focus {
+  outline: none;
+  border-color: #8b6bff;
+}
+/* Twee CTA's naast elkaar op AdminOverzicht.jsx i.p.v. de ene "Ontdek
+   activiteiten"-knop van de lege staat hierboven */
+.admin-overzicht-acties {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.admin-overzicht-acties .uitgelicht-leeg-cta {
+  margin-top: 0;
+}
 .uitgelicht-footer {
   position: relative;
   display: flex;
@@ -1793,11 +1827,78 @@
   font-size: 11.5px;
   color: #8c87a6;
   font-weight: 500;
+  /* E-mailadressen (AdminGebruikers.jsx/AdminOverzicht.jsx) zijn één lang
+     woord zonder spaties -- zonder dit liep de tekst gewoon door over wat
+     er ook naast staat (bv. de Verwijderen-knop) i.p.v. af te breken */
+  overflow-wrap: break-word;
 }
 .profiel-item-tag {
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
+}
+/* Beheerscherm (pages/Admin.jsx) -- hergebruikt .profiel-item/.activiteiten-lijst,
+   met enkel een verwijderknop rechts en een kleine "Beheerder"-badge extra */
+.admin-item {
+  justify-content: space-between;
+  /* Kleurwas/gloed net als categorie-tile2/start-stat-kaart, in een vaste
+     zachte tint (gebruikers hebben geen eigen accentkleur zoals categorieën) */
+  background: linear-gradient(155deg, #f3effc 0%, #fff 60%);
+  border-radius: 20px;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s, border-color 0.18s;
+}
+.admin-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(108, 79, 245, 0.35);
+  box-shadow: 0 16px 30px -18px rgba(76, 45, 180, 0.35);
+}
+.admin-item .profiel-item-icoon {
+  box-shadow: 0 6px 14px -6px rgba(108, 79, 245, 0.55);
+}
+.admin-delete-knop {
+  flex: none;
+  margin-top: 0;
+  padding: 8px 14px;
+  font-size: 12px;
+}
+.admin-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #ede8fb;
+  color: #6c4ff5;
+  font-size: 10px;
+  font-weight: 800;
+  vertical-align: middle;
+}
+/* Activiteitkaarten op AdminActiviteiten.jsx hergebruiken de echte, donkere
+   .activiteit-rij-kaart (zelfde als de normale Ontdek-pagina) -- de
+   verwijderknop komt er als losse overlay bovenop i.p.v. genest in de Link,
+   anders zou een klik ook meteen doornavigeren */
+.admin-activiteit-kaart-wrap {
+  position: relative;
+}
+.admin-activiteit-verwijder-overlay {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+.admin-activiteit-verwijder-overlay:hover {
+  background: #e14848;
+  transform: scale(1.08);
 }
 .profiel-naam {
   margin: 0 0 2px;

@@ -125,6 +125,16 @@ export default function Profiel() {
           <Link to="/instellingen" className="profiel-instellingen-pil">
             Instellingen
           </Link>
+          {user?.is_admin && (
+            <>
+              <Link to="/admin/gebruikers" className="profiel-instellingen-pil">
+                Gebruikers beheren
+              </Link>
+              <Link to="/admin/activiteiten" className="profiel-instellingen-pil">
+                Activiteiten beheren
+              </Link>
+            </>
+          )}
           <button type="button" className="profiel-logout" onClick={handleLogout}>
             Uitloggen
           </button>

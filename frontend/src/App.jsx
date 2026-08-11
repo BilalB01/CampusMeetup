@@ -12,13 +12,26 @@ import ChatOverzicht from "./pages/ChatOverzicht";
 import MeldingenOverzicht from "./pages/MeldingenOverzicht";
 import Profiel from "./pages/Profiel";
 import Instellingen from "./pages/Instellingen";
+import AdminGebruikers from "./pages/AdminGebruikers";
+import AdminGebruikerDetail from "./pages/AdminGebruikerDetail";
+import AdminActiviteiten from "./pages/AdminActiviteiten";
+import AdminOverzicht from "./pages/AdminOverzicht";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import BottomNav from "./components/BottomNav";
 import Sidebar from "./components/Sidebar";
 import TopBar from "./components/TopBar";
 import NotificationToasts from "./components/NotificationToasts";
+import { useAuth } from "./auth/AuthContext";
 import { MAPS_API_KEY } from "./constants/maps";
 import { isAuthScreen } from "./utils/nav";
+
+// Landingspagina op "/" -- een beheerder ziet daar het beheerdersoverzicht
+// i.p.v. de normale Start-pagina (categorietegels/"Binnenkort op de
+// campus" gaan over zelf deelnemen, niet van toepassing voor een admin)
+function StartScherm() {
+  const { user } = useAuth();
+  return user?.is_admin ? <AdminOverzicht /> : <Categorieen />;
+}
 
 function App() {
   const { pathname } = useLocation();
@@ -41,7 +54,7 @@ function App() {
             path="/"
             element={
               <ProtectedRoute>
-                <Categorieen />
+                <StartScherm />
               </ProtectedRoute>
             }
           />
@@ -122,6 +135,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Instellingen />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/gebruikers"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminGebruikers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/gebruikers/:id"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminGebruikerDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/activiteiten"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminActiviteiten />
               </ProtectedRoute>
             }
           />
