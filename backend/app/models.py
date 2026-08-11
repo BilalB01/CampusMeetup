@@ -68,6 +68,11 @@ class User(Base):
     # Melding bij bewerken/verwijderen van een activiteit waar je aan
     # deelneemt (routers/activities.py update_activity/delete_activity)
     notify_activity_updates = Column(Boolean, nullable=False, default=True)
+    # Geeft toegang tot /admin/... (zie routers/admin.py en
+    # dependencies.get_current_admin) — bewust één boolean i.p.v. een
+    # aparte rollentabel, want dit eerste beheerdersfeature kent maar
+    # twee niveaus (gewone gebruiker/beheerder)
+    is_admin = Column(Boolean, nullable=False, default=False)
 
     activities = relationship("Activity", back_populates="organizer")
     participations = relationship("Participation", back_populates="user")

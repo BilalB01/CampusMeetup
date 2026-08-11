@@ -18,7 +18,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.notifications import create_notification
 from app.rate_limit import limiter
-from app.routers import activities, auth, chat
+from app.routers import activities, admin, auth, chat
 from app.security import hash_password, verify_password
 from app.uploads import UPLOADS_DIR
 
@@ -45,6 +45,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(activities.router)
 app.include_router(chat.router)
+app.include_router(admin.router)
 
 # Geuploade chatafbeeldingen terug uitserveren onder /uploads/<bestand>
 app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")

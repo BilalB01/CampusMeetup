@@ -68,6 +68,9 @@ class UserOut(BaseModel):
     notify_reminder: bool
     notify_activity_updates: bool
     share_location: bool
+    # Stuurt de admin-tab (Sidebar.jsx/Profiel.jsx) en de client-side
+    # /admin-guard (ProtectedRoute adminOnly) aan
+    is_admin: bool
 
     class Config:
         from_attributes = True
@@ -251,3 +254,17 @@ class LocationPreference(BaseModel):
 class ActivityShare(BaseModel):
     email: EmailStr
     message: str | None = None
+
+
+# Payload van DELETE /admin/activities/{id} -- reden is verplicht, komt in
+# de melding terecht die de deelnemers krijgen (routers/admin.py)
+class AdminActivityDelete(BaseModel):
+    reason: str = Field(min_length=1, max_length=300)
+
+
+# Antwoord van GET /admin/users/{id} -- UserOut-velden + de activiteiten van
+# die gebruiker, zelfde opbouw als MyActivitiesOut maar dan bekeken door een
+# beheerder i.p.v. de gebruiker zelf
+class AdminUserDetailOut(UserOut):
+    organized: list[ActivityListItem]
+    joined: list[ActivityListItem]

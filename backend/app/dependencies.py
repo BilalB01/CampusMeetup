@@ -75,3 +75,18 @@ def get_current_user_ws(
     if user is None:
         raise WebSocketException(code=status.WS_1008_POLICY_VIOLATION)
     return user
+
+
+# Bovenop get_current_user: laat enkel gebruikers met is_admin=True door naar
+# /admin/...-routes. Aparte, samengestelde dependency i.p.v. een losse
+# if-check in elke routerfunctie, zodat een vergeten check op een nieuw
+# admin-endpoint niet stil kan gebeuren
+def get_current_admin(
+    current_user: models.User = Depends(get_current_user),
+) -> models.User:
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Enkel beheerders hebben hier toegang toe",
+        )
+    return current_user
