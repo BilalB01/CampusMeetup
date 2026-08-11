@@ -20,6 +20,9 @@ class Settings(BaseSettings):
     resend_from_email: str = "onboarding@resend.dev"
     # Basis-URL van de frontend, voor de link in de "activiteit delen"-e-mail
     frontend_url: str = "http://localhost:5173"
+    # Komma-gescheiden lijst van origins die de API mogen aanspreken (CORS) —
+    # in productie hier de echte frontend-domeinnaam (+ www-variant) aan toevoegen
+    allowed_origins: str = "http://localhost:5173"
 
     class Config:
         env_file = ".env"

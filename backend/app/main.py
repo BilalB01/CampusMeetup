@@ -19,6 +19,7 @@ from app.dependencies import get_current_user
 from app.notifications import create_notification
 from app.rate_limit import limiter
 from app.routers import activities, admin, auth, chat
+from app.config import settings
 from app.security import hash_password, verify_password
 from app.uploads import UPLOADS_DIR
 
@@ -33,10 +34,12 @@ app = FastAPI(title="CampusMeetup API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# Staat de React-frontend (op localhost:5173) toe om de API aan te spreken
+# Staat de React-frontend toe om de API aan te spreken -- welke origin(s)
+# dat zijn, staat in ALLOWED_ORIGINS (.env), zodat productie hier gewoon het
+# echte domein bij kan zetten zonder de code aan te passen
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[o.strip() for o in settings.allowed_origins.split(",")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
