@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
-import { API_URL, deleteActivity, getActivity, joinActivity, leaveActivity, shareActivityByEmail } from "../api/client";
+import {
+  API_URL,
+  deleteActivity,
+  deleteAdminActivity,
+  getActivity,
+  joinActivity,
+  leaveActivity,
+  shareActivityByEmail,
+} from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
@@ -61,6 +69,29 @@ export default function ActiviteitDetail() {
     setActionLoading(true);
     try {
       await deleteActivity(id, token);
+      navigate(overzichtLink);
+    } catch (err) {
+      setActionError(err.message);
+      setActionLoading(false);
+    }
+  }
+
+  // Verwijderen door een beheerder die zelf geen organisator is -- zelfde
+  // window.prompt-patroon (verplichte reden) als handleDeleteActivity in
+  // AdminActiviteiten.jsx, zodat het ook rechtstreeks vanaf de detailpagina kan
+  async function handleAdminDelete() {
+    const reden = window.prompt(
+      `Waarom wil je "${activity.title}" permanent verwijderen? Dit wordt getoond aan de deelnemers en kan niet ongedaan gemaakt worden.`,
+    );
+    if (reden === null) return; // geannuleerd
+    if (!reden.trim()) {
+      window.alert("Geef een reden op.");
+      return;
+    }
+    setActionError("");
+    setActionLoading(true);
+    try {
+      await deleteAdminActivity(id, reden.trim(), token);
       navigate(overzichtLink);
     } catch (err) {
       setActionError(err.message);
@@ -140,7 +171,10 @@ export default function ActiviteitDetail() {
   }
 
   const category = getCategoryByValue(activity.category);
-  const overzichtLink = category ? `/activiteiten/categorie/${category.slug}` : "/";
+  // Een beheerder heeft geen categorie-schermen meer in zijn navigatie (zie
+  // Sidebar.jsx) -- "terug" moet dan naar het beheerscherm gaan waar hij
+  // waarschijnlijk vandaan kwam, niet naar een scherm dat hij niet kan bereiken
+  const overzichtLink = user?.is_admin ? "/admin/activiteiten" : category ? `/activiteiten/categorie/${category.slug}` : "/";
 
   const isFull = activity.participant_count >= activity.max_participants;
   const joinDisabled = actionLoading || (isFull && !activity.is_joined);
@@ -263,7 +297,7 @@ export default function ActiviteitDetail() {
             </div>
           </div>
 
-          {activity.organizer.id === user.id && (
+          {activity.organizer.id === user.id ? (
             <div className="organizer-acties">
               <Link
                 to={`/activiteiten/${activity.id}/bewerken`}
@@ -280,6 +314,19 @@ export default function ActiviteitDetail() {
                 Verwijderen
               </button>
             </div>
+          ) : (
+            user?.is_admin && (
+              <div className="organizer-acties">
+                <button
+                  type="button"
+                  className="organizer-actie organizer-actie--verwijderen"
+                  onClick={handleAdminDelete}
+                  disabled={actionLoading}
+                >
+                  Verwijderen (beheerder)
+                </button>
+              </div>
+            )
           )}
 
           {activity.latitude && activity.longitude && (
