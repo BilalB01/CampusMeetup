@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useMsal } from "@azure/msal-react";
 import { login, loginWithMicrosoft } from "../api/client";
 import AuthSplitScreen from "../components/AuthSplitScreen";
 import { useAuth } from "../auth/AuthContext";
 import "./Auth.css";
 
+// sessionStorage i.p.v. React Router state: bij "Inloggen met Microsoft"
+// verlaat de pagina volledig (loginRedirect), waardoor route-state verloren
+// gaat -- dit overleeft die volledige redirect wel
+const BESTEMMING_KEY = "campusmeetup_inlog_bestemming";
+
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const bestemmingNaLogin = location.state?.from || "/";
   const { saveSession } = useAuth();
   const { instance, accounts } = useMsal();
   const [email, setEmail] = useState("");
@@ -24,7 +31,7 @@ export default function Login() {
     try {
       const data = await login({ email, password });
       saveSession(data);
-      navigate("/");
+      navigate(bestemmingNaLogin);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -38,6 +45,7 @@ export default function Login() {
   // de useEffect hieronder vangt dat resultaat dan op
   function handleMicrosoftLogin() {
     setError("");
+    sessionStorage.setItem(BESTEMMING_KEY, bestemmingNaLogin);
     instance.loginRedirect({ scopes: ["openid", "profile", "email"] });
   }
 
@@ -59,7 +67,9 @@ export default function Login() {
         const data = await loginWithMicrosoft(result.idToken);
         if (cancelled) return;
         saveSession(data);
-        navigate("/");
+        const bestemming = sessionStorage.getItem(BESTEMMING_KEY) || "/";
+        sessionStorage.removeItem(BESTEMMING_KEY);
+        navigate(bestemming);
       } catch (err) {
         if (!cancelled) setError(err.message || "Inloggen met Microsoft is mislukt");
       } finally {

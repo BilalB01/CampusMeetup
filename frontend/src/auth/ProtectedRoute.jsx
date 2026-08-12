@@ -32,7 +32,12 @@ export default function ProtectedRoute({ children, adminOnly = false }) {
     };
   }, [token, location.pathname]);
 
-  if (!token || ongeldig) return <Navigate to="/login" replace />;
+  // "from" meegeven zodat Login.jsx na het inloggen kan terugsturen naar de
+  // pagina waar de gebruiker eigenlijk naartoe wilde (bv. een gedeelde
+  // activiteit) i.p.v. altijd naar de standaard startpagina
+  if (!token || ongeldig) {
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />;
+  }
   if (adminOnly && !user?.is_admin) return <Navigate to="/" replace />;
   return children;
 }
