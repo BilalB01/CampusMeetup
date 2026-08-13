@@ -245,12 +245,16 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
 
         <div className="auth-field veld-desktop">
           <label htmlFor="max_participants_desktop">Max. aantal deelnemers</label>
+          {/* Geen required hier: dit veld staat op mobiel verborgen (.veld-
+              desktop), en een verborgen required-veld kan de submit daar stil
+              laten mislukken (zelfde reden als bij de datetime-local-input
+              hierboven) -- het zichtbare mobiele #max_participants-veld
+              hierboven blijft wél required en bewaakt de ondergrens van 2 */}
           <input
             id="max_participants_desktop"
             type="number"
             min="2"
             max="500"
-            required
             value={maxParticipants}
             onChange={(e) => setMaxParticipants(e.target.value)}
           />
