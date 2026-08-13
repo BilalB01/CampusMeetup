@@ -26,13 +26,16 @@ def create_access_token(subject: str) -> str:
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
 
 
-EMAIL_VERIFICATION_EXPIRE_HOURS = 24
+EMAIL_VERIFICATION_EXPIRE_HOURS = 1
 
 
 # Eigen, kortlevende tokensoort voor de bevestigingslink in de registratiemail
 # -- los van create_access_token() zodat zo'n link nooit ingezet kan worden
 # als volwaardig inlogtoken. Het "purpose"-veld voorkomt het omgekeerde: een
-# gewoon inlogtoken laten doorgaan voor een geldige bevestigingslink
+# gewoon inlogtoken laten doorgaan voor een geldige bevestigingslink. Kort
+# gehouden zodat een gelekte/doorgestuurde link maar een klein venster geeft,
+# zeker nu verify_email() het token na één succesvol gebruik toch al niet
+# meer aanvaardt (zie routers/auth.py)
 def create_email_verification_token(user_id: int) -> str:
     expire = datetime.now(timezone.utc) + timedelta(hours=EMAIL_VERIFICATION_EXPIRE_HOURS)
     payload = {"sub": str(user_id), "purpose": "email_verification", "exp": expire}

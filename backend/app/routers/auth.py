@@ -102,7 +102,12 @@ def login(request: Request, payload: schemas.UserLogin, db: Session = Depends(ge
 
 # Bevestigingslink uit de registratiemail -- geeft bij succes meteen een
 # volwaardig inlogtoken terug, zodat de gebruiker na het klikken niet ook nog
-# apart moet inloggen
+# apart moet inloggen. Het token zelf blijft 1u geldig (zie
+# EMAIL_VERIFICATION_EXPIRE_HOURS), maar mag maar één keer een sessie
+# opleveren: is het account al bevestigd, dan wordt user.email_verified zelf
+# als "al gebruikt"-vlag ingezet i.p.v. nog een inlogtoken uit te delen --
+# anders zou een gelekte/doorgestuurde link binnen dat venster een geldig
+# inlogmiddel blijven, zonder wachtwoord nodig
 @router.get("/verify", response_model=schemas.Token)
 def verify_email(token: str, db: Session = Depends(get_db)):
     user_id = verify_email_verification_token(token)
@@ -115,10 +120,15 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Gebruiker niet gevonden")
 
-    if not user.email_verified:
-        user.email_verified = True
-        db.commit()
-        db.refresh(user)
+    if user.email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Dit e-mailadres is al bevestigd. Log in via de normale weg.",
+        )
+
+    user.email_verified = True
+    db.commit()
+    db.refresh(user)
 
     access_token = create_access_token(subject=str(user.id))
     return schemas.Token(access_token=access_token, user=user)
