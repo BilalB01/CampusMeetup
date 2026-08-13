@@ -5,12 +5,12 @@ import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
 
 // Vaste onderaan-navigatiebalk, overal zichtbaar behalve op login/register
 const TABS = [
-  { key: "home", label: "Start", path: ICONS.home, to: "/" },
-  { key: "ontdek", label: "Ontdek", path: ICONS.kompas, to: "/activiteiten" },
-  { key: "nieuw", label: "Nieuw", path: ICONS.plus, to: `/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw` },
-  { key: "chats", label: "Chats", path: ICONS.chat, to: "/chats" },
-  { key: "meldingen", label: "Meldingen", path: ICONS.melding, to: "/meldingen" },
-  { key: "profiel", label: "Profiel", path: ICONS.persoon, to: "/profiel" },
+  { key: "home", label: "Start", Icon: ICONS.home, to: "/" },
+  { key: "ontdek", label: "Ontdek", Icon: ICONS.kompas, to: "/activiteiten" },
+  { key: "nieuw", label: "Nieuw", Icon: ICONS.plus, to: `/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw` },
+  { key: "chats", label: "Chats", Icon: ICONS.chat, to: "/chats" },
+  { key: "meldingen", label: "Meldingen", Icon: ICONS.melding, to: "/meldingen" },
+  { key: "profiel", label: "Profiel", Icon: ICONS.persoon, to: "/profiel" },
 ];
 
 export default function BottomNav() {
@@ -26,9 +26,7 @@ export default function BottomNav() {
         return (
           <Link key={tab.key} to={tab.to} className={`bottom-nav-item${active ? " actief" : ""}`}>
             <span className="bottom-nav-icoon-wrap">
-              <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                <path d={tab.path} />
-              </svg>
+              <tab.Icon size={22} strokeWidth={1.9} />
               {tab.key === "meldingen" && unreadCount > 0 && <span className="bottom-nav-badge" />}
               {tab.key === "chats" && chatUnreadCount > 0 && <span className="bottom-nav-badge" />}
             </span>

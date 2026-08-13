@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
+import { ArrowLeft, Calendar, CalendarPlus, Check, Download, MapPin, Share2, User, Users } from "lucide-react";
 import {
   API_URL,
   deleteActivity,
@@ -198,8 +199,8 @@ export default function ActiviteitDetail() {
       <div className="detail-hero">
         <div className="detail-hero-blob-clip" />
         <div className="detail-hero-top">
-          <button className="detail-hero-back detail-hero-back--tekst" onClick={() => navigate(overzichtLink)}>
-            &larr; Alle activiteiten
+          <button className="detail-hero-back detail-hero-back--tekst" onClick={() => navigate(-1)}>
+            <ArrowLeft size={14} strokeWidth={2.3} /> Terug
           </button>
           <div className="detail-hero-acties">
             <div className="detail-deel-wrap">
@@ -207,7 +208,7 @@ export default function ActiviteitDetail() {
                 className="detail-hero-back detail-hero-back--tekst"
                 onClick={() => setToonAgendaPaneel((v) => !v)}
               >
-                📅 Agenda
+                <Calendar size={14} strokeWidth={2.1} /> Agenda
               </button>
               {toonAgendaPaneel && (
                 <div className="detail-deel-paneel">
@@ -216,7 +217,7 @@ export default function ActiviteitDetail() {
                     href={`${API_URL}/activities/${activity.id}/ics`}
                     onClick={() => setToonAgendaPaneel(false)}
                   >
-                    📥 Downloaden (.ics)
+                    <Download size={14} strokeWidth={2.1} /> Downloaden (.ics)
                   </a>
                   <a
                     className="detail-deel-link-knop"
@@ -225,7 +226,7 @@ export default function ActiviteitDetail() {
                     rel="noopener noreferrer"
                     onClick={() => setToonAgendaPaneel(false)}
                   >
-                    🗓️ Google Agenda
+                    <CalendarPlus size={14} strokeWidth={2.1} /> Google Agenda
                   </a>
                 </div>
               )}
@@ -235,12 +236,18 @@ export default function ActiviteitDetail() {
                 className="detail-hero-back detail-hero-back--tekst"
                 onClick={() => setToonDeelPaneel((v) => !v)}
               >
-                ⇪ Delen
+                <Share2 size={14} strokeWidth={2.1} /> Delen
               </button>
               {toonDeelPaneel && (
                 <div className="detail-deel-paneel">
                   <button type="button" className="detail-deel-link-knop" onClick={handleCopyLink}>
-                    {gekopieerd ? "✓ Link gekopieerd" : "Link kopiëren"}
+                    {gekopieerd ? (
+                      <>
+                        <Check size={14} strokeWidth={2.3} /> Link gekopieerd
+                      </>
+                    ) : (
+                      "Link kopiëren"
+                    )}
                   </button>
                   <form className="detail-deel-form" onSubmit={handleEmailDelen}>
                     <label htmlFor="deel-email">Versturen via e-mail</label>
@@ -284,15 +291,21 @@ export default function ActiviteitDetail() {
 
           <div className="detail-info-grid">
             <div className="detail-info-chip">
-              <span className="detail-meta-icon">📅</span>
+              <span className="detail-meta-icon">
+                <Calendar size={14} strokeWidth={2} />
+              </span>
               {formatDateTime(activity.start_time)}
             </div>
             <div className="detail-info-chip">
-              <span className="detail-meta-icon">📍</span>
+              <span className="detail-meta-icon">
+                <MapPin size={14} strokeWidth={2} />
+              </span>
               {activity.location_name}
             </div>
             <div className="detail-info-chip">
-              <span className="detail-meta-icon">👤</span>
+              <span className="detail-meta-icon">
+                <User size={14} strokeWidth={2} />
+              </span>
               Georganiseerd door {activity.organizer.name}
             </div>
           </div>
@@ -354,7 +367,7 @@ export default function ActiviteitDetail() {
 
         <div className="detail-participants">
           <p className="detail-section-title">
-            👥 Deelnemers ({activity.participant_count} / {activity.max_participants})
+            <Users size={15} strokeWidth={2.1} /> Deelnemers ({activity.participant_count} / {activity.max_participants})
           </p>
           {activity.participants.length > 0 ? (
             <>
@@ -382,15 +395,23 @@ export default function ActiviteitDetail() {
 
           {actionError && <div className="auth-error">{actionError}</div>}
 
-          <button className="auth-submit" onClick={handleToggleJoin} disabled={joinDisabled}>
-            {buttonLabel}
-          </button>
-          {activity.is_joined && (
-            <Link to={`/activiteiten/${id}/chat`} className="detail-chat-link">
-              Groepschat openen
-            </Link>
+          {/* Een beheerder mag hier enkel de deelnemerslijst bekijken, niet
+              zelf deelnemen (zie ook Sidebar.jsx/Profiel.jsx: een beheerder
+              neemt per ontwerp nergens aan deel) -- knop + chat-link + hint
+              zijn dus allemaal aan deelname gekoppeld en blijven verborgen */}
+          {!user?.is_admin && (
+            <>
+              <button className="auth-submit" onClick={handleToggleJoin} disabled={joinDisabled}>
+                {buttonLabel}
+              </button>
+              {activity.is_joined && (
+                <Link to={`/activiteiten/${id}/chat`} className="detail-chat-link">
+                  Groepschat openen
+                </Link>
+              )}
+              {joinHint && <p className="detail-join-hint">{joinHint}</p>}
+            </>
           )}
-          {joinHint && <p className="detail-join-hint">{joinHint}</p>}
         </div>
       </div>
     </div>

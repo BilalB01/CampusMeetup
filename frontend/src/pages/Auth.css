@@ -192,6 +192,9 @@
   color: #6c4ff5;
   font-size: 15px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .datum-kiezer-weeknav button:disabled {
   opacity: 0.35;
@@ -438,8 +441,9 @@ a.auth-switch:hover {
 
 /* Linkerpaneel van AuthSplitScreen.jsx (Login/Register) — enkel vanaf
    900px zichtbaar (zie veld-desktop hieronder), op mobiel blijft enkel
-   .auth-card over zoals vandaag. Decoratieve cirkels + kleurverloop
-   hergebruiken dezelfde aanpak als .auth-hero (Login, mobiel) */
+   .auth-card zichtbaar; dit paneel is puur een desktop-toevoeging.
+   Decoratieve cirkels + kleurverloop hergebruiken dezelfde aanpak als
+   .auth-hero (Login, mobiel) */
 .auth-split-hero {
   position: relative;
   overflow: hidden;
@@ -538,10 +542,9 @@ a.auth-switch:hover {
    gebruiken .auth-card zonder deze modifier en blijven dus ongewijzigd */
 @media (min-width: 900px) {
   .auth-card--form {
-    /* Breder dan de 640px hierboven ooit was — de week/dag-kiezer +
-       4-koloms tijdslot-grid (zie ActiviteitDatumKiezer.jsx) hebben meer
-       ademruimte nodig dan de eenvoudige 2-veldenrij waarvoor 640px
-       oorspronkelijk gekozen was */
+    /* 760px: de week/dag-kiezer + 4-koloms tijdslot-grid (zie
+       ActiviteitDatumKiezer.jsx) hebben meer ademruimte nodig dan een
+       eenvoudige 2-veldenrij */
     max-width: 760px;
   }
   .auth-field--rij {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { formatTime, formatWeekdayShort } from "../utils/formatDate";
 
 function startOfWeek(date) {
@@ -64,11 +65,11 @@ export default function ActiviteitDatumKiezer({ activities, pickerDate, onSelect
           disabled={weekOffset <= 0}
           aria-label="Vorige week"
         >
-          &larr;
+          <ChevronLeft size={16} strokeWidth={2.3} />
         </button>
         <span>{maandLabelMetHoofdletter}</span>
         <button type="button" onClick={() => setWeekOffset((w) => w + 1)} aria-label="Volgende week">
-          &rarr;
+          <ChevronRight size={16} strokeWidth={2.3} />
         </button>
       </div>
 

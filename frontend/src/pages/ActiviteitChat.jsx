@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Camera, Send, Trash2 } from "lucide-react";
 import { API_URL, getActivity } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { useActivityChat } from "../hooks/useActivityChat";
@@ -107,7 +108,7 @@ export default function ActiviteitChat() {
     <div className="activiteiten-screen chat-scherm">
       <header className="chat-scherm-header">
         <button className="activiteiten-back" onClick={() => navigate(`/activiteiten/${id}`)}>
-          &larr;
+          <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="chat-scherm-titel">{activity.title}</div>
@@ -131,9 +132,7 @@ export default function ActiviteitChat() {
                   aria-label="Bericht verwijderen"
                   title="Bericht verwijderen"
                 >
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m2 0-1 13a1 1 0 01-1 1H8a1 1 0 01-1-1L6 7" />
-                  </svg>
+                  <Trash2 size={15} strokeWidth={1.9} />
                 </button>
               )}
               <div className={`chat-bubbel ${m.user.id === user.id ? "chat-bubbel--eigen" : ""}`}>
@@ -164,7 +163,7 @@ export default function ActiviteitChat() {
 
       <form className="chat-invoer-rij" onSubmit={handleSendText}>
         <label className="chat-afbeelding-knop">
-          📷
+          <Camera size={19} strokeWidth={2} />
           <input type="file" accept="image/*" onChange={handlePickImage} hidden />
         </label>
         <input
@@ -175,7 +174,7 @@ export default function ActiviteitChat() {
           onChange={handleChatInputChange}
         />
         <button type="submit" className="chat-verstuur-knop" disabled={!chatInput.trim()}>
-          ➤
+          <Send size={17} strokeWidth={2.2} />
         </button>
       </form>
     </div>

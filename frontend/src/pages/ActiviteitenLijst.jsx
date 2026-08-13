@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Map, Marker, InfoWindow } from "@vis.gl/react-google-maps";
+import { ArrowLeft } from "lucide-react";
 import { listActivities } from "../api/client";
 import AvatarStack from "../components/AvatarStack";
 import Skeleton from "../components/Skeleton";
@@ -86,7 +87,7 @@ export default function ActiviteitenLijst() {
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
         <button className="activiteiten-back" onClick={() => navigate("/")}>
-          &larr;
+          <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <div style={{ flex: 1 }}>
           <h1 className="activiteiten-title">{category ? category.label : "Alle activiteiten"}</h1>

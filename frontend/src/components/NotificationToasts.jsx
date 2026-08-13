@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 import { useNotifications } from "../notifications/NotificationsContext";
 import { isAuthScreen } from "../utils/nav";
 
@@ -41,7 +42,7 @@ export default function NotificationToasts() {
               dismissToast(t.toastId);
             }}
           >
-            ✕
+            <X size={13} strokeWidth={2.4} />
           </span>
         </button>
       ))}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { Plus } from "lucide-react";
 import { listActivities } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES } from "../constants/categories";
@@ -8,19 +9,19 @@ import { formatStartBadge } from "../utils/formatDate";
 import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
 
 const TABS = [
-  { key: "home", label: "Start", path: ICONS.home, to: "/" },
-  { key: "ontdek", label: "Ontdek", path: ICONS.kompas, to: "/activiteiten" },
-  { key: "chats", label: "Chats", path: ICONS.chat, to: "/chats" },
-  { key: "meldingen", label: "Meldingen", path: ICONS.melding, to: "/meldingen" },
-  { key: "instellingen", label: "Instellingen", path: ICONS.tandwiel, to: "/instellingen" },
+  { key: "home", label: "Start", Icon: ICONS.home, to: "/" },
+  { key: "ontdek", label: "Ontdek", Icon: ICONS.kompas, to: "/activiteiten" },
+  { key: "chats", label: "Chats", Icon: ICONS.chat, to: "/chats" },
+  { key: "meldingen", label: "Meldingen", Icon: ICONS.melding, to: "/meldingen" },
+  { key: "instellingen", label: "Instellingen", Icon: ICONS.tandwiel, to: "/instellingen" },
 ];
 // Enkel getoond aan beheerders (user.is_admin) -- zie tabs hieronder. Twee
 // losse knoppen i.p.v. één "Admin"-tab met interne tabjes: rechtstreeks
 // navigeerbaar, geen tab-wissel-UI die (net als op het profielscherm)
 // hergebruikt zou worden voor iets heel anders
 const ADMIN_TABS = [
-  { key: "admin-gebruikers", label: "Gebruikers", path: ICONS.persoon, to: "/admin/gebruikers" },
-  { key: "admin-activiteiten", label: "Activiteiten", path: ICONS.lijst, to: "/admin/activiteiten" },
+  { key: "admin-gebruikers", label: "Gebruikers", Icon: ICONS.persoon, to: "/admin/gebruikers" },
+  { key: "admin-activiteiten", label: "Activiteiten", Icon: ICONS.lijst, to: "/admin/activiteiten" },
 ];
 
 // Vaste linker-navigatie vanaf desktopbreedte (≥900px, zie Activiteiten.css),
@@ -73,9 +74,7 @@ export default function Sidebar() {
 
       {!user?.is_admin && (
         <Link to={`/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw`} className="sidebar-cta">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-            <path d={ICONS.plus} />
-          </svg>
+          <Plus size={18} strokeWidth={2} />
           Nieuwe activiteit
         </Link>
       )}
@@ -85,9 +84,7 @@ export default function Sidebar() {
           const active = isNavActive(pathname, tab);
           return (
             <Link key={tab.key} to={tab.to} className={`sidebar-nav-item${active ? " actief" : ""}`}>
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                <path d={tab.path} />
-              </svg>
+              <tab.Icon size={20} strokeWidth={1.9} />
               <span className="sidebar-nav-label">{tab.label}</span>
               {tab.key === "meldingen" && unreadCount > 0 && (
                 <span className="sidebar-nav-badge">{unreadCount}</span>
