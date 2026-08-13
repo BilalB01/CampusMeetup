@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { deleteAdminUser, getAdminUserDetail } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
@@ -66,8 +67,8 @@ export default function AdminGebruikerDetail() {
     return (
       <div className="activiteiten-screen">
         <header className="activiteiten-header">
-          <button className="activiteiten-back" onClick={() => navigate("/admin/gebruikers")}>
-            &larr;
+          <button className="activiteiten-back" onClick={() => navigate(-1)}>
+            <ArrowLeft size={18} strokeWidth={2.3} />
           </button>
         </header>
         <Skeleton style={{ height: 42, width: 42, borderRadius: 15, marginBottom: 12 }} />
@@ -91,8 +92,8 @@ export default function AdminGebruikerDetail() {
   return (
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate("/admin/gebruikers")}>
-          &larr;
+        <button className="activiteiten-back" onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <h1 className="activiteiten-title">{target.name}</h1>
       </header>

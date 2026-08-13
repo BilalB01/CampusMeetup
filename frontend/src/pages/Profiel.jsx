@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { getMyActivities, getMyBadges } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import StatTegel from "../components/StatTegel";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { formatDateTime } from "../utils/formatDate";
+import { InstellingenSecties } from "./Instellingen";
 import "./Activiteiten.css";
 
 // Eigen kleurenpalet per badge (losstaand van CATEGORIES — badges zijn geen
@@ -39,7 +41,14 @@ export default function Profiel() {
   const [error, setError] = useState("");
   const [tab, setTab] = useState("organized");
 
+  // Een beheerder organiseert/verdient/deelt zelf niet (zie ook Sidebar.jsx
+  // en AdminOverzicht.jsx) -- deze data hoeft dan niet eens opgehaald te
+  // worden, laat staan getoond
   useEffect(() => {
+    if (user?.is_admin) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     setLoading(true);
     setError("");
@@ -61,7 +70,7 @@ export default function Profiel() {
     return () => {
       cancelled = true;
     };
-  }, [token]);
+  }, [token, user?.is_admin]);
 
   async function handleLogout() {
     await logout();
@@ -69,6 +78,50 @@ export default function Profiel() {
   }
 
   const initial = user?.name?.[0]?.toUpperCase() ?? "?";
+
+  // Eigen, kortere weergave voor een beheerder: geen statistieken/badges/
+  // georganiseerd-deelgenomen-tabs (dat gaat allemaal over zelf deelnemen aan
+  // activiteiten, wat een beheerder per ontwerp niet doet), maar wél meteen
+  // de instellingen-secties zelf op deze pagina i.p.v. enkel een link ernaar
+  // -- voor een beheerder zijn "profiel" en "instellingen" hetzelfde scherm
+  if (user?.is_admin) {
+    return (
+      <div className="activiteiten-screen">
+        <header className="activiteiten-header">
+          <button className="activiteiten-back" onClick={() => navigate("/")}>
+            <ArrowLeft size={18} strokeWidth={2.3} />
+          </button>
+        </header>
+
+        <div className="profiel-header-kaart">
+          <div className="profiel-avatar-row">
+            <div className="profiel-avatar">{initial}</div>
+            <div>
+              <p className="profiel-naam">
+                {user?.name} <span className="admin-badge">Beheerder</span>
+              </p>
+              <p className="profiel-email">{user?.email}</p>
+            </div>
+          </div>
+
+          <div className="profiel-header-acties">
+            <Link to="/admin/gebruikers" className="profiel-instellingen-pil">
+              Gebruikers beheren
+            </Link>
+            <Link to="/admin/activiteiten" className="profiel-instellingen-pil">
+              Activiteiten beheren
+            </Link>
+            <button type="button" className="profiel-logout" onClick={handleLogout}>
+              Uitloggen
+            </button>
+          </div>
+        </div>
+
+        <InstellingenSecties />
+      </div>
+    );
+  }
+
   const activeList = tab === "organized" ? data.organized : data.joined;
   const emptyMessage =
     tab === "organized"
@@ -92,7 +145,7 @@ export default function Profiel() {
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
         <button className="activiteiten-back" onClick={() => navigate("/")}>
-          &larr;
+          <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
       </header>
 
@@ -125,16 +178,6 @@ export default function Profiel() {
           <Link to="/instellingen" className="profiel-instellingen-pil">
             Instellingen
           </Link>
-          {user?.is_admin && (
-            <>
-              <Link to="/admin/gebruikers" className="profiel-instellingen-pil">
-                Gebruikers beheren
-              </Link>
-              <Link to="/admin/activiteiten" className="profiel-instellingen-pil">
-                Activiteiten beheren
-              </Link>
-            </>
-          )}
           <button type="button" className="profiel-logout" onClick={handleLogout}>
             Uitloggen
           </button>

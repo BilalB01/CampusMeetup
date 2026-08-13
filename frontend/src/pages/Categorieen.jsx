@@ -42,11 +42,10 @@ export default function Categorieen() {
   const vandaagMetHoofdletter = vandaag.charAt(0).toUpperCase() + vandaag.slice(1);
 
   // Eerstvolgende activiteit waar de gebruiker zelf iets mee te maken heeft
-  // (georganiseerd of deelgenomen) — even geprobeerd op "meeste deelnemers"
-  // te sorteren i.p.v. eerstvolgende, maar dat verraste meer dan het hielp
-  // (een populaire activiteit ver in de toekomst verdrong dan een kleinere
-  // activiteit die al over 2 dagen plaatsvindt) — terug naar simpelweg
-  // chronologisch. Niets tonen als die er niet is, geen nepdata verzinnen
+  // (georganiseerd of deelgenomen), gesorteerd op starttijd i.p.v. bv.
+  // populariteit: zo verdringt een drukbezochte activiteit die nog ver in de
+  // toekomst ligt nooit een kleinere activiteit die al over 2 dagen plaatsvindt.
+  // Niets tonen als die er niet is, geen nepdata verzinnen
   const nu = new Date();
   const volgende = eigenActiviteiten
     .filter((a) => new Date(a.start_time) > nu)
@@ -105,10 +104,17 @@ export default function Categorieen() {
     },
   ];
 
-  // "Binnenkort op de campus": eerstvolgende 3 activiteiten van alle
-  // gebruikers (niet enkel eigen), gesorteerd op starttijd
+  // "Binnenkort op de campus": eerstvolgende 3 activiteiten op de Erasmus-
+  // hogeschool Brussel-locatie (niet eender welke locatie, ondanks de
+  // sectienaam) van alle gebruikers (niet enkel eigen), gesorteerd op
+  // starttijd. location_name is vrije tekst (geen apart campus-veld), dus
+  // substring-match i.p.v. een exacte string — Google's Places-suggestie
+  // voor dit adres geeft soms een samengestelde naam terug (bv.
+  // "Erasmushogeschool Brussel | Campus Kaai"), die dan ook nog matcht
   const binnenkort = activities
-    .filter((a) => new Date(a.start_time) > nu)
+    .filter(
+      (a) => new Date(a.start_time) > nu && a.location_name?.toLowerCase().includes("erasmushogeschool brussel"),
+    )
     .sort((a, b) => new Date(a.start_time) - new Date(b.start_time))
     .slice(0, 3);
 
@@ -207,7 +213,7 @@ export default function Categorieen() {
             })}
       </div>
 
-      {!loading && binnenkort.length > 0 && (
+      {!loading && (
         <>
           <div className="categorieen-sectiekop">
             <span>Binnenkort op de campus</span>
@@ -215,20 +221,24 @@ export default function Categorieen() {
               Alles
             </Link>
           </div>
-          <ul className="activiteiten-lijst">
-            {binnenkort.map((a) => {
-              const categorie = getCategoryByValue(a.category);
-              const afstand =
-                userLocation && a.latitude && a.longitude
-                  ? formatDistance(distanceInMeters(userLocation, { lat: a.latitude, lng: a.longitude }))
-                  : null;
-              return (
-                <li key={a.id}>
-                  <ActiviteitRijKaart activiteit={a} categorie={categorie} afstand={afstand} />
-                </li>
-              );
-            })}
-          </ul>
+          {binnenkort.length > 0 ? (
+            <ul className="activiteiten-lijst">
+              {binnenkort.map((a) => {
+                const categorie = getCategoryByValue(a.category);
+                const afstand =
+                  userLocation && a.latitude && a.longitude
+                    ? formatDistance(distanceInMeters(userLocation, { lat: a.latitude, lng: a.longitude }))
+                    : null;
+                return (
+                  <li key={a.id}>
+                    <ActiviteitRijKaart activiteit={a} categorie={categorie} afstand={afstand} />
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="activiteiten-empty">Er vinden momenteel geen activiteiten plaats op de campussen.</p>
+          )}
         </>
       )}
     </div>

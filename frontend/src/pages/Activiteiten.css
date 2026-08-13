@@ -826,6 +826,9 @@
   cursor: pointer;
   text-align: left;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .detail-deel-form {
   display: flex;
@@ -944,6 +947,9 @@
   font-size: 13px;
   font-weight: 700;
   color: #1b1830;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .detail-empty-participants {
   margin: 0;
@@ -1817,6 +1823,12 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+  /* Op AdminGebruikers.jsx is dit element zelf de <Link> (het sibling-
+     patroon naast de losse verwijderknop, i.p.v. .profiel-item als geheel)
+     -- zonder reset hier valt het terug op de blauwe/onderstreepte
+     standaardstijl van de browser voor links */
+  text-decoration: none;
+  color: inherit;
 }
 .profiel-item-titel {
   font-size: 14.5px;
@@ -1837,29 +1849,86 @@
   font-weight: 800;
   white-space: nowrap;
 }
-/* Beheerscherm (pages/Admin.jsx) -- hergebruikt .profiel-item/.activiteiten-lijst,
-   met enkel een verwijderknop rechts en een kleine "Beheerder"-badge extra */
-.admin-item {
-  justify-content: space-between;
-  /* Kleurwas/gloed net als categorie-tile2/start-stat-kaart, in een vaste
-     zachte tint (gebruikers hebben geen eigen accentkleur zoals categorieën) */
-  background: linear-gradient(155deg, #f3effc 0%, #fff 60%);
+/* Gebruikerskaarten op AdminGebruikers.jsx -- zelfde donkere kaartopbouw als
+   .activiteit-rij (blob-decoratie, hover-lift), maar in een lichter paars
+   i.p.v. het bijna-zwarte .activiteit-rij, want hier is geen categoriekleur
+   om tegenaf te zetten. De verwijderknop is een kleine ronde overlay
+   (hergebruikt .admin-activiteit-verwijder-overlay hieronder) i.p.v. een
+   volledige pil-knop, zodat hij niet meer met lange e-mailadressen botst */
+.admin-gebruiker-kaart-wrap {
+  position: relative;
+}
+.admin-gebruiker-kaart {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(155deg, #7c5cf5 0%, #4b34c4 100%);
   border-radius: 20px;
-  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s, border-color 0.18s;
+  padding: 15px 16px;
+  text-decoration: none;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
 }
-.admin-item:hover {
+.admin-gebruiker-kaart::before {
+  content: "";
+  position: absolute;
+  right: -30px;
+  top: -36px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.12;
+  pointer-events: none;
+}
+.admin-gebruiker-kaart:hover {
   transform: translateY(-2px);
-  border-color: rgba(108, 79, 245, 0.35);
-  box-shadow: 0 16px 30px -18px rgba(76, 45, 180, 0.35);
+  box-shadow: 0 16px 30px -18px rgba(76, 45, 180, 0.55);
 }
-.admin-item .profiel-item-icoon {
-  box-shadow: 0 6px 14px -6px rgba(108, 79, 245, 0.55);
-}
-.admin-delete-knop {
+.admin-gebruiker-avatar {
+  position: relative;
   flex: none;
-  margin-top: 0;
-  padding: 8px 14px;
-  font-size: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.18);
+}
+.admin-gebruiker-inhoud {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  /* Ruimte voor de verwijder-overlay rechtsboven, anders loopt een lange
+     naam er visueel onderdoor */
+  padding-right: 32px;
+}
+.admin-gebruiker-naam {
+  display: block;
+  font-size: 14.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.admin-gebruiker-email {
+  display: block;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 500;
+  overflow-wrap: break-word;
+}
+.admin-gebruiker-tag-overlay {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 3;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
 }
 .admin-badge {
   display: inline-block;

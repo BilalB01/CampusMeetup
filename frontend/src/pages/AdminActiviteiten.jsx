@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { deleteAdminActivity, getAdminActivities } from "../api/client";
 import ActiviteitRijKaart from "../components/ActiviteitRijKaart";
 import Skeleton from "../components/Skeleton";
@@ -73,8 +74,8 @@ export default function AdminActiviteiten() {
   return (
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate("/profiel")}>
-          &larr;
+        <button className="activiteiten-back" onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <h1 className="activiteiten-title">Activiteiten ({activities.length})</h1>
       </header>
@@ -140,7 +141,7 @@ export default function AdminActiviteiten() {
                   aria-label="Activiteit verwijderen"
                   title="Activiteit verwijderen"
                 >
-                  ✕
+                  <Trash2 size={15} strokeWidth={2.2} />
                 </button>
               </li>
             );

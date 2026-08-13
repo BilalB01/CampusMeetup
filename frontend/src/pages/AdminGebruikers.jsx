@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { deleteAdminUser, getAdminUsers } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
@@ -63,8 +64,8 @@ export default function AdminGebruikers() {
   return (
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate("/profiel")}>
-          &larr;
+        <button className="activiteiten-back" onClick={() => navigate(-1)}>
+          <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <h1 className="activiteiten-title">Gebruikers ({users.length})</h1>
       </header>
@@ -97,28 +98,32 @@ export default function AdminGebruikers() {
       ) : (
         <ul className="activiteiten-lijst">
           {zichtbareUsers.map((u) => (
-            <li key={u.id}>
-              <div className="profiel-item admin-item">
-                <span className="profiel-item-icoon" style={{ background: "#ede8fb" }}>
-                  {u.name?.[0]?.toUpperCase() ?? "?"}
-                </span>
-                <Link to={`/admin/gebruikers/${u.id}`} className="profiel-item-tekst">
-                  <span className="profiel-item-titel">
+            <li key={u.id} className="admin-gebruiker-kaart-wrap">
+              <Link to={`/admin/gebruikers/${u.id}`} className="admin-gebruiker-kaart">
+                <span className="admin-gebruiker-avatar">{u.name?.[0]?.toUpperCase() ?? "?"}</span>
+                <span className="admin-gebruiker-inhoud">
+                  <span className="admin-gebruiker-naam">
                     {u.name} {u.is_admin && <span className="admin-badge">Beheerder</span>}
                   </span>
-                  <span className="profiel-item-sub">{u.email}</span>
-                </Link>
-                {u.id === user?.id ? (
-                  // Zelf-verwijderen kan hier niet (backend weigert dit ook
-                  // met een 400) -- geen knop tonen i.p.v. een foutmelding
-                  // laten opduiken
-                  <span className="profiel-item-tag">Jij</span>
-                ) : (
-                  <button type="button" className="profiel-logout admin-delete-knop" onClick={() => handleDeleteUser(u)}>
-                    Verwijderen
-                  </button>
-                )}
-              </div>
+                  <span className="admin-gebruiker-email">{u.email}</span>
+                </span>
+              </Link>
+              {u.id === user?.id ? (
+                // Zelf-verwijderen kan hier niet (backend weigert dit ook
+                // met een 400) -- geen knop tonen i.p.v. een foutmelding
+                // laten opduiken
+                <span className="admin-gebruiker-tag-overlay">Jij</span>
+              ) : (
+                <button
+                  type="button"
+                  className="admin-activiteit-verwijder-overlay"
+                  onClick={() => handleDeleteUser(u)}
+                  aria-label="Gebruiker verwijderen"
+                  title="Gebruiker verwijderen"
+                >
+                  <Trash2 size={15} strokeWidth={2.2} />
+                </button>
+              )}
             </li>
           ))}
         </ul>

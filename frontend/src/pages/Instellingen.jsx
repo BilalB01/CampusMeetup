@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import {
   changePassword,
   deleteAccount,
@@ -35,7 +36,11 @@ function InstellingToggle({ label, sub, checked, onChange }) {
   );
 }
 
-export default function Instellingen() {
+// De eigenlijke instellingen-secties, los van de paginaschil (header/terug-
+// knop) -- zo kan Profiel.jsx dit ook binnen zijn eigen schil hergebruiken
+// voor een beheerder (zie aldaar). Meldingen/Privacy gaan volledig over
+// deelname aan activiteiten, dus die secties slaan we voor een beheerder over
+export function InstellingenSecties() {
   const navigate = useNavigate();
   const { user, token, updateUser, logout } = useAuth();
 
@@ -149,14 +154,7 @@ export default function Instellingen() {
   }
 
   return (
-    <div className="activiteiten-screen">
-      <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate("/profiel")}>
-          &larr;
-        </button>
-        <h1 className="activiteiten-title">Instellingen</h1>
-      </header>
-
+    <>
       <form className="instellingen-sectie" onSubmit={handleNaamOpslaan}>
         <h2 className="instellingen-sectie-titel">Naam</h2>
         <div className="auth-field">
@@ -170,46 +168,49 @@ export default function Instellingen() {
         </button>
       </form>
 
-      <div className="instellingen-sectie">
-        <h2 className="instellingen-sectie-titel">Meldingen</h2>
-        <p className="auth-hint">In-app én per e-mail, per type apart uit te zetten.</p>
-        {voorkeurenFout && <div className="auth-error">{voorkeurenFout}</div>}
-        <InstellingToggle
-          label="Nieuwe deelnemer"
-          sub="Wanneer iemand zich aanmeldt voor jouw activiteit"
-          checked={voorkeuren.notify_new_participant}
-          onChange={(waarde) => handleVoorkeurWijzigen("notify_new_participant", waarde)}
-        />
-        <InstellingToggle
-          label="Chatberichten"
-          sub="Nieuw bericht in een groepschat waar je in zit"
-          checked={voorkeuren.notify_chat_messages}
-          onChange={(waarde) => handleVoorkeurWijzigen("notify_chat_messages", waarde)}
-        />
-        <InstellingToggle
-          label="Herinnering"
-          sub="Vlak voor een activiteit waar je aan deelneemt begint"
-          checked={voorkeuren.notify_reminder}
-          onChange={(waarde) => handleVoorkeurWijzigen("notify_reminder", waarde)}
-        />
-        <InstellingToggle
-          label="Activiteit bijgewerkt of verwijderd"
-          sub="Wanneer de organisator iets wijzigt aan een activiteit waar je aan deelneemt"
-          checked={voorkeuren.notify_activity_updates}
-          onChange={(waarde) => handleVoorkeurWijzigen("notify_activity_updates", waarde)}
-        />
-      </div>
+      {!user?.is_admin && (
+        <div className="instellingen-sectie">
+          <h2 className="instellingen-sectie-titel">Meldingen</h2>
+          {voorkeurenFout && <div className="auth-error">{voorkeurenFout}</div>}
+          <InstellingToggle
+            label="Nieuwe deelnemer"
+            sub="Wanneer iemand zich aanmeldt voor jouw activiteit"
+            checked={voorkeuren.notify_new_participant}
+            onChange={(waarde) => handleVoorkeurWijzigen("notify_new_participant", waarde)}
+          />
+          <InstellingToggle
+            label="Chatberichten"
+            sub="Nieuw bericht in een groepschat waar je in zit"
+            checked={voorkeuren.notify_chat_messages}
+            onChange={(waarde) => handleVoorkeurWijzigen("notify_chat_messages", waarde)}
+          />
+          <InstellingToggle
+            label="Herinnering"
+            sub="Vlak voor een activiteit waar je aan deelneemt begint"
+            checked={voorkeuren.notify_reminder}
+            onChange={(waarde) => handleVoorkeurWijzigen("notify_reminder", waarde)}
+          />
+          <InstellingToggle
+            label="Activiteit bijgewerkt of verwijderd"
+            sub="Wanneer de organisator iets wijzigt aan een activiteit waar je aan deelneemt"
+            checked={voorkeuren.notify_activity_updates}
+            onChange={(waarde) => handleVoorkeurWijzigen("notify_activity_updates", waarde)}
+          />
+        </div>
+      )}
 
-      <div className="instellingen-sectie">
-        <h2 className="instellingen-sectie-titel">Privacy</h2>
-        {locatieFout && <div className="auth-error">{locatieFout}</div>}
-        <InstellingToggle
-          label="Locatie delen"
-          sub="Nodig om de afstand tot activiteiten te tonen — staat dit uit, dan wordt je locatie nooit opgevraagd"
-          checked={shareLocation}
-          onChange={handleLocatieWijzigen}
-        />
-      </div>
+      {!user?.is_admin && (
+        <div className="instellingen-sectie">
+          <h2 className="instellingen-sectie-titel">Privacy</h2>
+          {locatieFout && <div className="auth-error">{locatieFout}</div>}
+          <InstellingToggle
+            label="Locatie delen"
+            sub="Nodig om de afstand tot activiteiten te tonen — staat dit uit, dan wordt je locatie nooit opgevraagd"
+            checked={shareLocation}
+            onChange={handleLocatieWijzigen}
+          />
+        </div>
+      )}
 
       {user?.auth_provider === "password" ? (
         <form className="instellingen-sectie" onSubmit={handleWachtwoordOpslaan}>
@@ -272,6 +273,25 @@ export default function Instellingen() {
           {verwijderBezig ? "Bezig..." : "Account verwijderen"}
         </button>
       </div>
+    </>
+  );
+}
+
+// Eigen route /instellingen -- gewone paginaschil rond InstellingenSecties.
+// Voor een beheerder wordt diezelfde inhoud ook binnen Profiel.jsx getoond
+// (zie aldaar), zodat "profiel" en "instellingen" voor een beheerder één en
+// hetzelfde scherm zijn i.p.v. een profielscherm vol niet-toepasselijke info
+export default function Instellingen() {
+  const navigate = useNavigate();
+  return (
+    <div className="activiteiten-screen">
+      <header className="activiteiten-header">
+        <button className="activiteiten-back" onClick={() => navigate("/profiel")}>
+          <ArrowLeft size={18} strokeWidth={2.3} />
+        </button>
+        <h1 className="activiteiten-title">Instellingen</h1>
+      </header>
+      <InstellingenSecties />
     </div>
   );
 }
