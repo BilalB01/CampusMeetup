@@ -65,6 +65,11 @@ def create_activity(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
+    if current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Beheerders kunnen geen activiteiten organiseren",
+        )
     activity = models.Activity(
         title=payload.title,
         description=payload.description,
@@ -259,12 +264,12 @@ def _andere_deelnemers(db: Session, activity_id: int, exclude_user_id: int) -> l
 
 
 # PUT i.p.v. PATCH: het bewerkformulier stuurt altijd alle velden mee
-# (zelfde payload-vorm als aanmaken), dus hergebruikt gewoon
-# schemas.ActivityCreate i.p.v. een apart partial-update-schema
+# (zelfde payload-vorm als aanmaken), maar met schemas.ActivityUpdate i.p.v.
+# ActivityCreate -- zie de comment daar voor waarom dat een apart schema is
 @router.put("/{activity_id}", response_model=schemas.ActivityDetailOut)
 def update_activity(
     activity_id: int,
-    payload: schemas.ActivityCreate,
+    payload: schemas.ActivityUpdate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
@@ -344,6 +349,11 @@ def join_activity(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
+    if current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Beheerders kunnen niet deelnemen aan activiteiten",
+        )
     activity = db.get(models.Activity, activity_id)
     if activity is None:
         raise HTTPException(
@@ -407,6 +417,11 @@ def leave_activity(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
+    if current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Beheerders kunnen niet deelnemen aan activiteiten",
+        )
     activity = db.get(models.Activity, activity_id)
     if activity is None:
         raise HTTPException(

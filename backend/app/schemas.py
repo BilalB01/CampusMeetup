@@ -134,6 +134,22 @@ class ActivityCreate(BaseModel):
     category: ActivityCategory
 
 
+# Voor PUT /activities/{id} (bewerken) -- zelfde velden als ActivityCreate,
+# maar met de oorspronkelijke, ruimere grenzen op description/max_participants.
+# Zonder dit apart schema zou een activiteit die van vóór deze regel dateert
+# (bv. max_participants=1) nooit meer bewerkbaar zijn, ook niet voor een
+# wijziging die niets met die twee velden te maken heeft
+class ActivityUpdate(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    description: str | None = Field(None, max_length=1000)
+    location_name: str = Field(min_length=1, max_length=200)
+    latitude: float | None = None
+    longitude: float | None = None
+    start_time: datetime
+    max_participants: int = Field(gt=0, le=500)
+    category: ActivityCategory
+
+
 # Beperkte weergave van een organisator/deelnemer — nooit iemands
 # e-mailadres tonen aan medegebruikers
 class ParticipantOut(BaseModel):
