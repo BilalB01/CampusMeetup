@@ -7,6 +7,8 @@ _SUBJECTS = {
     "nieuwe_deelnemer": "Nieuwe deelnemer",
     "chatbericht": "Nieuw chatbericht",
     "herinnering": "Herinnering",
+    "activiteit_bijgewerkt": "Activiteit bijgewerkt",
+    "activiteit_verwijderd": "Activiteit geannuleerd",
     "activiteit_verwijderd_admin": "Activiteit verwijderd door beheerder",
 }
 
