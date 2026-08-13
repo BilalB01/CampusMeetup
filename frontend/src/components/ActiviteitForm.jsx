@@ -223,7 +223,7 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
             <input
               id="max_participants"
               type="number"
-              min="1"
+              min="2"
               max="500"
               required
               value={maxParticipants}
@@ -248,8 +248,9 @@ export default function ActiviteitForm({ heading, initialValues, onSave, submitL
           <input
             id="max_participants_desktop"
             type="number"
-            min="1"
+            min="2"
             max="500"
+            required
             value={maxParticipants}
             onChange={(e) => setMaxParticipants(e.target.value)}
           />
