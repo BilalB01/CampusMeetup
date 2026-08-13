@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { deleteAdminUser, getAdminUsers } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
+import { heeftTerugGeschiedenis } from "../utils/nav";
 import "./Activiteiten.css";
 
 // Beheerscherm: alle gebruikers -- enkel bereikbaar voor is_admin=True (zie
@@ -11,6 +12,7 @@ import "./Activiteiten.css";
 // een tab binnen één gedeeld Admin-scherm, met een eigen link in de zijbalk
 export default function AdminGebruikers() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { token, user } = useAuth();
 
   const [users, setUsers] = useState([]);
@@ -64,7 +66,10 @@ export default function AdminGebruikers() {
   return (
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate(-1)}>
+        <button
+          className="activiteiten-back"
+          onClick={() => navigate(heeftTerugGeschiedenis(location) ? -1 : "/profiel")}
+        >
           <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <h1 className="activiteiten-title">Gebruikers ({users.length})</h1>

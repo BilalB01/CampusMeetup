@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Trash2 } from "lucide-react";
 import { deleteAdminActivity, getAdminActivities } from "../api/client";
 import ActiviteitRijKaart from "../components/ActiviteitRijKaart";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES, getCategoryByValue } from "../constants/categories";
+import { heeftTerugGeschiedenis } from "../utils/nav";
 import "./Activiteiten.css";
 
 // Beheerscherm: alle activiteiten -- enkel bereikbaar voor is_admin=True (zie
@@ -15,6 +16,7 @@ import "./Activiteiten.css";
 // moet ook oude activiteiten terugvinden (zie GET /admin/activities)
 export default function AdminActiviteiten() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { token } = useAuth();
 
   const [activities, setActivities] = useState([]);
@@ -74,7 +76,10 @@ export default function AdminActiviteiten() {
   return (
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate(-1)}>
+        <button
+          className="activiteiten-back"
+          onClick={() => navigate(heeftTerugGeschiedenis(location) ? -1 : "/profiel")}
+        >
           <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <h1 className="activiteiten-title">Activiteiten ({activities.length})</h1>

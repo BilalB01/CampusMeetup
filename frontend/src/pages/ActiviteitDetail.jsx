@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useLocation, useNavigate } from "react-router-dom";
 import { Map, Marker } from "@vis.gl/react-google-maps";
 import { ArrowLeft, Calendar, CalendarPlus, Check, Download, MapPin, Share2, User, Users } from "lucide-react";
+import { heeftTerugGeschiedenis } from "../utils/nav";
 import {
   API_URL,
   deleteActivity,
@@ -24,6 +25,7 @@ import "./Activiteiten.css";
 export default function ActiviteitDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { token, user } = useAuth();
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -199,7 +201,10 @@ export default function ActiviteitDetail() {
       <div className="detail-hero">
         <div className="detail-hero-blob-clip" />
         <div className="detail-hero-top">
-          <button className="detail-hero-back detail-hero-back--tekst" onClick={() => navigate(-1)}>
+          <button
+            className="detail-hero-back detail-hero-back--tekst"
+            onClick={() => navigate(heeftTerugGeschiedenis(location) ? -1 : overzichtLink)}
+          >
             <ArrowLeft size={14} strokeWidth={2.3} /> Terug
           </button>
           <div className="detail-hero-acties">

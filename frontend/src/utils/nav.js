@@ -18,6 +18,14 @@ export const ICONS = {
   lijst: ListChecks,
 };
 
+// True als er binnen deze SPA-sessie een vorige pagina is om naar terug te
+// navigeren. location.key is "default" bij een verse paginalading (rechtstreekse
+// URL, gedeelde link, bookmark, of een herlaad) -- dan heeft navigate(-1) niets
+// om naar terug te gaan en moet een vaste terugvalbestemming gebruikt worden
+export function heeftTerugGeschiedenis(location) {
+  return location.key !== "default";
+}
+
 // Generieke actief-check voor navigatietabs, gedeeld tussen BottomNav en Sidebar
 export function isNavActive(pathname, tab) {
   if (tab.key === "home") return pathname === "/";

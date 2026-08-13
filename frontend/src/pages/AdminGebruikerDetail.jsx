@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { deleteAdminUser, getAdminUserDetail } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { formatDateTime } from "../utils/formatDate";
+import { heeftTerugGeschiedenis } from "../utils/nav";
 import "./Activiteiten.css";
 
 // "Vandaag"/"Actief"/"Voorbij" -- zelfde helper als Profiel.jsx
@@ -22,6 +23,7 @@ function statusLabel(startTime) {
 export default function AdminGebruikerDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { token, user } = useAuth();
 
   const [target, setTarget] = useState(null);
@@ -67,7 +69,10 @@ export default function AdminGebruikerDetail() {
     return (
       <div className="activiteiten-screen">
         <header className="activiteiten-header">
-          <button className="activiteiten-back" onClick={() => navigate(-1)}>
+          <button
+            className="activiteiten-back"
+            onClick={() => navigate(heeftTerugGeschiedenis(location) ? -1 : "/admin/gebruikers")}
+          >
             <ArrowLeft size={18} strokeWidth={2.3} />
           </button>
         </header>
