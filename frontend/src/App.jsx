@@ -2,6 +2,7 @@ import { APIProvider } from "@vis.gl/react-google-maps";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import VerifyEmail from "./pages/VerifyEmail";
 import Categorieen from "./pages/Categorieen";
 import ActiviteitenLijst from "./pages/ActiviteitenLijst";
 import ActiviteitAanmaken from "./pages/ActiviteitAanmaken";
@@ -49,6 +50,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verifieer" element={<VerifyEmail />} />
           {/* Alle onderstaande schermen zijn beveiligd: zonder geldig token stuurt ProtectedRoute door naar /login */}
           <Route
             path="/"

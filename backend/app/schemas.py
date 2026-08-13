@@ -47,6 +47,13 @@ class UserLogin(BaseModel):
     password: str
 
 
+# Antwoord van POST /auth/register -- bewust géén Token/access_token: de
+# gebruiker is pas echt ingelogd zodra de bevestigingsmail aangeklikt is,
+# dus registreren geeft enkel een bevestiging dat die mail onderweg is
+class RegisterOut(BaseModel):
+    message: str
+
+
 # Payload van POST /auth/microsoft — het ID-token dat MSAL in de browser
 # al bij Microsoft heeft opgehaald; de backend verifieert dit zelf nog
 # eens (zie ms_auth.py) vóór het vertrouwd wordt
@@ -111,15 +118,19 @@ class ActivityCategory(str, Enum):
     OVERIGE = "Overige"
 
 
-# Wat een gebruiker moet meesturen om een nieuwe activiteit aan te maken
+# Wat een gebruiker moet meesturen om een nieuwe activiteit aan te maken --
+# ook gebruikt bij PUT /activities/{id} (bewerken), zie routers/activities.py.
+# Alle velden verplicht (incl. description, die de frontend al langer als
+# required toonde zonder dat de backend dat zelf afdwong), en minstens 2
+# deelnemers -- een activiteit met plek voor maar 1 persoon is geen "meetup"
 class ActivityCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
-    description: str | None = Field(default=None, max_length=1000)
+    description: str = Field(min_length=1, max_length=1000)
     location_name: str = Field(min_length=1, max_length=200)
     latitude: float | None = None
     longitude: float | None = None
     start_time: datetime
-    max_participants: int = Field(gt=0, le=500)
+    max_participants: int = Field(ge=2, le=500)
     category: ActivityCategory
 
 

@@ -3,6 +3,7 @@ from datetime import datetime
 import resend
 
 from app.config import settings
+from app.security import EMAIL_VERIFICATION_EXPIRE_HOURS
 
 resend.api_key = settings.resend_api_key
 
@@ -32,6 +33,25 @@ def send_notification_email(to_email: str, subject: str, text: str) -> None:
         # best-effort: een mislukte e-mail mag de eigenlijke actie
         # (deelnemen, bericht versturen, ...) nooit laten falen
         pass
+
+
+# Géén best-effort, in tegenstelling tot send_notification_email hierboven:
+# als deze mail niet verstuurd kan worden, moet de registratie zelf ook
+# falen -- een account aanmaken zonder dat de bevestigingslink ooit
+# aankomt, zou de gebruiker permanent buitensluiten
+def send_verification_email(to_email: str, name: str, verify_url: str) -> None:
+    resend.Emails.send({
+        "from": settings.resend_from_email,
+        "to": [to_email],
+        "subject": "Bevestig je e-mailadres — CampusMeetup",
+        "text": (
+            f"Hoi {name},\n\n"
+            "Bevestig je e-mailadres om je CampusMeetup-account te activeren:\n"
+            f"{verify_url}\n\n"
+            f"Deze link is {EMAIL_VERIFICATION_EXPIRE_HOURS} uur geldig. "
+            "Heb je geen account aangemaakt? Dan mag je deze e-mail gewoon negeren."
+        ),
+    })
 
 
 # Géén best-effort: dit is een expliciete gebruikersactie ("delen via

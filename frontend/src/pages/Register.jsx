@@ -1,33 +1,44 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { register } from "../api/client";
 import AuthSplitScreen from "../components/AuthSplitScreen";
-import { useAuth } from "../auth/AuthContext";
 import "./Auth.css";
 
 export default function Register() {
-  const navigate = useNavigate();
-  const { saveSession } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Geen token/sessie na registreren: het account moet eerst via de
+  // bevestigingsmail geactiveerd worden (zie routers/auth.py). Dit bewaart
+  // enkel de melding van de backend om te tonen i.p.v. meteen door te sturen
+  const [bevestigingsmelding, setBevestigingsmelding] = useState(null);
 
-  // Maakt een account aan en logt de gebruiker meteen in bij succes
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
       const data = await register({ name, email, password });
-      saveSession(data);
-      navigate("/");
+      setBevestigingsmelding(data.message);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  }
+
+  if (bevestigingsmelding) {
+    return (
+      <AuthSplitScreen>
+        <h1 className="auth-title">Bijna klaar!</h1>
+        <p className="auth-subtitle">{bevestigingsmelding}</p>
+        <p className="auth-switch">
+          <Link to="/login">Naar de inlogpagina</Link>
+        </p>
+      </AuthSplitScreen>
+    );
   }
 
   return (

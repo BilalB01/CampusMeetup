@@ -73,6 +73,12 @@ class User(Base):
     # aparte rollentabel, want dit eerste beheerdersfeature kent maar
     # twee niveaus (gewone gebruiker/beheerder)
     is_admin = Column(Boolean, nullable=False, default=False)
+    # Enkel relevant voor auth_provider="password": pas True nadat de
+    # bevestigingslink in de registratiemail aangeklikt is (zie
+    # routers/auth.py). Microsoft-accounts krijgen dit meteen op True bij
+    # aanmaak, want dat e-mailadres komt al geverifieerd uit het
+    # Microsoft-token zelf — daar is geen aparte bevestigingsmail voor nodig
+    email_verified = Column(Boolean, nullable=False, default=False)
 
     activities = relationship("Activity", back_populates="organizer")
     participations = relationship("Participation", back_populates="user")
@@ -151,10 +157,9 @@ class Notification(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     # ondelete="CASCADE": een melding zonder eigenaar heeft geen nut (enkel
-    # de eigenaar kan 'm ooit zien) -- anders blokkeert delete_current_user
-    # zodra iemand nog een melding heeft staan (zelfde soort bug als
-    # activity_id hieronder, ontdekt tijdens het testen van account
-    # verwijderen)
+    # de eigenaar kan 'm ooit zien) -- zonder deze cascade zou het
+    # verwijderen van een account blokkeren zodra er nog een melding
+    # aan die gebruiker hangt
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     # ondelete="SET NULL": als de activiteit zelf verwijderd wordt (bv. de
     # "activiteit_verwijderd"-melding hieronder), blijft de melding bestaan

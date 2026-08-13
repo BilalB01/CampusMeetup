@@ -63,6 +63,12 @@ export function register({ name, email, password }) {
   });
 }
 
+// Bevestigt een e-mailadres via het token uit de registratiemail -- geeft
+// bij succes meteen een volwaardig inlogtoken terug (zie VerifyEmail.jsx)
+export function verifyEmail(token) {
+  return request(`/auth/verify?token=${encodeURIComponent(token)}`);
+}
+
 export function login({ email, password }) {
   return request("/auth/login", {
     method: "POST",
