@@ -8,10 +8,11 @@ export const msalInstance = new PublicClientApplication({
   auth: {
     clientId: import.meta.env.VITE_MICROSOFT_CLIENT_ID,
     authority: "https://login.microsoftonline.com/common",
-    // Specifiek naar /login i.p.v. de kale basis-URL: die is niet beveiligd
-    // door ProtectedRoute. Bij de kale basis-URL (/) stuurde ProtectedRoute
-    // meteen door naar /login vóór MSAL het antwoord van Microsoft (in de
-    // URL) kon verwerken, waardoor dat antwoord verloren ging
+    // Specifiek naar /login i.p.v. de kale basis-URL: /login is de enige
+    // route die niet achter ProtectedRoute zit. Stond hier de kale
+    // basis-URL (/), dan zou ProtectedRoute een niet-ingelogde gebruiker
+    // daar al naar /login doorsturen vóór MSAL het antwoord van Microsoft
+    // (verwerkt via de URL) kan afhandelen, en zou dat antwoord verloren gaan
     redirectUri: `${window.location.origin}/login`,
   },
 });

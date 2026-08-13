@@ -2,12 +2,10 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { getNotifications } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 
-// Centrale, gedeelde bron voor meldingen — Sidebar/BottomNav/NotificationToasts
-// haalden voorheen elk apart en enkel bij mount hun eigen kopie op, waardoor
-// bv. de ongelezen-teller in de zijbalk niet bijwerkte nadat je een melding
-// op /meldingen had gelezen. Nu heeft de hele app één poll-lus en één bron
-// van waarheid; refresh() laat een mutatie (gelezen markeren, ...) meteen
-// overal doorwerken i.p.v. te wachten op de volgende poll
+// Centrale, gedeelde bron voor meldingen: Sidebar, BottomNav en
+// NotificationToasts lezen allemaal uit deze ene state i.p.v. elk apart te
+// pollen. Zo laat refresh() een mutatie (bv. gelezen markeren) overal
+// meteen doorwerken, zonder te wachten op de eerstvolgende poll
 const NotificationsContext = createContext(null);
 
 const POLL_INTERVAL_MS = 30000;

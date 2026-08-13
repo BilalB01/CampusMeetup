@@ -21,8 +21,9 @@ function AuthSplitStat({ n, l }) {
 // Gedeelde schil voor Login.jsx/Register.jsx: linkerpaneel met merk/platform-
 // stats + tabbalk om te wisselen tussen /login en /register, enkel vanaf
 // desktopbreedte (zie veld-desktop in Activiteiten.css) — op mobiel blijft
-// enkel .auth-card over, exact zoals vóór deze kaart. Elke pagina blijft
-// eigenaar van zijn eigen velden/logica en geeft die door als children
+// enkel .auth-card zichtbaar, dat paneel is puur een desktop-toevoeging.
+// Elke pagina blijft eigenaar van zijn eigen velden/logica en geeft die
+// door als children
 export default function AuthSplitScreen({ onSubmit, children }) {
   const { pathname } = useLocation();
   const [stats, setStats] = useState(null);

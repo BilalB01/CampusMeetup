@@ -11,7 +11,7 @@ from app.routers.activities import _participants_preview_by_activity, activity_t
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-# Alle gebruikers, nieuwste eerst -- enkel voor beheerders (get_current_admin)
+# Alle gebruikers, alfabetisch op naam -- enkel voor beheerders (get_current_admin)
 @router.get("/users", response_model=list[schemas.UserOut])
 def list_users(
     db: Session = Depends(get_db),

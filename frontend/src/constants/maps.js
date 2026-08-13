@@ -1,7 +1,8 @@
 export const MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-// Middelpunt van de EhB-campus — standaardpositie voor elke kaart, dezelfde
-// coördinaat die vroeger hardcoded in ActiviteitAanmaken.jsx stond
+// Middelpunt van de EhB-campus — gedeelde standaardpositie voor elke kaart
+// (nieuwe activiteit, kaartweergave van de activiteitenlijst), zodat er altijd
+// een zinvol beginpunt is zolang er nog geen locatie gekozen of gekend is
 export const EHB_CAMPUS_CENTER = { lat: 50.8466, lng: 4.3528 };
 
 // Klein violet rond pinnetje als SVG data-URI, i.p.v. het standaard rode
