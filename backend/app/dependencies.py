@@ -27,6 +27,13 @@ def _decode_user(token: str, db: Session) -> models.User | None:
         user_id = payload.get("sub")
         if user_id is None:
             return None
+        # Een gewoon inlogtoken (create_access_token) heeft geen "purpose"-veld.
+        # Tokens mét een purpose (bv. het e-mailbevestigingstoken uit security.py)
+        # zijn voor iets anders bedoeld en mogen hier niet als volwaardig
+        # inlogtoken doorgaan, anders zou zo'n token ook toegang geven tot elke
+        # beveiligde route i.p.v. enkel GET /auth/verify
+        if payload.get("purpose") is not None:
+            return None
     except JWTError:
         return None
     return db.get(models.User, int(user_id))
