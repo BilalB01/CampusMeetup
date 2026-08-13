@@ -145,8 +145,14 @@ export function InstellingenSecties() {
     setVerwijderBezig(true);
     try {
       await deleteAccount(token);
+      // Eerst wegnavigeren, dan pas uitloggen: zolang deze pagina nog
+      // gemount is wanneer token null wordt, ziet ProtectedRoute dat ook en
+      // stuurt zelf óók naar /login, maar dan met "/instellingen" als
+      // terugkeer-bestemming (zie ProtectedRoute.jsx) -- een race die een
+      // volgende Microsoft-/wachtwoord-login soms naar de verwijderde
+      // instellingenpagina i.p.v. de startpagina stuurde
+      navigate("/login", { replace: true });
       await logout();
-      navigate("/login");
     } catch (err) {
       setVerwijderFout(err.message);
       setVerwijderBezig(false);

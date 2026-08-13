@@ -73,8 +73,12 @@ export default function Profiel() {
   }, [token, user?.is_admin]);
 
   async function handleLogout() {
+    // Eerst wegnavigeren, dan pas uitloggen -- zelfde reden als
+    // handleVerwijderen in Instellingen.jsx: zolang deze pagina nog gemount
+    // is wanneer token null wordt, stuurt ProtectedRoute zelf ook naar
+    // /login, maar dan met deze pagina als terugkeer-bestemming
+    navigate("/login", { replace: true });
     await logout();
-    navigate("/login");
   }
 
   const initial = user?.name?.[0]?.toUpperCase() ?? "?";
