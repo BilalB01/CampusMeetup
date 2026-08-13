@@ -23,9 +23,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 # te loggen -- pas na het aanklikken van die link (GET /auth/verify) kan er
 # ingelogd worden, zie login() hieronder. Zonder RESEND_API_KEY (bv. lokale
 # ontwikkeling) is er niemand die de link kan versturen, dus wordt het
-# account in dat geval meteen als bevestigd aangemaakt
+# account in dat geval meteen als bevestigd aangemaakt. Rate-gelimiteerd
+# zoals login(): elke geslaagde aanroep verstuurt nu ook echt een e-mail
 @router.post("/register", response_model=schemas.RegisterOut, status_code=status.HTTP_201_CREATED)
-def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request: Request, payload: schemas.UserCreate, db: Session = Depends(get_db)):
     existing_user = db.query(models.User).filter(models.User.email == payload.email).first()
     if existing_user:
         raise HTTPException(
@@ -41,17 +43,30 @@ def register(payload: schemas.UserCreate, db: Session = Depends(get_db)):
         email_verified=not settings.resend_api_key,
     )
     db.add(user)
-    db.commit()
+    # Nog geen commit: user.id is al wel nodig voor het verificatietoken (via
+    # flush), maar de rij mag pas definitief bestaan als de mail ook echt
+    # verstuurd is -- anders blijft er bij een mislukte verzending een
+    # account achter dat nooit bevestigd kan worden (zie send_verification_email)
+    db.flush()
     db.refresh(user)
 
     if settings.resend_api_key:
         token = create_email_verification_token(user.id)
         verify_url = f"{settings.frontend_url}/verifieer?token={token}"
-        send_verification_email(user.email, user.name, verify_url)
+        try:
+            send_verification_email(user.email, user.name, verify_url)
+        except Exception:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="Kon de bevestigingsmail niet versturen. Probeer het straks opnieuw.",
+            )
+        db.commit()
         return schemas.RegisterOut(
             message="Account aangemaakt. Bevestig je e-mailadres via de link die we je gestuurd hebben."
         )
 
+    db.commit()
     return schemas.RegisterOut(message="Account aangemaakt. Je kan meteen inloggen.")
 
 
