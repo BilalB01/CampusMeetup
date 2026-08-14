@@ -85,6 +85,11 @@ export function useActivityChat(activityId, token, enabled, currentUserId) {
     return () => {
       ws.close();
       wsRef.current = null;
+      // Nog lopende typtekst-timeouts opruimen -- anders kan zo'n timeout na
+      // het ontkoppelen/wisselen van activiteit nog afgaan en setTypingUsers
+      // aanroepen op een intussen losgekoppelde staat
+      typingTimeoutsRef.current.forEach(clearTimeout);
+      typingTimeoutsRef.current.clear();
     };
   }, [activityId, token, enabled, currentUserId]);
 
