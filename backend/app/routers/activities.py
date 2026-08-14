@@ -36,9 +36,19 @@ def _to_detail(
             .first()
             is not None
         )
-    participants = [
-        schemas.ParticipantOut.model_validate(p.user) for p in activity.participations
-    ]
+    # Niet-ingelogde bezoekers mogen wel rondkijken (titel/locatie/tijdstip),
+    # maar krijgen geen namen te zien -- via het vaste schoolmailformaat
+    # (voornaam.achternaam@student.ehb.be) is een naam meteen om te zetten
+    # naar een echt adres, dus namen blijven voorbehouden aan wie zelf
+    # ingelogd is
+    if current_user is None:
+        organizer = schemas.ParticipantOut(id=activity.organizer_id, name="Organisator")
+        participants: list[schemas.ParticipantOut] = []
+    else:
+        organizer = schemas.ParticipantOut.model_validate(activity.organizer)
+        participants = [
+            schemas.ParticipantOut.model_validate(p.user) for p in activity.participations
+        ]
     return schemas.ActivityDetailOut(
         id=activity.id,
         title=activity.title,
@@ -50,7 +60,7 @@ def _to_detail(
         max_participants=activity.max_participants,
         category=activity.category,
         created_at=activity.created_at,
-        organizer=schemas.ParticipantOut.model_validate(activity.organizer),
+        organizer=organizer,
         participant_count=participant_count,
         is_joined=is_joined,
         participants=participants,
@@ -151,6 +161,7 @@ def _participants_preview_by_activity(
 def list_activities(
     category: schemas.ActivityCategory | None = None,
     db: Session = Depends(get_db),
+    current_user: models.User | None = Depends(get_current_user_optional),
 ):
     verlopen_grens = datetime.now(timezone.utc) - timedelta(hours=1)
     query = (
@@ -164,7 +175,13 @@ def list_activities(
         query = query.filter(models.Activity.category == category.value)
 
     rows = query.all()
-    preview_by_activity = _participants_preview_by_activity(db, [a.id for a, _ in rows])
+    # Namen in de avatar-stapel zijn -- net als bij _to_detail hierboven --
+    # voorbehouden aan ingelogde bezoekers
+    preview_by_activity = (
+        _participants_preview_by_activity(db, [a.id for a, _ in rows])
+        if current_user is not None
+        else {}
+    )
 
     return [
         activity_to_list_item(activity, participant_count, preview_by_activity.get(activity.id))
