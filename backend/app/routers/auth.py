@@ -74,7 +74,11 @@ def register(request: Request, payload: schemas.UserCreate, db: Session = Depend
 @router.post("/login", response_model=schemas.Token)
 @limiter.limit("5/minute")
 def login(request: Request, payload: schemas.UserLogin, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == payload.email).first()
+    # register()/login_with_microsoft() slaan e-mailadressen altijd lowercase
+    # op -- zonder dit lowercase()'en hier zou een andere hoofdlettering dan
+    # bij het registreren (bv. auto-capitalize op mobiel) ten onrechte als
+    # "onbestaand account" afgewezen worden
+    user = db.query(models.User).filter(models.User.email == payload.email.lower()).first()
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
