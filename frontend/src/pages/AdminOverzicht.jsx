@@ -4,7 +4,7 @@ import { getAdminActivities, getAdminUsers } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import StartStatKaart from "../components/StartStatKaart";
 import { useAuth } from "../auth/AuthContext";
-import { formatRelativeTime } from "../utils/formatDate";
+import { capitalize, formatRelativeTime } from "../utils/formatDate";
 import "./Activiteiten.css";
 
 // Landingspagina voor beheerders (/, zie App.jsx) -- i.p.v. de normale
@@ -30,7 +30,7 @@ export default function AdminOverzicht() {
     day: "numeric",
     month: "long",
   }).format(new Date());
-  const vandaagMetHoofdletter = vandaag.charAt(0).toUpperCase() + vandaag.slice(1);
+  const vandaagMetHoofdletter = capitalize(vandaag);
 
   const zevenDagenGeleden = new Date();
   zevenDagenGeleden.setDate(zevenDagenGeleden.getDate() - 7);

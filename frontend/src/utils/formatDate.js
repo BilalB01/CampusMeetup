@@ -1,3 +1,10 @@
+// Intl.DateTimeFormat geeft maand-/weekdagnamen altijd met kleine letter
+// terug -- deze zet enkel de eerste letter om, voor plekken waar zo'n naam
+// als volwaardig label/titel getoond wordt (bv. "Augustus 2026", "Donderdag")
+export function capitalize(tekst) {
+  return tekst.charAt(0).toUpperCase() + tekst.slice(1);
+}
+
 // Formatteert een ISO-datum naar leesbare NL-tekst, bv. "4 augustus 2026, 14:30"
 // (geen "Vandaag"/"Morgen"-labels zoals in Figma — bewuste vereenvoudiging)
 export function formatDateTime(isoString) {

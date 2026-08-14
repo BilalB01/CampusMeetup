@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { formatTime, formatWeekdayShort } from "../utils/formatDate";
+import { capitalize, formatTime, formatWeekdayShort } from "../utils/formatDate";
 
 function startOfWeek(date) {
   const d = new Date(date);
@@ -48,7 +48,7 @@ export default function ActiviteitDatumKiezer({ activities, pickerDate, onSelect
   const dagen = getWeekDays(weekStart);
 
   const maandLabel = new Intl.DateTimeFormat("nl-BE", { month: "long", year: "numeric" }).format(weekStart);
-  const maandLabelMetHoofdletter = maandLabel.charAt(0).toUpperCase() + maandLabel.slice(1);
+  const maandLabelMetHoofdletter = capitalize(maandLabel);
 
   const geplandOpGekozenDag = activities
     .filter((a) => isSameDay(new Date(a.start_time), pickerDate))

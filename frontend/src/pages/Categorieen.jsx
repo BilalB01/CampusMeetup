@@ -8,7 +8,7 @@ import StartStatKaart from "../components/StartStatKaart";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES, getCategoryByValue } from "../constants/categories";
 import { distanceInMeters, formatDistance } from "../utils/distance";
-import { formatStartBadge } from "../utils/formatDate";
+import { capitalize, formatStartBadge } from "../utils/formatDate";
 import { useUserLocation } from "../hooks/useUserLocation";
 import "./Activiteiten.css";
 
@@ -39,7 +39,7 @@ export default function Categorieen() {
     day: "numeric",
     month: "long",
   }).format(new Date());
-  const vandaagMetHoofdletter = vandaag.charAt(0).toUpperCase() + vandaag.slice(1);
+  const vandaagMetHoofdletter = capitalize(vandaag);
 
   // Eerstvolgende activiteit waar de gebruiker zelf iets mee te maken heeft
   // (georganiseerd of deelgenomen), gesorteerd op starttijd i.p.v. bv.

@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { capitalize } from "../utils/formatDate";
 import { isAuthScreen } from "../utils/nav";
 
 // Vaste topbalk vanaf desktopbreedte (≥900px, zie Activiteiten.css).
@@ -13,7 +14,7 @@ export default function TopBar() {
     day: "numeric",
     month: "long",
   }).format(new Date());
-  const vandaagMetHoofdletter = vandaag.charAt(0).toUpperCase() + vandaag.slice(1);
+  const vandaagMetHoofdletter = capitalize(vandaag);
 
   return (
     <header className="top-bar">
