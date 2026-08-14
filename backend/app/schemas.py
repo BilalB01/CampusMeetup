@@ -54,6 +54,15 @@ class RegisterOut(BaseModel):
     message: str
 
 
+# Payload van POST /auth/verify -- bewust een POST-body i.p.v. een GET met
+# ?token=... in de querystring: een kale GET-link wordt soms automatisch
+# opgehaald door een mailscanner/linkvoorbeeld vóór de gebruiker zelf klikt,
+# wat dan de eenmalige bevestiging al zou verbruiken. Enkel JavaScript dat de
+# link-pagina zelf uitvoert (dus de echte gebruiker) doet deze POST
+class EmailVerifyRequest(BaseModel):
+    token: str
+
+
 # Payload van POST /auth/microsoft — het ID-token dat MSAL in de browser
 # al bij Microsoft heeft opgehaald; de backend verifieert dit zelf nog
 # eens (zie ms_auth.py) vóór het vertrouwd wordt

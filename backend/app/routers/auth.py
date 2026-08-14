@@ -107,10 +107,14 @@ def login(request: Request, payload: schemas.UserLogin, db: Session = Depends(ge
 # opleveren: is het account al bevestigd, dan wordt user.email_verified zelf
 # als "al gebruikt"-vlag ingezet i.p.v. nog een inlogtoken uit te delen --
 # anders zou een gelekte/doorgestuurde link binnen dat venster een geldig
-# inlogmiddel blijven, zonder wachtwoord nodig
-@router.get("/verify", response_model=schemas.Token)
-def verify_email(token: str, db: Session = Depends(get_db)):
-    user_id = verify_email_verification_token(token)
+# inlogmiddel blijven, zonder wachtwoord nodig. Bewust een POST (zie
+# schemas.EmailVerifyRequest) i.p.v. een GET met ?token=...: de /verifieer-
+# pagina zelf doet deze aanroep via JavaScript, dus een kale link-preview/
+# scanner die enkel de pagina ophaalt (geen JS uitvoert) verbruikt de link
+# niet stilzwijgend vóór de echte gebruiker klikt
+@router.post("/verify", response_model=schemas.Token)
+def verify_email(payload: schemas.EmailVerifyRequest, db: Session = Depends(get_db)):
+    user_id = verify_email_verification_token(payload.token)
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
