@@ -97,7 +97,10 @@ export default function AdminGebruikerDetail() {
   return (
     <div className="activiteiten-screen">
       <header className="activiteiten-header">
-        <button className="activiteiten-back" onClick={() => navigate(-1)}>
+        <button
+          className="activiteiten-back"
+          onClick={() => navigate(heeftTerugGeschiedenis(location) ? -1 : "/admin/gebruikers")}
+        >
           <ArrowLeft size={18} strokeWidth={2.3} />
         </button>
         <h1 className="activiteiten-title">{target.name}</h1>
