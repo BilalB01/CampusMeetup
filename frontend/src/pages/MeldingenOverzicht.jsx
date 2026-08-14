@@ -50,11 +50,13 @@ export default function MeldingenOverzicht() {
   }
 
   async function handleAllesGelezen() {
+    const vorige = notifications;
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     try {
       await markAllNotificationsRead(token);
       refresh();
     } catch (err) {
+      setNotifications(vorige);
       setError(err.message);
     }
   }
