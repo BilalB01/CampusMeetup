@@ -51,5 +51,5 @@ export function useAddressAutocomplete() {
     };
   }
 
-  return { suggestions, search, selectSuggestion, clearSuggestions: () => setSuggestions([]) };
+  return { suggestions, search, selectSuggestion };
 }
