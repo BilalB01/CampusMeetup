@@ -147,35 +147,7 @@ def read_my_activities(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    # Georganiseerd: zelfde outerjoin+count+group_by-opbouw als GET
-    # /activities, enkel met een extra filter op organizer_id
-    organized_rows = (
-        db.query(models.Activity, func.count(models.Participation.id).label("participant_count"))
-        .outerjoin(models.Participation, models.Participation.activity_id == models.Activity.id)
-        .filter(models.Activity.organizer_id == current_user.id)
-        .group_by(models.Activity.id)
-        .order_by(models.Activity.start_time)
-        .all()
-    )
-
-    # Activiteit-id's waaraan de gebruiker deelneemt — bevat ook de eigen
-    # activiteiten (organisator wordt bij aanmaken automatisch ook
-    # deelnemer). De organizer_id-filter hieronder sluit die overlap uit,
-    # zodat "deelgenomen" nooit dezelfde activiteit toont als "georganiseerd"
-    joined_activity_ids = (
-        db.query(models.Participation.activity_id)
-        .filter(models.Participation.user_id == current_user.id)
-        .subquery()
-    )
-    joined_rows = (
-        db.query(models.Activity, func.count(models.Participation.id).label("participant_count"))
-        .outerjoin(models.Participation, models.Participation.activity_id == models.Activity.id)
-        .filter(models.Activity.id.in_(joined_activity_ids))
-        .filter(models.Activity.organizer_id != current_user.id)
-        .group_by(models.Activity.id)
-        .order_by(models.Activity.start_time)
-        .all()
-    )
+    organized_rows, joined_rows = activities._organized_and_joined_rows(db, current_user.id)
 
     all_ids = [a.id for a, _ in organized_rows] + [a.id for a, _ in joined_rows]
     preview_by_activity = activities._participants_preview_by_activity(db, all_ids)

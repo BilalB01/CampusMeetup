@@ -75,11 +75,7 @@ def create_activity(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    if current_user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Beheerders kunnen geen activiteiten organiseren",
-        )
+    _ensure_not_admin(current_user, "Beheerders kunnen geen activiteiten organiseren")
     activity = models.Activity(
         title=payload.title,
         description=payload.description,
@@ -125,6 +121,38 @@ def activity_to_list_item(
             schemas.ParticipantOut.model_validate(u) for u in (participants_preview or [])
         ],
     )
+
+
+# Georganiseerde en elders-deelgenomen activiteiten van één gebruiker,
+# elk als (Activity, participant_count)-rijen -- gedeeld tussen
+# GET /users/me/activities (main.py) en GET /admin/users/{id} (admin.py),
+# die verder enkel verschillen in welke user_id ze doorgeven
+def _organized_and_joined_rows(db: Session, user_id: int):
+    organized_rows = (
+        db.query(models.Activity, func.count(models.Participation.id).label("participant_count"))
+        .outerjoin(models.Participation, models.Participation.activity_id == models.Activity.id)
+        .filter(models.Activity.organizer_id == user_id)
+        .group_by(models.Activity.id)
+        .order_by(models.Activity.start_time)
+        .all()
+    )
+    # Activiteit-id's waaraan de gebruiker deelneemt — bevat ook de eigen
+    # activiteiten (organisator wordt bij aanmaken automatisch ook
+    # deelnemer). De organizer_id-filter hieronder sluit die overlap uit,
+    # zodat "deelgenomen" nooit dezelfde activiteit toont als "georganiseerd"
+    joined_activity_ids = (
+        db.query(models.Participation.activity_id).filter(models.Participation.user_id == user_id).subquery()
+    )
+    joined_rows = (
+        db.query(models.Activity, func.count(models.Participation.id).label("participant_count"))
+        .outerjoin(models.Participation, models.Participation.activity_id == models.Activity.id)
+        .filter(models.Activity.id.in_(joined_activity_ids))
+        .filter(models.Activity.organizer_id != user_id)
+        .group_by(models.Activity.id)
+        .order_by(models.Activity.start_time)
+        .all()
+    )
+    return organized_rows, joined_rows
 
 
 # Haalt in bulk de eerste 3 deelnemers per activiteit op (voor de
@@ -255,6 +283,14 @@ def get_activity_ics(activity_id: int, db: Session = Depends(get_db)):
     )
 
 
+# Controleert dat de ingelogde gebruiker geen beheerder is — beheerders
+# organiseren/nemen niet deel aan activiteiten (zie ook Sidebar.jsx/
+# Profiel.jsx aan de frontend-kant). Hergebruikt door create/join/leave
+def _ensure_not_admin(current_user: models.User, detail: str) -> None:
+    if current_user.is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=detail)
+
+
 # Controleert dat de ingelogde gebruiker de organisator is — hergebruikt
 # door zowel bewerken als verwijderen
 def _ensure_organizer(activity: models.Activity, current_user: models.User) -> None:
@@ -366,12 +402,14 @@ def join_activity(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    if current_user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Beheerders kunnen niet deelnemen aan activiteiten",
-        )
-    activity = db.get(models.Activity, activity_id)
+    _ensure_not_admin(current_user, "Beheerders kunnen niet deelnemen aan activiteiten")
+    # with_for_update: vergrendelt deze activiteitsrij voor de duur van de
+    # transactie, zodat twee gelijktijdige aanvragen op de laatste vrije plek
+    # elkaar niet allebei via de participant_count-check hieronder kunnen
+    # glippen -- de tweede wacht op de eerste en ziet dan de bijgewerkte
+    # telling (zelfde bescherming als de IntegrityError-vangnet verderop,
+    # maar dan voor de capaciteitscheck i.p.v. de dubbele-deelname-check)
+    activity = db.get(models.Activity, activity_id, with_for_update=True)
     if activity is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Activiteit niet gevonden"
@@ -434,11 +472,7 @@ def leave_activity(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    if current_user.is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Beheerders kunnen niet deelnemen aan activiteiten",
-        )
+    _ensure_not_admin(current_user, "Beheerders kunnen niet deelnemen aan activiteiten")
     activity = db.get(models.Activity, activity_id)
     if activity is None:
         raise HTTPException(

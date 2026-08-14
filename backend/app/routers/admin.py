@@ -6,7 +6,7 @@ from app import models, schemas
 from app.database import get_db
 from app.dependencies import get_current_admin
 from app.notifications import create_notification
-from app.routers.activities import _participants_preview_by_activity, activity_to_list_item
+from app.routers.activities import _organized_and_joined_rows, _participants_preview_by_activity, activity_to_list_item
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -34,26 +34,7 @@ def get_user_detail(
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Gebruiker niet gevonden")
 
-    organized_rows = (
-        db.query(models.Activity, func.count(models.Participation.id).label("participant_count"))
-        .outerjoin(models.Participation, models.Participation.activity_id == models.Activity.id)
-        .filter(models.Activity.organizer_id == target.id)
-        .group_by(models.Activity.id)
-        .order_by(models.Activity.start_time.desc())
-        .all()
-    )
-    joined_activity_ids = (
-        db.query(models.Participation.activity_id).filter(models.Participation.user_id == target.id).subquery()
-    )
-    joined_rows = (
-        db.query(models.Activity, func.count(models.Participation.id).label("participant_count"))
-        .outerjoin(models.Participation, models.Participation.activity_id == models.Activity.id)
-        .filter(models.Activity.id.in_(joined_activity_ids))
-        .filter(models.Activity.organizer_id != target.id)
-        .group_by(models.Activity.id)
-        .order_by(models.Activity.start_time.desc())
-        .all()
-    )
+    organized_rows, joined_rows = _organized_and_joined_rows(db, target.id)
 
     all_ids = [a.id for a, _ in organized_rows] + [a.id for a, _ in joined_rows]
     preview_by_activity = _participants_preview_by_activity(db, all_ids)
@@ -87,12 +68,34 @@ def delete_user(
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Gebruiker niet gevonden")
 
+    # Deelnemers van de eigen activiteiten van target vooraf ophalen (incl.
+    # titel): na het verwijderen bestaan die activiteiten niet meer om nog
+    # naar te verwijzen, en zonder deze melding zouden die deelnemers nooit
+    # te weten komen dat hun activiteit verdwenen is -- zelfde bewoording als
+    # delete_any_activity hieronder, dat exact dezelfde eindsituatie meldt
+    te_melden = [
+        (deelnemer, activiteit.title)
+        for activiteit in db.query(models.Activity).filter(models.Activity.organizer_id == target.id)
+        for deelnemer in _alle_deelnemers(db, activiteit.id)
+        if deelnemer.id != target.id
+    ]
+
     db.query(models.Message).filter(models.Message.user_id == target.id).delete()
     db.query(models.Participation).filter(models.Participation.user_id == target.id).delete()
     for activiteit in db.query(models.Activity).filter(models.Activity.organizer_id == target.id):
         db.delete(activiteit)
     db.delete(target)
     db.commit()
+
+    for deelnemer, titel in te_melden:
+        create_notification(
+            db,
+            deelnemer,
+            "activiteit_verwijderd_admin",
+            f'"{titel}" is door een beheerder verwijderd.',
+            None,
+            deelnemer.notify_activity_updates,
+        )
 
 
 # Alle activiteiten, eventueel gefilterd op categorie -- bewust GEEN
@@ -116,7 +119,11 @@ def list_all_activities(
         query = query.filter(models.Activity.category == category.value)
 
     rows = query.all()
-    return [activity_to_list_item(activity, participant_count) for activity, participant_count in rows]
+    preview_by_activity = _participants_preview_by_activity(db, [a.id for a, _ in rows])
+    return [
+        activity_to_list_item(activity, participant_count, preview_by_activity.get(activity.id))
+        for activity, participant_count in rows
+    ]
 
 
 # Alle deelnemers van een activiteit, organisator inbegrepen -- i.t.t.

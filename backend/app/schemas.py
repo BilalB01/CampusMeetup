@@ -169,8 +169,11 @@ class ParticipantOut(BaseModel):
         from_attributes = True
 
 
-# Eén item in de activiteitenlijst (GET /activities)
-class ActivityListItem(BaseModel):
+# Velden die een activiteit altijd toont, ongeacht lijst- of detailweergave
+# — gedeeld tussen ActivityListItem en ActivityDetailOut hieronder, die elk
+# hun eigen berekende velden (participants_preview vs. organizer/is_joined/
+# participants) toevoegen
+class ActivityBase(BaseModel):
     id: int
     title: str
     description: str | None
@@ -182,37 +185,27 @@ class ActivityListItem(BaseModel):
     category: ActivityCategory
     participant_count: int
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Eén item in de activiteitenlijst (GET /activities)
+class ActivityListItem(ActivityBase):
     # Eerste paar deelnemers, voor de avatar-stapel op de kaarten — standaard
     # leeg (bv. bij /users/me/activities, waar dit niet opgehaald wordt)
     participants_preview: list[ParticipantOut] = []
 
-    class Config:
-        from_attributes = True
-
 
 # Detailweergave van één activiteit: inclusief organisator, deelnemers,
-# het aantal deelnemers en of de ingelogde gebruiker al is aangesloten.
-# participant_count/is_joined/participants zijn berekende velden, geen
-# echte kolommen — dit schema wordt in de router altijd met expliciete
-# kwargs opgebouwd, niet via model_validate(activity)
-class ActivityDetailOut(BaseModel):
-    id: int
-    title: str
-    description: str | None
-    location_name: str
-    latitude: float | None
-    longitude: float | None
-    start_time: datetime
-    max_participants: int
-    category: ActivityCategory
-    created_at: datetime
+# en of de ingelogde gebruiker al is aangesloten. organizer/is_joined/
+# participants zijn berekende velden, geen echte kolommen — dit schema
+# wordt in de router altijd met expliciete kwargs opgebouwd, niet via
+# model_validate(activity)
+class ActivityDetailOut(ActivityBase):
     organizer: ParticipantOut
-    participant_count: int
     is_joined: bool
     participants: list[ParticipantOut]
-
-    class Config:
-        from_attributes = True
 
 
 # Antwoord van GET /users/me/activities voor het profielscherm
@@ -301,6 +294,5 @@ class AdminActivityDelete(BaseModel):
 # Antwoord van GET /admin/users/{id} -- UserOut-velden + de activiteiten van
 # die gebruiker, zelfde opbouw als MyActivitiesOut maar dan bekeken door een
 # beheerder i.p.v. de gebruiker zelf
-class AdminUserDetailOut(UserOut):
-    organized: list[ActivityListItem]
-    joined: list[ActivityListItem]
+class AdminUserDetailOut(UserOut, MyActivitiesOut):
+    pass
