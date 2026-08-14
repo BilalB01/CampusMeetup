@@ -87,6 +87,21 @@ async def activity_chat_ws(
         while True:
             data = await websocket.receive_json()
 
+            # Herbevestigt bij elk binnenkomend bericht dat de afzender nog
+            # steeds deelnemer is -- de deelname kan intussen opgezegd zijn
+            # (DELETE .../join) terwijl deze socket nog openstond, en zonder
+            # deze check zou zo iemand nog altijd berichten kunnen sturen in
+            # een groep waar die niet meer bij hoort
+            nog_steeds_deelnemer = (
+                db.query(models.Participation)
+                .filter_by(activity_id=activity_id, user_id=current_user.id)
+                .first()
+                is not None
+            )
+            if not nog_steeds_deelnemer:
+                await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+                break
+
             # Typtekst-indicator: volledig additief bovenop de bestaande
             # berichten-flow — dit soort payload heeft geen "content"-sleutel,
             # dus bestaande clients/berichten blijven ongewijzigd werken
