@@ -51,9 +51,9 @@ export function NotificationsProvider({ children }) {
     return () => clearInterval(interval);
   }, [token, refresh]);
 
-  function dismissToast(toastId) {
+  const dismissToast = useCallback((toastId) => {
     setToasts((prev) => prev.filter((t) => t.toastId !== toastId));
-  }
+  }, []);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const chatUnreadCount = notifications.filter((n) => !n.read && n.type === "chatbericht").length;
