@@ -26,6 +26,13 @@ export function heeftTerugGeschiedenis(location) {
   return location.key !== "default";
 }
 
+// De 4 tabs die zowel in Sidebar.jsx als BottomNav.jsx voorkomen (elke
+// lijst voegt daar zelf nog eigen tabs aan toe, op een eigen positie/volgorde)
+export const HOME_TAB = { key: "home", label: "Start", Icon: ICONS.home, to: "/" };
+export const ONTDEK_TAB = { key: "ontdek", label: "Ontdek", Icon: ICONS.kompas, to: "/activiteiten" };
+export const CHATS_TAB = { key: "chats", label: "Chats", Icon: ICONS.chat, to: "/chats" };
+export const MELDINGEN_TAB = { key: "meldingen", label: "Meldingen", Icon: ICONS.melding, to: "/meldingen" };
+
 // Generieke actief-check voor navigatietabs, gedeeld tussen BottomNav en Sidebar
 export function isNavActive(pathname, tab) {
   if (tab.key === "home") return pathname === "/";

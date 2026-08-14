@@ -1,15 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { CATEGORIES } from "../constants/categories";
 import { useNotifications } from "../notifications/NotificationsContext";
-import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
+import { CHATS_TAB, HOME_TAB, ICONS, MELDINGEN_TAB, ONTDEK_TAB, isAuthScreen, isNavActive } from "../utils/nav";
 
 // Vaste onderaan-navigatiebalk, overal zichtbaar behalve op login/register
 const TABS = [
-  { key: "home", label: "Start", Icon: ICONS.home, to: "/" },
-  { key: "ontdek", label: "Ontdek", Icon: ICONS.kompas, to: "/activiteiten" },
+  HOME_TAB,
+  ONTDEK_TAB,
   { key: "nieuw", label: "Nieuw", Icon: ICONS.plus, to: `/activiteiten/categorie/${CATEGORIES[0].slug}/nieuw` },
-  { key: "chats", label: "Chats", Icon: ICONS.chat, to: "/chats" },
-  { key: "meldingen", label: "Meldingen", Icon: ICONS.melding, to: "/meldingen" },
+  CHATS_TAB,
+  MELDINGEN_TAB,
   { key: "profiel", label: "Profiel", Icon: ICONS.persoon, to: "/profiel" },
 ];
 

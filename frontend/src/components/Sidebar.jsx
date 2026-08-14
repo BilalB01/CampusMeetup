@@ -6,13 +6,13 @@ import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES } from "../constants/categories";
 import { useNotifications } from "../notifications/NotificationsContext";
 import { formatStartBadge } from "../utils/formatDate";
-import { ICONS, isAuthScreen, isNavActive } from "../utils/nav";
+import { CHATS_TAB, HOME_TAB, ICONS, MELDINGEN_TAB, ONTDEK_TAB, isAuthScreen, isNavActive } from "../utils/nav";
 
 const TABS = [
-  { key: "home", label: "Start", Icon: ICONS.home, to: "/" },
-  { key: "ontdek", label: "Ontdek", Icon: ICONS.kompas, to: "/activiteiten" },
-  { key: "chats", label: "Chats", Icon: ICONS.chat, to: "/chats" },
-  { key: "meldingen", label: "Meldingen", Icon: ICONS.melding, to: "/meldingen" },
+  HOME_TAB,
+  ONTDEK_TAB,
+  CHATS_TAB,
+  MELDINGEN_TAB,
   { key: "instellingen", label: "Instellingen", Icon: ICONS.tandwiel, to: "/instellingen" },
 ];
 // Enkel getoond aan beheerders (user.is_admin) -- zie tabs hieronder. Twee
