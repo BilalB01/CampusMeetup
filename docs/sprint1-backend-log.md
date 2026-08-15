@@ -102,11 +102,15 @@ Alles hieronder hebben we echt uitgevoerd, niet enkel geschreven en
 aangenomen dat het wel zal werken.
 
 Backend eerst, rechtstreeks via curl en de Swagger UI (`/docs`): een
-account aanmaken werkt en geeft een token terug; nog eens registreren
-met dezelfde mail geeft netjes een 400 met "Er bestaat al een account
-met dit e-mailadres"; een niet-schoolmail (bv. een gmail-adres) of een
-wachtwoord korter dan 8 tekens wordt geweigerd met een 422; inloggen met
-een fout wachtwoord geeft een 401 in plaats van een gewoon account terug
+account aanmaken werkt en geeft een token terug *(dit gold voor de
+registratie-endpoint van Sprint 1 — sinds de e-mailbevestiging van een
+latere sprint geeft registreren enkel nog een bevestigingsbericht terug,
+geen token meer; zie [authenticatie.md](authenticatie.md) §3 en §6 voor de
+huidige flow)*; nog eens registreren met dezelfde mail geeft netjes een
+400 met "Er bestaat al een account met dit e-mailadres"; een niet-schoolmail
+(bv. een gmail-adres) of een wachtwoord korter dan 8 tekens wordt geweigerd
+met een 422; inloggen met een fout wachtwoord geeft een 401 in plaats van
+een gewoon account terug
 te geven; en `/users/me` doet exact wat het moet — 401 zonder token of
 met een vervalst token, en de juiste gebruiker terug bij een geldig
 token.
