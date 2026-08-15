@@ -122,12 +122,20 @@ def change_password(
 # organiseert), dan de eigen georganiseerde activiteiten via ORM db.delete()
 # per activiteit (zodat de bestaande cascade op Activity.participations/
 # messages ook deelnames/berichten van ANDERE gebruikers in die activiteiten
-# meeneemt), pas dan de gebruiker zelf — anders blokkeren de foreign keys
+# meeneemt), pas dan de gebruiker zelf — anders blokkeren de foreign keys.
+# Een beheerdersaccount kan hier niet mee verwijderd worden (zie ook
+# DELETE /admin/users/{user_id} in admin.py, dat om dezelfde reden blokkeert
+# als het doelwit de ingelogde beheerder zelf is)
 @app.delete("/users/me", status_code=status.HTTP_204_NO_CONTENT)
 def delete_current_user(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
+    if current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Een beheerdersaccount kan niet verwijderd worden",
+        )
     db.query(models.Message).filter(models.Message.user_id == current_user.id).delete()
     db.query(models.Participation).filter(models.Participation.user_id == current_user.id).delete()
     for activiteit in db.query(models.Activity).filter(models.Activity.organizer_id == current_user.id):

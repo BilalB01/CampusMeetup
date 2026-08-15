@@ -49,10 +49,9 @@ def get_user_detail(
 # Gebruiker permanent verwijderen -- zelfde volgorde als delete_current_user
 # in main.py (berichten -> deelnames -> eigen activiteiten via db.delete()
 # per activiteit voor de cascade -> user zelf), geparametriseerd op een
-# willekeurige target i.p.v. de ingelogde gebruiker. Een beheerder mag
-# zichzelf hier niet via verwijderen -- daarvoor bestaat al DELETE /users/me
-# op het eigen account (anders kan een beheerder zichzelf per ongeluk
-# buitensluiten)
+# willekeurige target i.p.v. de ingelogde gebruiker. Expliciete check op
+# zichzelf i.p.v. enkel vertrouwen op de is_admin-check in DELETE /users/me:
+# geeft hier een duidelijke foutmelding i.p.v. de generieke van die route
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
     user_id: int,
@@ -62,7 +61,7 @@ def delete_user(
     if user_id == current_admin.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Je kan jezelf hier niet verwijderen -- gebruik daarvoor je eigen accountinstellingen",
+            detail="Een beheerdersaccount kan niet verwijderd worden",
         )
     target = db.get(models.User, user_id)
     if target is None:

@@ -268,17 +268,19 @@ export function InstellingenSecties() {
         </div>
       )}
 
-      <div className="instellingen-sectie">
-        <h2 className="instellingen-sectie-titel">Account verwijderen</h2>
-        <p className="auth-hint">
-          Verwijdert je account definitief, inclusief je eigen georganiseerde activiteiten. Dit kan niet ongedaan
-          gemaakt worden.
-        </p>
-        {verwijderFout && <div className="auth-error">{verwijderFout}</div>}
-        <button type="button" className="profiel-logout" onClick={handleVerwijderen} disabled={verwijderBezig}>
-          {verwijderBezig ? "Bezig..." : "Account verwijderen"}
-        </button>
-      </div>
+      {!user?.is_admin && (
+        <div className="instellingen-sectie">
+          <h2 className="instellingen-sectie-titel">Account verwijderen</h2>
+          <p className="auth-hint">
+            Verwijdert je account definitief, inclusief je eigen georganiseerde activiteiten. Dit kan niet ongedaan
+            gemaakt worden.
+          </p>
+          {verwijderFout && <div className="auth-error">{verwijderFout}</div>}
+          <button type="button" className="profiel-logout" onClick={handleVerwijderen} disabled={verwijderBezig}>
+            {verwijderBezig ? "Bezig..." : "Account verwijderen"}
+          </button>
+        </div>
+      )}
     </>
   );
 }

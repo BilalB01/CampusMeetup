@@ -2634,6 +2634,11 @@
     padding: 0;
     min-width: 70px;
   }
+  .profiel-header-kaart .activiteiten-subtitle {
+    flex: 1;
+    margin: 0;
+    text-align: center;
+  }
   .profiel-header-acties {
     display: flex;
     gap: 10px;
