@@ -4,6 +4,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-yellow.svg)
 
 **CampusMeetup** is een platform waarmee studenten van de Erasmushogeschool
 Brussel (EHB) activiteiten kunnen organiseren en er samen aan kunnen
@@ -35,6 +36,7 @@ live omgeving getest worden.
 - [Interne testaanpak](#interne-testaanpak)
 - [Deployment](#deployment)
 - [Beveiliging](#beveiliging)
+- [Licentie](#licentie)
 - [Credits](#credits)
 
 ## Functionaliteiten
@@ -459,6 +461,10 @@ en het back-upproces voor de database — staat in
 
 Zie [docs/authenticatie.md](docs/authenticatie.md) voor de volledige
 uitleg per mechanisme.
+
+## Licentie
+
+Dit project valt onder de [MIT-licentie](LICENSE).
 
 ## Credits
 
