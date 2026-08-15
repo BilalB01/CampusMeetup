@@ -75,7 +75,7 @@ export default function ActiviteitDetail() {
     setActionLoading(true);
     try {
       await deleteActivity(id, token);
-      navigate(overzichtLink);
+      navigate(heeftTerugGeschiedenis(location) ? -1 : overzichtLink);
     } catch (err) {
       setActionError(err.message);
       setActionLoading(false);
@@ -100,7 +100,7 @@ export default function ActiviteitDetail() {
     setActionLoading(true);
     try {
       await deleteAdminActivity(id, reden, token);
-      navigate(overzichtLink);
+      navigate(heeftTerugGeschiedenis(location) ? -1 : overzichtLink);
     } catch (err) {
       setActionError(err.message);
       setActionLoading(false);

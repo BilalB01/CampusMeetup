@@ -1300,9 +1300,20 @@
    berichtenlijst neemt de resterende hoogte in */
 .chat-scherm {
   height: 100vh;
+  /* .activiteiten-screen (hierboven) zet min-height:100vh -- zonder dit te
+     overschrijven wint die altijd van een kleinere height-waarde (zoals de
+     desktop-correctie hieronder), want min-height clamt height omhoog,
+     ongeacht specificiteit/!important */
+  min-height: 0;
   /* Nog steeds ruimte voor de vaste navigatiebalk onderaan, maar minder
      dan de standaard 96px: het invoerveld mag er dichter bij zitten */
   padding-bottom: 78px;
+  /* Zonder display:flex hebben de flex:1/overflow-y:auto-regels op
+     .chat-scherm-berichten hieronder geen effect op hun parent, waardoor
+     de hele pagina zou meescrollen i.p.v. enkel de berichtenlijst zelf */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .chat-scherm-header {
   display: flex;
@@ -2604,6 +2615,19 @@
   .app-shell--chrome {
     padding-left: 272px;
     padding-top: 72px;
+  }
+
+  /* .chat-scherm's height:100vh (basisregel hierboven) houdt geen rekening
+     met de 72px die .app-shell--chrome hierboven al bovenaan reserveert
+     voor de vaste topbalk -- zonder deze correctie steekt de chat 72px
+     buiten het scherm en scrollt de hele pagina mee i.p.v. enkel de
+     berichtenlijst */
+  .chat-scherm {
+    height: calc(100vh - 72px);
+    /* De 78px padding-bottom uit de basisregel reserveert ruimte voor de
+       mobiele onderbalk (.bottom-nav) -- die staat vanaf hier uit, dus is
+       enkel een kleine ademruimte tot de onderrand van het scherm nodig */
+    padding-bottom: 16px;
   }
 
   .bottom-nav {

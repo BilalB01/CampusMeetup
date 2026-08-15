@@ -309,9 +309,9 @@ de backend draait. Overzicht per groep:
 | Endpoint | Omschrijving |
 |---|---|
 | `GET /activities/{id}/messages` | berichtengeschiedenis ophalen |
-| `POST /activities/{id}/messages` | bericht versturen (optioneel met afbeelding) |
+| `POST /activities/{id}/messages/image` | afbeelding versturen in de chat |
 | `DELETE /activities/{id}/messages/{message_id}` | eigen bericht verwijderen |
-| `WS /activities/{id}/ws` | realtime chatverbinding |
+| `WS /activities/{id}/ws` | realtime chatverbinding — hierlangs gaan tekstberichten (versturen + ontvangen) |
 
 **Admin** (`/admin`, enkel voor beheerders)
 
