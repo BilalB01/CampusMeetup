@@ -142,7 +142,9 @@ class Message(Base):
     # EncryptedText: staat versleuteld in de database, zie app/crypto.py
     content = Column(EncryptedText, nullable=True)
     # Relatief pad zoals teruggegeven door StaticFiles, bv. "/uploads/<uuid>.jpg"
-    image_url = Column(String, nullable=True)
+    # -- versleuteld net als content, zodat een databasedump geen enkel
+    # bestandspad prijsgeeft
+    image_url = Column(EncryptedText, nullable=True)
     created_at = Column(DateTime(timezone=True), default=utcnow)
 
     activity = relationship("Activity", back_populates="messages")

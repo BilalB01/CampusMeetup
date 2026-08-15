@@ -196,8 +196,13 @@ kopiëren, dan stond er alsnog een leesbare tweede kopie van het bericht in
 de (onversleutelde) `notifications`-tabel, en zou de versleuteling van
 `Message.content` weinig voorstellen.
 
-Afbeeldingen (`image_url`) worden **niet** versleuteld — het is gewoon een
-relatief pad zoals `/uploads/<uuid>.jpg`, geen gespreksinhoud.
+`image_url` gebruikt hetzelfde `EncryptedText`-type als `content` — ook een
+bestandspad zoals `/uploads/<uuid>.jpg` verraadt in een databasedump dan
+niets. Dat beschermt enkel het pad zelf: `GET /uploads/<bestand>` (via
+`StaticFiles`, zie `main.py`) blijft een publiek, niet-geauthenticeerd
+endpoint — wie de (ontsleutelde) URL kent, kan de afbeelding ophalen zonder
+deelnemer te zijn. Een willekeurige UUID-bestandsnaam is niet te raden,
+maar dit is bewust geen volwaardige toegangscontrole op de afbeelding zelf.
 
 ## 5. Afbeeldingen versturen
 
@@ -393,6 +398,10 @@ stap vóór het effectief verwijderd wordt.
   betekent wel dat het token in serverlogs of browsergeschiedenis kan
   terechtkomen — een bewust aanvaarde vereenvoudiging voor dit
   schoolproject.
+- **`GET /uploads/<bestand>` heeft geen deelname-check.** Elke geüploade
+  chatafbeelding is een publiek, niet-geauthenticeerd `StaticFiles`-pad
+  (zie §4) — enkel de onvoorspelbare UUID-bestandsnaam houdt een
+  niet-deelnemer tegen, geen echte autorisatie zoals de rest van de chat.
 - **Geen reacties/emoji op berichten, geen threads/replies.**
 
 Dit zijn geen "vergeten" punten maar bewuste keuzes om de scope van dit
