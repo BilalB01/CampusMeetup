@@ -50,8 +50,11 @@ def get_user_detail(
 # in main.py (berichten -> deelnames -> eigen activiteiten via db.delete()
 # per activiteit voor de cascade -> user zelf), geparametriseerd op een
 # willekeurige target i.p.v. de ingelogde gebruiker. Expliciete check op
-# zichzelf i.p.v. enkel vertrouwen op de is_admin-check in DELETE /users/me:
-# geeft hier een duidelijke foutmelding i.p.v. de generieke van die route
+# zichzelf nodig: deze route checkt bij het verwijderen zelf niet of
+# target.is_admin is (een beheerder kan hiermee dus wel een ándere
+# beheerder verwijderen), dus zonder deze check zou een beheerder zichzelf
+# hier nog altijd kunnen verwijderen, los van de aparte check in
+# DELETE /users/me
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_user(
     user_id: int,

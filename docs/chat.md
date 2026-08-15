@@ -363,8 +363,9 @@ als ongelezen meetellen.
   gebruiker die op "verwijderen" klikte.
 
 In `ActiviteitChat.jsx` verschijnt de verwijderknop enkel bij eigen
-berichten (`m.user.id === user.id`), met een `window.confirm(...)` als
-laatste bevestiging vóór het effectief verwijderd wordt.
+berichten (`m.user.id === user.id`), met een eigen gestylede
+bevestigingsmodal (`useConfirm()` uit `ConfirmDialog.jsx`) als laatste
+stap vóór het effectief verwijderd wordt.
 
 ## 9. Gekende beperkingen (bewust, voor nu)
 

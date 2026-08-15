@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { deleteAdminUser, getAdminUserDetail } from "../api/client";
 import Skeleton from "../components/Skeleton";
+import { useConfirm } from "../components/ConfirmDialog";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { formatDateTime } from "../utils/formatDate";
@@ -25,6 +26,7 @@ export default function AdminGebruikerDetail() {
   const navigate = useNavigate();
   const location = useLocation();
   const { token, user } = useAuth();
+  const confirm = useConfirm();
 
   const [target, setTarget] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -51,12 +53,13 @@ export default function AdminGebruikerDetail() {
   }, [id, token]);
 
   async function handleDelete() {
-    if (
-      !window.confirm(
-        `Weet je zeker dat je "${target.name}" permanent wil verwijderen? Dit account, zijn/haar activiteiten en berichten verdwijnen definitief. Dit kan niet ongedaan gemaakt worden.`,
-      )
-    )
-      return;
+    const ok = await confirm({
+      title: "Gebruiker verwijderen?",
+      message: `Weet je zeker dat je "${target.name}" permanent wil verwijderen? Dit account, zijn/haar activiteiten en berichten verdwijnen definitief. Dit kan niet ongedaan gemaakt worden.`,
+      confirmText: "Verwijderen",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await deleteAdminUser(target.id, token);
       navigate("/admin/gebruikers");
@@ -117,20 +120,21 @@ export default function AdminGebruikerDetail() {
           </div>
         </div>
 
-        <p className="activiteiten-subtitle">
-          Lid sinds {formatDateTime(target.created_at)} · Inlog via{" "}
-          {target.auth_provider === "microsoft" ? "Microsoft" : "wachtwoord"}
-        </p>
-
         {error && <div className="auth-error">{error}</div>}
 
-        {target.id !== user?.id && (
-          <div className="profiel-header-acties">
-            <button type="button" className="profiel-logout" onClick={handleDelete}>
-              Gebruiker verwijderen
-            </button>
-          </div>
-        )}
+        <div className="profiel-header-rechts">
+          {target.id !== user?.id && (
+            <div className="profiel-header-acties">
+              <button type="button" className="profiel-logout" onClick={handleDelete}>
+                Gebruiker verwijderen
+              </button>
+            </div>
+          )}
+          <p className="activiteiten-subtitle">
+            Lid sinds {formatDateTime(target.created_at)} · Inlog via{" "}
+            {target.auth_provider === "microsoft" ? "Microsoft" : "wachtwoord"}
+          </p>
+        </div>
       </div>
 
       <div className="profiel-content-grid">

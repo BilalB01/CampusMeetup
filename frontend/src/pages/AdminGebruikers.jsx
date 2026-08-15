@@ -4,6 +4,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { deleteAdminUser, getAdminUsers } from "../api/client";
 import Skeleton from "../components/Skeleton";
 import { useAuth } from "../auth/AuthContext";
+import { useConfirm } from "../components/ConfirmDialog";
 import { heeftTerugGeschiedenis } from "../utils/nav";
 import "./Activiteiten.css";
 
@@ -14,6 +15,7 @@ export default function AdminGebruikers() {
   const navigate = useNavigate();
   const location = useLocation();
   const { token, user } = useAuth();
+  const confirm = useConfirm();
 
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,15 +41,16 @@ export default function AdminGebruikers() {
     };
   }, [token]);
 
-  // Permanent, dus expliciete window.confirm-bevestiging -- zelfde patroon
-  // als eigen account verwijderen (Instellingen.jsx)
+  // Permanent, dus expliciete bevestiging -- zelfde patroon als eigen
+  // account verwijderen (Instellingen.jsx)
   async function handleDeleteUser(target) {
-    if (
-      !window.confirm(
-        `Weet je zeker dat je "${target.name}" permanent wil verwijderen? Dit account, zijn/haar activiteiten en berichten verdwijnen definitief. Dit kan niet ongedaan gemaakt worden.`,
-      )
-    )
-      return;
+    const ok = await confirm({
+      title: "Gebruiker verwijderen?",
+      message: `Weet je zeker dat je "${target.name}" permanent wil verwijderen? Dit account, zijn/haar activiteiten en berichten verdwijnen definitief. Dit kan niet ongedaan gemaakt worden.`,
+      confirmText: "Verwijderen",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await deleteAdminUser(target.id, token);
       setUsers((prev) => prev.filter((u) => u.id !== target.id));
@@ -104,7 +107,13 @@ export default function AdminGebruikers() {
         <ul className="activiteiten-lijst">
           {zichtbareUsers.map((u) => (
             <li key={u.id} className="admin-gebruiker-kaart-wrap">
-              <Link to={`/admin/gebruikers/${u.id}`} className="admin-gebruiker-kaart">
+              {/* Eigen rij linkt naar /profiel i.p.v. de generieke detailpagina --
+                  die laatste toont enkel georganiseerd/deelgenomen, en een
+                  beheerder kan geen van beide (zie activities.py _ensure_not_admin) */}
+              <Link
+                to={u.id === user?.id ? "/profiel" : `/admin/gebruikers/${u.id}`}
+                className="admin-gebruiker-kaart"
+              >
                 <span className="admin-gebruiker-avatar">{u.name?.[0]?.toUpperCase() ?? "?"}</span>
                 <span className="admin-gebruiker-inhoud">
                   <span className="admin-gebruiker-naam">

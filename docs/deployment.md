@@ -65,7 +65,8 @@ en bouwt automatisch bij elke push naar `main`.
 | `JWT_ALGORITHM` | `HS256` |
 | `ALLOWED_ORIGINS` | `https://campusmeetup.site,https://www.campusmeetup.site,https://campusmeetup.vercel.app,http://localhost:5173` (zie §5) |
 | `FRONTEND_URL` | `https://campusmeetup.site` |
-| `RESEND_API_KEY` / `RESEND_FROM_EMAIL` | Eigen Resend-account-key |
+| `RESEND_API_KEY` | Eigen Resend-account-key, beperkt tot "Sending access" en het domein `campusmeetup.site` |
+| `RESEND_FROM_EMAIL` | `verify@campusmeetup.site` — een adres op het eigen geverifieerde domein, **niet** de sandbox-afzender `onboarding@resend.dev` uit `.env.example`. Die sandbox-afzender deelt een streng, gezamenlijk verzendquotum met alle Resend-gebruikers die nog geen eigen domein geverifieerd hebben; bij voldoende testverkeer loopt dat quotum vol en falen registraties met een 503 ("Kon de bevestigingsmail niet versturen"). Op het eigen geverifieerde domein geldt het normale accountquotum |
 | `MICROSOFT_CLIENT_ID` | Zelfde Azure-app-id als lokaal (zie §6) |
 
 **Database**: een aparte PostgreSQL-service binnen hetzelfde Railway-project

@@ -176,9 +176,16 @@ beheerders wegkrijgt.
 De frontend (`AdminGebruikers.jsx`, `AdminGebruikerDetail.jsx`) toont om
 diezelfde reden geen verwijderknop bij de eigen rij (`u.id === user?.id`)
 — in plaats van de gebruiker de knop te laten proberen en dan een 400
-terug te krijgen, staat er gewoon een label "Jij". Verwijderen vraagt
-altijd eerst een `window.confirm()`, met dezelfde bewoording als bij het
-verwijderen van het eigen account.
+terug te krijgen, staat er gewoon een label "Jij". Sterker nog: een klik
+op de eigen rij (zowel in `AdminGebruikers.jsx` als in de "Recent
+geregistreerd"-lijst van `AdminOverzicht.jsx`) linkt rechtstreeks naar
+`/profiel` in plaats van naar de generieke `/admin/gebruikers/:id`-
+detailpagina — die laatste toont enkel "Georganiseerd"/"Deelgenomen", en
+een beheerder kan geen van beide (zie §5). Verwijderen van een ándere
+gebruiker vraagt altijd eerst een bevestiging via `useConfirm()`
+(`ConfirmDialog.jsx`, een eigen gestylede modal — geen `window.confirm()`
+meer), met dezelfde bewoording als bij het verwijderen van het eigen
+account.
 
 ### 3.4 `GET /admin/activities` — alle activiteiten
 
@@ -273,24 +280,30 @@ melding vermeldt expliciet dat een beheerder dit deed, plus de opgegeven
 reden.
 
 Aan de frontend-kant (`AdminActiviteiten.jsx`) wordt de reden opgehaald
-via `window.prompt()` (niet `window.confirm()`, want er is hier echte
-tekstinvoer nodig, geen ja/nee):
+via de `requireInput`-modus van `useConfirm()` (`ConfirmDialog.jsx`) —
+niet de gewone ja/nee-modus, want er is hier echte tekstinvoer nodig:
 
 ```jsx
-const reden = window.prompt(
-  `Waarom wil je "${activity.title}" permanent verwijderen? Dit wordt getoond aan de deelnemers en kan niet ongedaan gemaakt worden.`,
-);
+const reden = await confirm({
+  title: "Activiteit verwijderen",
+  message: `Waarom wil je "${activity.title}" permanent verwijderen? Dit wordt getoond aan de deelnemers en kan niet ongedaan gemaakt worden.`,
+  requireInput: true,
+  inputPlaceholder: "Reden",
+  inputRequiredError: "Geef een reden op.",
+  confirmText: "Verwijderen",
+  danger: true,
+});
 if (reden === null) return; // geannuleerd
-if (!reden.trim()) {
-  window.alert("Geef een reden op.");
-  return;
-}
 ```
 
-Een lege of enkel-witruimte-reden wordt clientside al geweigerd
-(`window.alert`), vóór er een aanvraag naar de server gaat — al zou de
-`min_length=1`-validatie op `AdminActivityDelete.reason` een lege string
-sowieso ook server-side afwijzen.
+Een lege of enkel-witruimte-reden wordt clientside al geweigerd (een
+inline foutmelding in de modal zelf, de dialoog blijft gewoon open),
+vóór er een aanvraag naar de server gaat — al zou de `min_length=1`-
+validatie op `AdminActivityDelete.reason` een lege string sowieso ook
+server-side afwijzen. Hetzelfde `requireInput`-patroon wordt hergebruikt
+in `ActiviteitDetail.jsx` (`handleAdminDelete`), voor wanneer een
+beheerder rechtstreeks vanaf de detailpagina verwijdert i.p.v. vanuit de
+lijst.
 
 ## 4. Waarom is dit *permanent*, en hoe verschilt dat van "verlopen"?
 

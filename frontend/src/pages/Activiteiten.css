@@ -2050,6 +2050,99 @@
   cursor: not-allowed;
 }
 
+/* Bevestigingsmodal (ConfirmDialog.jsx) — vervangt window.confirm/prompt,
+   verschijnt bovenaan het scherm ongeacht welke pagina open staat, hoger
+   dan de meldingstoasts (z-index 60) omdat een actie eerst bevestigd
+   moet worden vóór er nog iets anders zichtbaar mag zijn */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(27, 24, 48, 0.55);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 200;
+  animation: confirm-overlay-in 0.15s ease;
+}
+@keyframes confirm-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.confirm-kaart {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 24px 48px -12px rgba(27, 24, 48, 0.4);
+  animation: confirm-kaart-in 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+@keyframes confirm-kaart-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.confirm-titel {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1b1830;
+  margin: 0 0 8px;
+}
+.confirm-bericht {
+  font-size: 14px;
+  color: #5c5876;
+  line-height: 1.5;
+  margin: 0;
+}
+.confirm-veld {
+  margin-top: 16px;
+}
+.confirm-acties {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+.confirm-annuleer {
+  padding: 11px 18px;
+  border: 1.5px solid #e6e1fb;
+  border-radius: 999px;
+  background: #fff;
+  color: #5c5876;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.confirm-annuleer:hover {
+  background: #f6f3ff;
+}
+.confirm-bevestig {
+  padding: 11px 18px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(140deg, #8b6bff, #6c4ff5);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(108, 79, 245, 0.35);
+}
+.confirm-bevestig--danger {
+  background: #d2483a;
+  box-shadow: 0 8px 20px rgba(210, 72, 58, 0.3);
+}
+
 /* Google Maps: locatiekiezer bij aanmaken, mini-kaart op het
    detailscherm, volledige kaartweergave op de activiteitenlijst */
 .locatie-kaart {
@@ -2634,10 +2727,23 @@
     padding: 0;
     min-width: 70px;
   }
-  .profiel-header-kaart .activiteiten-subtitle {
-    flex: 1;
+  /* Rechterkolom in AdminGebruikerDetail.jsx's headerkaart: verwijderknop
+     op dezelfde hoogte als de naam, lidmaatschapsinfo eronder -- beide
+     rechts uitgelijnd, i.p.v. verticaal gecentreerd zoals de rest van
+     .profiel-header-kaart (align-self i.p.v. het gedeelde align-items
+     aan te passen, want dat zou ook Profiel.jsx's rij raken) */
+  .profiel-header-rechts {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+    margin-left: auto;
+    align-self: flex-start;
+  }
+  .profiel-header-rechts .activiteiten-subtitle {
     margin: 0;
-    text-align: center;
+    text-align: right;
+    font-weight: 600;
   }
   .profiel-header-acties {
     display: flex;

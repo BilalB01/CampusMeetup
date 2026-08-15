@@ -125,7 +125,13 @@ export default function AdminOverzicht() {
         <ul className="activiteiten-lijst">
           {recenteGebruikers.map((u) => (
             <li key={u.id}>
-              <Link to={`/admin/gebruikers/${u.id}`} className="profiel-item">
+              {/* Eigen rij linkt naar /profiel i.p.v. de generieke detailpagina --
+                  die laatste toont enkel georganiseerd/deelgenomen, en een
+                  beheerder kan geen van beide (zie activities.py _ensure_not_admin) */}
+              <Link
+                to={u.id === user?.id ? "/profiel" : `/admin/gebruikers/${u.id}`}
+                className="profiel-item"
+              >
                 <span className="profiel-item-icoon" style={{ background: "#ede8fb" }}>
                   {u.name?.[0]?.toUpperCase() ?? "?"}
                 </span>

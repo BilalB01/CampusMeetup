@@ -13,6 +13,7 @@ import {
   shareActivityByEmail,
 } from "../api/client";
 import Skeleton from "../components/Skeleton";
+import { useConfirm } from "../components/ConfirmDialog";
 import { useAuth } from "../auth/AuthContext";
 import { getCategoryByValue } from "../constants/categories";
 import { PIN_ICON } from "../constants/maps";
@@ -27,6 +28,7 @@ export default function ActiviteitDetail() {
   const navigate = useNavigate();
   const location = useLocation();
   const { token, user } = useAuth();
+  const confirm = useConfirm();
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -62,12 +64,13 @@ export default function ActiviteitDetail() {
   }, [id, token]);
 
   async function handleDelete() {
-    if (
-      !window.confirm(
-        "Weet je zeker dat je deze activiteit wil verwijderen? Dit kan niet ongedaan gemaakt worden.",
-      )
-    )
-      return;
+    const ok = await confirm({
+      title: "Activiteit verwijderen?",
+      message: "Weet je zeker dat je deze activiteit wil verwijderen? Dit kan niet ongedaan gemaakt worden.",
+      confirmText: "Verwijderen",
+      danger: true,
+    });
+    if (!ok) return;
     setActionError("");
     setActionLoading(true);
     try {
@@ -80,21 +83,23 @@ export default function ActiviteitDetail() {
   }
 
   // Verwijderen door een beheerder die zelf geen organisator is -- zelfde
-  // window.prompt-patroon (verplichte reden) als handleDeleteActivity in
+  // verplichte-reden-patroon (via useConfirm) als handleDeleteActivity in
   // AdminActiviteiten.jsx, zodat het ook rechtstreeks vanaf de detailpagina kan
   async function handleAdminDelete() {
-    const reden = window.prompt(
-      `Waarom wil je "${activity.title}" permanent verwijderen? Dit wordt getoond aan de deelnemers en kan niet ongedaan gemaakt worden.`,
-    );
+    const reden = await confirm({
+      title: "Activiteit verwijderen",
+      message: `Waarom wil je "${activity.title}" permanent verwijderen? Dit wordt getoond aan de deelnemers en kan niet ongedaan gemaakt worden.`,
+      requireInput: true,
+      inputPlaceholder: "Reden",
+      inputRequiredError: "Geef een reden op.",
+      confirmText: "Verwijderen",
+      danger: true,
+    });
     if (reden === null) return; // geannuleerd
-    if (!reden.trim()) {
-      window.alert("Geef een reden op.");
-      return;
-    }
     setActionError("");
     setActionLoading(true);
     try {
-      await deleteAdminActivity(id, reden.trim(), token);
+      await deleteAdminActivity(id, reden, token);
       navigate(overzichtLink);
     } catch (err) {
       setActionError(err.message);

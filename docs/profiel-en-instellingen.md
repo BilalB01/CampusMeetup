@@ -145,8 +145,14 @@ Verder verloopt het wijzigen zo:
 
 ## 5. Instellingen: account verwijderen
 
-`DELETE /users/me`, met een client-side `window.confirm()` als laatste
-bevestiging (geen aparte "typ je naam om te bevestigen"-stap). Na succes
+`DELETE /users/me`, met een eigen gestylede bevestigingsmodal
+(`useConfirm()` uit `ConfirmDialog.jsx`, geen native `window.confirm()`
+meer) als laatste stap (geen aparte "typ je naam om te bevestigen"-stap).
+Deze hele sectie is trouwens niet zichtbaar voor een beheerder
+(`{!user?.is_admin && (...)}` in `InstellingenSecties`) — zelfverwijdering
+via deze route wordt sowieso ook backend-side geweigerd voor een
+beheerdersaccount (400), dus de knop zou toch nooit iets kunnen doen.
+Na succes
 wordt eerst genavigeerd naar `/login` (`navigate("/login", {replace:
 true})`) en pas dáárna `logout()` aangeroepen — bewust in die volgorde,
 niet andersom. Reden: zolang deze pagina nog gemount is op het moment dat
@@ -350,9 +356,6 @@ curl -X DELETE http://localhost:8000/users/me \
   [authenticatie.md](authenticatie.md) §11).
 - Geen profielfoto-upload — de avatar is altijd de eerste letter van de
   naam.
-- Bevestigingen bij wijzigingen die niet ongedaan te maken zijn
-  (account verwijderen) verlopen via de native `window.confirm()`, geen
-  eigen modal-component.
 - Geen bevestigingsmail bij het verwijderen van een account — de
   verwijdering is meteen definitief zodra de aanvraag lukt.
 

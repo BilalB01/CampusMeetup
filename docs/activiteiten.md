@@ -173,8 +173,24 @@ Belangrijk: de hook wordt overal aangeroepen met `user?.share_location` als
 `enabled`-parameter. Staat "Locatie delen" uit in de instellingen van de
 gebruiker, dan wordt `navigator.geolocation` **niet eens aangesproken** —
 de browser vraagt dus geen toestemming en er gebeurt geen enkele
-locatie-opvraging. Pas wanneer die instelling aan staat, vraagt de browser
-zelf (via zijn eigen toestemmingsprompt) of de locatie gedeeld mag worden.
+locatie-opvraging.
+
+Staat de instelling wel aan, dan checkt de hook eerst via de Permissions
+API (`navigator.permissions.query({name: "geolocation"})`) of de browser
+al een eerdere keuze onthouden heeft:
+- `"granted"` → meteen `getCurrentPosition` aanroepen, geen extra stap.
+- `"denied"` → bewust stil niets doen, geen dialoog (de browser zou toch
+  zwijgend weigeren).
+- `"prompt"` (nog geen keuze gemaakt) → toont eerst een eigen, gestylede
+  uitleg (`useConfirm()` uit `ConfirmDialog.jsx`) vóórdat de niet-
+  aanpasbare native browserprompt zelf verschijnt. Enkel bij "Toestaan"
+  wordt `getCurrentPosition` effectief aangeroepen. Zonder dit zou de
+  native prompt bij het eerste bezoek onaangekondigd opduiken, zonder dat
+  de gebruiker weet waarom CampusMeetup zijn locatie wil.
+
+Ondersteunt de browser de Permissions API niet voor deze naam (zeldzaam),
+dan valt de hook terug op meteen `getCurrentPosition` aanroepen zonder
+eigen dialoog — hetzelfde gedrag als voorheen.
 
 De afstand zelf wordt berekend met de Haversine-formule
 (`distanceInMeters` in `distance.js`) en in **meters** teruggegeven, niet in

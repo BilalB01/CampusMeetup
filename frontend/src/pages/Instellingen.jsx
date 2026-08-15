@@ -9,6 +9,7 @@ import {
   updateProfile,
 } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { useConfirm } from "../components/ConfirmDialog";
 import "./Activiteiten.css";
 
 // Kleine herbruikbare toggle-switch, gebruikt door de meldingen- en
@@ -43,6 +44,7 @@ function InstellingToggle({ label, sub, checked, onChange }) {
 export function InstellingenSecties() {
   const navigate = useNavigate();
   const { user, token, updateUser, logout } = useAuth();
+  const confirm = useConfirm();
 
   const [naam, setNaam] = useState(user?.name ?? "");
   const [naamOpslaan, setNaamOpslaan] = useState(false);
@@ -135,12 +137,14 @@ export function InstellingenSecties() {
   const [verwijderFout, setVerwijderFout] = useState("");
 
   async function handleVerwijderen() {
-    if (
-      !window.confirm(
+    const ok = await confirm({
+      title: "Account verwijderen?",
+      message:
         "Weet je zeker dat je je account wil verwijderen? Je eigen georganiseerde activiteiten verdwijnen ook. Dit kan niet ongedaan gemaakt worden.",
-      )
-    )
-      return;
+      confirmText: "Verwijderen",
+      danger: true,
+    });
+    if (!ok) return;
     setVerwijderFout("");
     setVerwijderBezig(true);
     try {

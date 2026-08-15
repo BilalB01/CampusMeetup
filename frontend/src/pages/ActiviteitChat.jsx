@@ -4,6 +4,7 @@ import { ArrowLeft, Camera, Send, Trash2 } from "lucide-react";
 import { API_URL, getActivity } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { useActivityChat } from "../hooks/useActivityChat";
+import { useConfirm } from "../components/ConfirmDialog";
 import "./Activiteiten.css";
 
 // Volledige-scherm groepschat, apart van het detailscherm (zelfde
@@ -48,6 +49,7 @@ export default function ActiviteitChat() {
     typingUsers,
     notifyTyping,
   } = useActivityChat(id, token, activity?.is_joined ?? false, user?.id);
+  const confirm = useConfirm();
   const [chatInput, setChatInput] = useState("");
   const chatEndRef = useRef(null);
 
@@ -68,8 +70,14 @@ export default function ActiviteitChat() {
     notifyTyping();
   }
 
-  function handleDeleteMessage(messageId) {
-    if (window.confirm("Dit bericht verwijderen?")) deleteMessage(messageId);
+  async function handleDeleteMessage(messageId) {
+    const ok = await confirm({
+      title: "Bericht verwijderen?",
+      message: "Dit bericht wordt definitief verwijderd.",
+      confirmText: "Verwijderen",
+      danger: true,
+    });
+    if (ok) deleteMessage(messageId);
   }
 
   function handlePickImage(e) {

@@ -4,6 +4,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 import { deleteAdminActivity, getAdminActivities } from "../api/client";
 import ActiviteitRijKaart from "../components/ActiviteitRijKaart";
 import Skeleton from "../components/Skeleton";
+import { useConfirm } from "../components/ConfirmDialog";
 import { useAuth } from "../auth/AuthContext";
 import { CATEGORIES, getCategoryByValue } from "../constants/categories";
 import { heeftTerugGeschiedenis } from "../utils/nav";
@@ -18,6 +19,7 @@ export default function AdminActiviteiten() {
   const navigate = useNavigate();
   const location = useLocation();
   const { token } = useAuth();
+  const confirm = useConfirm();
 
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,20 +46,22 @@ export default function AdminActiviteiten() {
     };
   }, [token, categorieFilter]);
 
-  // Permanent + verplichte reden -- window.prompt i.p.v. window.confirm,
+  // Permanent + verplichte reden -- via useConfirm's requireInput-modus,
   // want er is echte tekstinvoer nodig. De reden komt bij de deelnemers
   // terecht via de melding die de backend verstuurt (routers/admin.py)
   async function handleDeleteActivity(activity) {
-    const reden = window.prompt(
-      `Waarom wil je "${activity.title}" permanent verwijderen? Dit wordt getoond aan de deelnemers en kan niet ongedaan gemaakt worden.`,
-    );
+    const reden = await confirm({
+      title: "Activiteit verwijderen",
+      message: `Waarom wil je "${activity.title}" permanent verwijderen? Dit wordt getoond aan de deelnemers en kan niet ongedaan gemaakt worden.`,
+      requireInput: true,
+      inputPlaceholder: "Reden",
+      inputRequiredError: "Geef een reden op.",
+      confirmText: "Verwijderen",
+      danger: true,
+    });
     if (reden === null) return; // geannuleerd
-    if (!reden.trim()) {
-      window.alert("Geef een reden op.");
-      return;
-    }
     try {
-      await deleteAdminActivity(activity.id, reden.trim(), token);
+      await deleteAdminActivity(activity.id, reden, token);
       setActivities((prev) => prev.filter((a) => a.id !== activity.id));
     } catch (err) {
       setError(err.message);
