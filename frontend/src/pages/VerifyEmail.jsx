@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { verifyEmail } from "../api/client";
 import AuthSplitScreen from "../components/AuthSplitScreen";
@@ -12,37 +12,40 @@ export default function VerifyEmail() {
   const token = searchParams.get("token");
   const navigate = useNavigate();
   const { saveSession } = useAuth();
-  const [status, setStatus] = useState("bezig");
-  const [foutmelding, setFoutmelding] = useState("");
+  // Start bewust NIET automatisch bij het laden van de pagina: een
+  // mailbeveiligingsscanner (bv. Microsoft Defender Safe Links) rendert
+  // binnenkomende links vaak zelf even in een browser om ze te controleren,
+  // en zou een automatische aanroep hier ongemerkt verbruiken vóór de echte
+  // gebruiker de mail ooit opent. Enkel een expliciete klik op de knop
+  // hieronder (die een scanner normaal niet simuleert) start de bevestiging.
+  const [status, setStatus] = useState(token ? "wachten" : "fout");
+  const [foutmelding, setFoutmelding] = useState(token ? "" : "Deze link mist een bevestigingscode.");
 
-  useEffect(() => {
-    if (!token) {
-      setStatus("fout");
-      setFoutmelding("Deze link mist een bevestigingscode.");
-      return;
-    }
-    let cancelled = false;
+  function bevestigen() {
+    setStatus("bezig");
     verifyEmail(token)
       .then((data) => {
-        if (cancelled) return;
         saveSession(data);
         setStatus("gelukt");
         navigate("/", { replace: true });
       })
       .catch((err) => {
-        if (!cancelled) {
-          setStatus("fout");
-          setFoutmelding(err.message);
-        }
+        setStatus("fout");
+        setFoutmelding(err.message);
       });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }
 
   return (
     <AuthSplitScreen>
+      {status === "wachten" && (
+        <>
+          <h1 className="auth-title">Bevestig je e-mailadres</h1>
+          <p className="auth-subtitle">Klik hieronder om je CampusMeetup-account te activeren.</p>
+          <button type="button" className="auth-submit" onClick={bevestigen}>
+            E-mailadres bevestigen
+          </button>
+        </>
+      )}
       {status === "bezig" && (
         <>
           <h1 className="auth-title">Even geduld...</h1>

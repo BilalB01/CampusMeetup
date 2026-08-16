@@ -211,10 +211,15 @@ versie deed. Reden: een kale `GET`-link met een neveneffect kan door
 allerlei tussenlagen automatisch geopend worden vóór de echte gebruiker
 er zelf op klikt — een link-scanner van een mailprovider, een
 "veiligheids"-preview, browser-linkprefetching. Bij een `GET` zou zo'n
-automatische aanroep het eenmalige token al verbruiken. `/verifieer`
-(`VerifyEmail.jsx`) doet deze `POST` nu zelf via JavaScript zodra de
-pagina rendert — iets wat enkel een echte browser doet die de pagina ook
-uitvoert, niet een linkscanner die enkel de kale HTML ophaalt.
+automatische aanroep het eenmalige token al verbruiken.
+
+Die `GET`-naar-`POST`-omzetting alleen bleek niet genoeg: in de praktijk
+bleek Microsoft 365's "Safe Links" (standaard actief op `@student.ehb.be`-
+mailboxen) elke link in een binnenkomende mail zelf te *renderen* —
+inclusief JavaScript uitvoeren — om ze op phishing/malware te controleren.
+Consistent 24 à 36 seconden na elke registratiemail dook er in de
+serverlogs al een geslaagde `POST /auth/verify` op, ruim vóór er van een
+mens sprake kon zijn. Zie §6.4 voor de daaropvolgende fix.
 
 **Eenmalig, ook al blijft het token een uur geldig**: de allereerste
 succesvolle aanroep zet `email_verified` op `True` én geeft een
@@ -228,12 +233,20 @@ iemand erop klikt".
 ### 6.4 Frontend: `/verifieer` (`VerifyEmail.jsx`)
 
 Publieke route (niet achter `ProtectedRoute`) die `?token=` uit de URL
-leest via `useSearchParams`, meteen bij het laden `verifyEmail(token)`
-aanroept (`api/client.js`, de `POST` uit §6.3), en bij succes exact
-hetzelfde doet als een gewone login: `saveSession(data)` +
-`navigate("/", {replace: true})`. Bij een fout (ongeldig/verlopen/al
-gebruikt token) toont de pagina de foutmelding met links naar
-`/register` en `/login`.
+leest via `useSearchParams`. Vuurt de `POST` uit §6.3 **niet** meer
+automatisch af zodra de pagina laadt — enkel een expliciete klik op de
+knop "E-mailadres bevestigen" roept `verifyEmail(token)` aan
+(`api/client.js`). Bij succes gebeurt daarna exact hetzelfde als een
+gewone login: `saveSession(data)` + `navigate("/", {replace: true})`. Bij
+een fout (ongeldig/verlopen/al gebruikt token) toont de pagina de
+foutmelding met links naar `/register` en `/login`.
+
+Deze knop is de eigenlijke fix voor het probleem uit §6.3: een
+mailbeveiligingsscanner rendert een pagina soms wel, maar simuleert
+normaal geen echte klik-interactie. Zolang de bevestiging pas ná een
+klik gebeurt, verbruikt zo'n scanner het token dus niet meer ongemerkt —
+enkel de POST-i.p.v.-GET-omzetting alleen bleek in de praktijk
+onvoldoende bescherming.
 
 ## 7. Wat gebeurt er aan de frontend-kant?
 
